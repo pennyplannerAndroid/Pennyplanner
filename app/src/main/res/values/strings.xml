@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">PennyPlanner</string>
+
+    // Login flow
+
+    <string name="onboarding_header_text_1">Gain total control of your money</string>
+    <string name="onboarding_header_text_2">Know where your money goes</string>
+    <string name="onboarding_header_text_3">Planning ahead</string>
+    <string name="onboarding_body_text_1">Become your own money manager and make every rupee count</string>
+    <string name="onboarding_body_text_2">Track your transaction easily, with categories and financial report</string>
+    <string name="onboarding_body_text_3">Setup your budget for each category so you in control</string>
+
+    <string name="signup">Sign Up</string>
+    <string name="back_to_login">Back to Login</string>
+    <string name="signup_with_google">Sign Up with Google</string>
+    <string name="signup_with_facebook">Sign Up with Facebook</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="login_with_facebook">Login with Facebook</string>
+    <string name="login">Login</string>
+    <string name="forgot_password_text">Forgot Password?</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="signup_from_login">Don\'t have an account?</string>
+    <string name="login_from_signup">Already have an account?</string>
+    <string name="verification">Verification</string>
+    <string name="verify_your_email">Verify Your Email</string>
+    <string name="verify_your_email_body_1">We have sent verification link to your email</string>
+    <string name="verify_your_email_body_2">You can check your inbox.</string>
+    <string name="verify_your_email_body_3">Didn\'t receive the email? Send again.</string>
+    <string name="verify_email_button">Refresh and Proceed</string>
+    <string name="or_with">or with</string>
+    <string name="invalid_email">Invalid email id</string>
+    <string name="invalid_password">Invalid password: must be at least 8 characters long and include a number and a special character.</string>
+    <string name="forgot_password_screen_body">Don’t worry.\nEnter your email and we’ll send you a link to reset your password.</string>
+    <string name="general_continue">Continue</string>
+    <string name="password_reset_body1">Your email is on the way</string>
+    <string name="password_reset_body2">Check your email %s and follow the instructions to reset your password</string>
+
+</resources>

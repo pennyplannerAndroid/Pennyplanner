@@ -78,7 +78,12 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation(libs.volley)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.fragment.ktx)
     kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation(libs.play.services.auth)
 
     implementation(libs.accompanist.permissions.v0290alpha)
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
@@ -91,9 +96,22 @@ dependencies {
     testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
     kaptTest("com.google.dagger:hilt-compiler:2.51.1")
 
-
+    implementation(libs.firebase.database)
+    
     // dependency for the Cloud Storage library
     implementation(libs.firebase.storage)
+
+    //rooms db
+
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+
+    // To use Kotlin Symbol Processing (KSP)
+    kapt(libs.androidx.room.compiler)
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation(libs.androidx.room.ktx)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

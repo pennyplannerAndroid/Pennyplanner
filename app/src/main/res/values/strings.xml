@@ -19,6 +19,8 @@
     <string name="login">Login</string>
     <string name="forgot_password_text">Forgot Password?</string>
     <string name="forgot_password">Forgot Password?</string>
+    <string name="password">Password</string>
+    <string name="show_password">Show Password</string>
     <string name="signup_from_login">Don\'t have an account?</string>
     <string name="login_from_signup">Already have an account?</string>
     <string name="verification">Verification</string>
@@ -28,11 +30,27 @@
     <string name="verify_your_email_body_3">Didn\'t receive the email? Send again.</string>
     <string name="verify_email_button">Refresh and Proceed</string>
     <string name="or_with">or with</string>
+    <string name="email">Email</string>
     <string name="invalid_email">Invalid email id</string>
     <string name="invalid_password">Invalid password: must be at least 8 characters long and include a number and a special character.</string>
     <string name="forgot_password_screen_body">Don’t worry.\nEnter your email and we’ll send you a link to reset your password.</string>
     <string name="general_continue">Continue</string>
     <string name="password_reset_body1">Your email is on the way</string>
     <string name="password_reset_body2">Check your email %s and follow the instructions to reset your password</string>
+    <string name="web_client_id_for_google">AIzaSyDLiUS2bO-mnwG7KfmgR9VQtSInKlNRje4</string>
+    <string name="profile_update_header">Let\'s setup your account</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="delete">Delete</string>
+    <string name="selected">Selected</string>
+    <string name="retry_verification">"Verification failed! Please try again."</string>
+    <string name="invalid_user">"Invalid User"</string>
+    <string name="operation_failed">"Operation failed! Please try again."</string>
+    <string name="email_resent">"Email resent!"</string>
+    <string name="email_not_verified">"Email not verified!"</string>
+    <string name="permission_granted">"Permission Granted!"</string>
+    <string name="permission_denied">"Permission Denied!"</string>
+    <string name="name">"Name"</string>
+    <string name="get_started">"Get started"</string>
 
 </resources>

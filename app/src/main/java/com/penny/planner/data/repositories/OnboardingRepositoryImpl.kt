@@ -1,0 +1,113 @@
+package com.penny.planner.data.repositories
+
+import android.net.Uri
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.models.FirebaseUser
+import com.penny.planner.models.LoginResultModel
+import com.penny.planner.models.firebase.UserModel
+import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+
+class OnboardingRepositoryImpl @Inject constructor(
+    private val auth: FirebaseAuth
+) : OnboardingRepository {
+
+    private val directoryReference = FirebaseDatabase.getInstance().getReference("Users")
+    private val storage = FirebaseStorage.getInstance()
+
+    override suspend fun login(firebaseUser: FirebaseUser): Result<LoginResultModel> {
+        return try {
+            val result = auth.signInWithEmailAndPassword(firebaseUser.email, firebaseUser.password).await()
+            val user = result.user ?: throw Exception("Failed")
+            Result.success(LoginResultModel(user.isEmailVerified))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun signup(email: String, password: String): Result<Boolean> {
+        return try {
+            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val user = result.user ?: throw Exception("Failed")
+            user.sendEmailVerification()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateProfile(name: String, byteArray: ByteArray?): Result<Boolean> {
+        return try {
+            if (auth.currentUser == null)
+                throw Exception("Failed")
+            val email = auth.currentUser?.email ?: ""
+            val id = auth.currentUser?.uid ?: ""
+            var downloadPath: Uri? = null
+            if (byteArray != null) {
+                val storageRef = storage.getReference("UserImage").child(id)
+                downloadPath = storageRef
+                    .putBytes(byteArray)
+                    .await()
+                    .storage
+                    .downloadUrl
+                    .await()
+            }
+            val profileUpdate = UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .setPhotoUri(downloadPath)
+                .build()
+            auth.currentUser?.updateProfile(profileUpdate)?.await()
+            directoryReference.child(id).setValue(UserModel(email, name,
+                downloadPath?.toString() ?: "", id)).await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun sendVerificationEmail() : Result<Boolean> {
+        if (auth.currentUser == null) {
+            return Result.failure(Exception("User not found"))
+        }
+        return suspendCoroutine { continuation ->
+            auth.currentUser!!.sendEmailVerification()
+                .addOnSuccessListener {
+                    continuation.resume(Result.success(true))
+                }.addOnFailureListener {
+                    continuation.resume(Result.failure(it))
+                }
+        }
+    }
+
+    override suspend fun isEmailVerified(): Result<Boolean> {
+        return try {
+            auth.currentUser?.reload()?.await()
+            if (auth.currentUser?.isEmailVerified == true) {
+                Result.success(true)
+            } else
+                throw Exception("failed")
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun sendPasswordResetEmail(email: String) : Result<Boolean> {
+        return suspendCoroutine {  continuation ->
+            auth.sendPasswordResetEmail(email).addOnSuccessListener {
+                continuation.resume(Result.success(true))
+            }.addOnFailureListener {
+                continuation.resume(Result.failure(it))
+            }
+        }
+    }
+
+    override fun getEmailId(): String {
+        return auth.currentUser?.email ?: ""
+    }
+
+}

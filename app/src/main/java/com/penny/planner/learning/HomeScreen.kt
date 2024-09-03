@@ -35,6 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.penny.planner.R
+import com.penny.planner.ui.components.FullScreenProgressIndicator
+import com.penny.planner.ui.components.OutLinedTextFieldForEmail
+import com.penny.planner.ui.components.PrimaryButton
+import com.penny.planner.ui.components.TextFieldErrorIndicator
 import com.penny.planner.viewmodels.MainActivityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,90 +73,27 @@ fun HomeScreen (
                     fontSize = 22.sp,
                     color = colorResource(id = R.color.black)
                 )
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = colorResource(id = R.color.textField_border),
-                        focusedBorderColor = colorResource(
-                            id = if (Patterns.EMAIL_ADDRESS.matcher(email).matches())
-                                R.color.loginText else
-                                R.color.red
-                        )
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    value = email,
-                    onValueChange = { email = it },
-                    label = {
-                        Text("Email")
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-                )
-                if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    Row (
-                        modifier = Modifier
-                            .padding(start = 20.dp, end = 20.dp, top = 4.dp)
-                            .animateContentSize()
-                    ) {
-                        Image(
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(end = 8.dp),
-                            painter = painterResource(id = R.drawable.error_image),
-                            contentDescription = "invalid"
-                        )
-                        Text(
-                            text = stringResource(id = R.string.invalid_email),
-                            color = colorResource(id = R.color.red)
-                        )
-                    }
+                OutLinedTextFieldForEmail(modifier = Modifier, email = email) {
+                    email = it
                 }
-                Button(
+                TextFieldErrorIndicator(
+                    modifier = Modifier,
+                    textRes = R.string.invalid_email,
+                    show = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()
+                )
+                PrimaryButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
-                        .size(48.dp),
+                        .size(48.dp), 
+                    textRes = R.string.new_group,
                     onClick = {
                         check = true
                         viewModel.newGroup(email)
                     },
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = (
-                            Patterns.EMAIL_ADDRESS.matcher(email).matches()
-                            )
-                ) {
-                    Text(
-                        text = "New Group",
-                        fontSize = 16.sp
-                    )
-                }
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
-                        .size(48.dp),
-                    onClick = startService,
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text(
-                        text = "Start Foreground service",
-                        fontSize = 16.sp
-                    )
-                }
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
-                        .size(48.dp),
-                    onClick = endService,
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text(
-                        text = "Stop Foreground service",
-                        fontSize = 16.sp
-                    )
-                }
+                    enabled = Patterns.EMAIL_ADDRESS.matcher(email).matches()
+                )
+                FullScreenProgressIndicator(show = check)
             }
         }
     )

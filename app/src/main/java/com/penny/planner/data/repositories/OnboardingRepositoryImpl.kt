@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.Utils
 import com.penny.planner.models.FirebaseUser
 import com.penny.planner.models.LoginResultModel
 import com.penny.planner.models.firebase.UserModel
@@ -17,13 +18,13 @@ class OnboardingRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
 ) : OnboardingRepository {
 
-    private val directoryReference = FirebaseDatabase.getInstance().getReference("Users")
+    private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val storage = FirebaseStorage.getInstance()
 
     override suspend fun login(firebaseUser: FirebaseUser): Result<LoginResultModel> {
         return try {
             val result = auth.signInWithEmailAndPassword(firebaseUser.email, firebaseUser.password).await()
-            val user = result.user ?: throw Exception("Failed")
+            val user = result.user ?: throw Exception(Utils.FAILED)
             Result.success(LoginResultModel(user.isEmailVerified))
         } catch (e: Exception) {
             Result.failure(e)
@@ -33,7 +34,7 @@ class OnboardingRepositoryImpl @Inject constructor(
     override suspend fun signup(email: String, password: String): Result<Boolean> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
-            val user = result.user ?: throw Exception("Failed")
+            val user = result.user ?: throw Exception(Utils.FAILED)
             user.sendEmailVerification()
             Result.success(true)
         } catch (e: Exception) {
@@ -44,12 +45,12 @@ class OnboardingRepositoryImpl @Inject constructor(
     override suspend fun updateProfile(name: String, byteArray: ByteArray?): Result<Boolean> {
         return try {
             if (auth.currentUser == null)
-                throw Exception("Failed")
+                throw Exception(Utils.FAILED)
             val email = auth.currentUser?.email ?: ""
             val id = auth.currentUser?.uid ?: ""
             var downloadPath: Uri? = null
             if (byteArray != null) {
-                val storageRef = storage.getReference("UserImage").child(id)
+                val storageRef = storage.getReference(Utils.USER_IMAGE).child(id)
                 downloadPath = storageRef
                     .putBytes(byteArray)
                     .await()
@@ -62,8 +63,13 @@ class OnboardingRepositoryImpl @Inject constructor(
                 .setPhotoUri(downloadPath)
                 .build()
             auth.currentUser?.updateProfile(profileUpdate)?.await()
-            directoryReference.child(id).setValue(UserModel(email, name,
-                downloadPath?.toString() ?: "", id)).await()
+            directoryReference.child(id).child(Utils.USER_INFO).setValue(
+                UserModel(
+                    email,
+                    name,
+                    downloadPath?.toString() ?: "", id
+                )
+            ).await()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -71,9 +77,8 @@ class OnboardingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendVerificationEmail() : Result<Boolean> {
-        if (auth.currentUser == null) {
-            return Result.failure(Exception("User not found"))
-        }
+        if (auth.currentUser == null)
+            return Result.failure(Exception(Utils.USER_NOT_FOUND))
         return suspendCoroutine { continuation ->
             auth.currentUser!!.sendEmailVerification()
                 .addOnSuccessListener {
@@ -90,7 +95,7 @@ class OnboardingRepositoryImpl @Inject constructor(
             if (auth.currentUser?.isEmailVerified == true) {
                 Result.success(true)
             } else
-                throw Exception("failed")
+                throw Exception(Utils.FAILED)
         } catch (e: Exception) {
             Result.failure(e)
         }

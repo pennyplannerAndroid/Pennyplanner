@@ -8,7 +8,9 @@ import com.penny.planner.data.repositories.OnboardingRepository
 import com.penny.planner.models.FirebaseUser
 import com.penny.planner.models.LoginResultModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,8 +80,11 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun updateProfile(name: String, byteArray: ByteArray?) {
-        viewModelScope.launch {
-            _profileUpdateResult.value = repository.updateProfile(name, byteArray)
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = repository.updateProfile(name, byteArray)
+            withContext(Dispatchers.Main) {
+                _profileUpdateResult.value = result
+            }
         }
     }
 

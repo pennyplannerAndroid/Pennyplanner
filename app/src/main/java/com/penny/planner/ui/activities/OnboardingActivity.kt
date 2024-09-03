@@ -47,11 +47,7 @@ class OnboardingActivity : ComponentActivity() {
     @Composable
     fun OnboardingNavigation() {
         val viewModel = hiltViewModel<OnboardingViewModel>()
-        val state = viewModel.profileUpdateResult.observeAsState().value
-        if (state != null && state.isSuccess) {
-            startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
-            finish()
-        }
+
         val controller = rememberNavController()
         NavHost(navController = controller, startDestination = startDestination) {
             composable(route = Utils.TUTORIAL) {
@@ -146,8 +142,10 @@ class OnboardingActivity : ComponentActivity() {
             }
             composable(route = Utils.UPDATE_PROFILE) {
                 UpdateProfileScreen(
-                    buttonClicked = { name, byteArray ->
-                        viewModel.updateProfile(name, byteArray)
+                    viewModel = viewModel,
+                    buttonClicked = {
+                        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                        finish()
                     }
                 )
             }

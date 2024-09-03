@@ -2,6 +2,7 @@ package com.penny.planner
 
 class Utils {
     companion object Navigation {
+
         // Onboarding Navigation
         const val TUTORIAL = "tutorial"
         const val LOGIN = "login"
@@ -17,10 +18,20 @@ class Utils {
         const val NAVIGATION_DESTINATION = "navigation_destination"
         const val CLICK_TAG = "click_tag"
 
+        //Errors
+        const val FAILED = "Operation Failed"
+        const val USER_NOT_FOUND = "User not found"
+
         // regex
         private const val SPECIAL_CHARACTERS = "-@%\\[\\}+'!/#$^?:;,\\(\"\\)~`.*=&\\{>\\]<_"
         const val PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[$SPECIAL_CHARACTERS])(?=\\S+$).{8,20}$"
 
         const val PROVIDER = "com.penny.planner.provider"
+
+        // firebase paths
+        const val USERS = "Users"
+        const val USER_INFO = "UserInfo"
+        const val USER_IMAGE = "UserImage"
+
     }
 }

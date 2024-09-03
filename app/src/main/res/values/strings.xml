@@ -52,5 +52,6 @@
     <string name="permission_denied">"Permission Denied!"</string>
     <string name="name">"Name"</string>
     <string name="get_started">"Get started"</string>
+    <string name="new_group">"New Group"</string>
 
 </resources>

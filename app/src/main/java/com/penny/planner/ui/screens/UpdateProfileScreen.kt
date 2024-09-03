@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,10 +62,14 @@ import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.google.firebase.auth.FirebaseAuth
 import com.penny.planner.R
 import com.penny.planner.Utils
+import com.penny.planner.data.repositories.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.BottomDrawer
+import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
+import com.penny.planner.viewmodels.OnboardingViewModel
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.DateFormat.getDateTimeInstance
@@ -73,7 +78,8 @@ import java.util.Objects
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun UpdateProfileScreen (
-    buttonClicked : (String, ByteArray?) -> Unit
+    viewModel: OnboardingViewModel,
+    buttonClicked : () -> Unit
 ) {
     var name by remember {
         mutableStateOf("")
@@ -85,7 +91,9 @@ fun UpdateProfileScreen (
         mutableStateOf<Uri?>(null)
     }
     val picture = remember { Picture() }
-
+    var showLoader by remember {
+        mutableStateOf(false)
+    }
     val headerBoxHeight = LocalConfiguration.current.screenHeightDp / 3
     val context = LocalContext.current
     val view = LocalView.current
@@ -95,6 +103,20 @@ fun UpdateProfileScreen (
         Objects.requireNonNull(context),
         Utils.PROVIDER, file
     )
+
+    val state = viewModel.profileUpdateResult.observeAsState().value
+    if (state != null) {
+        showLoader = false
+        if (state.isSuccess)
+            buttonClicked.invoke()
+        else if (state.isFailure)
+            Toast.makeText(
+                context,
+                state.exceptionOrNull()?.message ?: stringResource(id = R.string.operation_failed),
+                Toast.LENGTH_LONG
+            ).show()
+    }
+
     SideEffect {
         val window = (context as Activity).window
         WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
@@ -227,10 +249,15 @@ fun UpdateProfileScreen (
                 .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                 .size(48.dp),
             textRes = R.string.get_started,
-            onClick = { buttonClicked(name, if (imageUri != null) createBitmapFromPicture(picture) else null) },
+            onClick = {
+                showLoader = true
+                val byteArray = if (imageUri != null) createBitmapFromPicture(picture) else null
+                viewModel.updateProfile(name, byteArray)
+            },
             enabled = true
         )
     }
+    FullScreenProgressIndicator(show = showLoader)
     val texts = if (imageUri != null)
         listOf(
             stringResource(id = R.string.gallery),
@@ -308,8 +335,5 @@ private fun createBitmapFromPicture(picture: Picture): ByteArray {
 @Preview
 @Composable
 fun UpdateProfile() {
-    UpdateProfileScreen()
-    { _, _ ->
-
-    }
+    UpdateProfileScreen(OnboardingViewModel(OnboardingRepositoryImpl(FirebaseAuth.getInstance()))) {}
 }

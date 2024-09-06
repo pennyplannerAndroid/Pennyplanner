@@ -1,4 +1,4 @@
-package com.penny.planner.ui.screens
+package com.penny.planner.ui.screens.onboarding
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable

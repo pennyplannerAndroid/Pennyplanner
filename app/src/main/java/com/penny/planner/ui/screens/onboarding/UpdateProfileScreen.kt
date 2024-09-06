@@ -1,10 +1,8 @@
-package com.penny.planner.ui.screens
+package com.penny.planner.ui.screens.onboarding
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.Picture
 import android.net.Uri
 import android.widget.Toast
@@ -72,9 +70,6 @@ import com.penny.planner.ui.components.BottomDrawer
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.viewmodels.OnboardingViewModel
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.text.DateFormat.getDateTimeInstance
 import java.util.Objects
 
 @OptIn(ExperimentalGlideComposeApi::class)

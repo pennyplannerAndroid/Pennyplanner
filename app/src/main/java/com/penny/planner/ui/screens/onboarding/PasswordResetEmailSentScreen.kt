@@ -1,4 +1,4 @@
-package com.penny.planner.ui.screens
+package com.penny.planner.ui.screens.onboarding
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

@@ -1,4 +1,4 @@
-package com.penny.planner.ui.screens
+package com.penny.planner.ui.screens.onboarding
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
@@ -17,67 +17,66 @@ import com.penny.planner.data.repositories.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.SignupAndLoginComposable
 import com.penny.planner.ui.components.buildText
-import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.OnboardingViewModel
 
 @Composable
-fun SignupScreen(
+fun LoginScreen(
     modifier : Modifier,
     viewModel: OnboardingViewModel,
     onBackPressed : () -> Unit,
-    navToLogin : () -> Unit,
+    forgotPassword : () -> Unit,
+    navToSignup : () -> Unit,
+    loginSuccess: () -> Unit,
     navToVerification: (String) -> Unit
-    ) {
+) {
     var email by remember { mutableStateOf("") }
+    val result = viewModel.loginResult.observeAsState().value
     var isLoadingShown by remember {
         mutableStateOf(false)
     }
-    val isLoggedIn = viewModel.signUpResult.observeAsState().value
-    if (isLoggedIn != null && isLoadingShown) {
-        if (isLoggedIn.isSuccess) {
-            navToVerification.invoke(email)
-        } else
-            Toast.makeText(
-                LocalContext.current,
-                isLoggedIn.exceptionOrNull()?.message ?: stringResource(id = R.string.retry_verification),
-                Toast.LENGTH_LONG
-            ).show()
+    val context = LocalContext.current
+    if (result != null && isLoadingShown) {
+        isLoadingShown = false
+        if (result.isSuccess) {
+            if (result.getOrNull()!!.isEmailVerified)
+                loginSuccess.invoke()
+            else
+                navToVerification.invoke(email)
+        } else {
+            Toast.makeText(context, result.exceptionOrNull()?.message ?: stringResource(id = R.string.invalid_user), Toast.LENGTH_LONG).show()
+        }
     }
-    FullScreenProgressIndicator(isLoadingShown)
-
     SignupAndLoginComposable(
         modifier = modifier,
-        title = stringResource(id = R.string.signup),
-        googleButtonString = stringResource(id = R.string.signup_with_google),
-        facebookButtonString = stringResource(id = R.string.signup_with_facebook),
+        title = stringResource(id = R.string.login),
+        googleButtonString = stringResource(id = R.string.login_with_google),
+        facebookButtonString = stringResource(id = R.string.login_with_facebook),
         mainButtonString = R.string.signup,
         text = buildText(
-            start = R.string.login_from_signup,
-            end = R.string.login
+            start = R.string.signup_from_login,
+            end = R.string.signup
         ),
+        needForgotPassword = true,
         onBackPressed = onBackPressed,
         buttonClicked = { emailId, password ->
             isLoadingShown = true
             email = emailId
-            viewModel.signup(emailId, password)
+            viewModel.login(emailId, password)
         },
         googleButtonClicked = {
-            viewModel.signupWithGoogle()
+            viewModel.loginWithGoogle()
         },
         facebookButtonClicked = {
-            viewModel.signupWithFacebook()
+            viewModel.loginWithFacebook()
         },
-        navigationButtonClicked = navToLogin
+        navigationButtonClicked = navToSignup,
+        forgotPasswordClicked = forgotPassword
     )
+    FullScreenProgressIndicator(show = isLoadingShown)
 }
 
-@Preview
 @Composable
-fun PreviewSignupScreen() {
-    PennyPlannerTheme {
-        SignupScreen(
-            modifier = Modifier,
-            OnboardingViewModel(OnboardingRepositoryImpl(FirebaseAuth.getInstance())),
-            {}, {}) {}
-    }
+@Preview
+fun PreviewLogin() {
+    LoginScreen(modifier = Modifier, OnboardingViewModel(OnboardingRepositoryImpl(FirebaseAuth.getInstance())), {}, {}, {}, {}, {})
 }

@@ -64,8 +64,10 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.auth.FirebaseAuth
 import com.penny.planner.R
-import com.penny.planner.Utils
+import com.penny.planner.helpers.Utils
 import com.penny.planner.data.repositories.OnboardingRepositoryImpl
+import com.penny.planner.helpers.Utils.Navigation.createBitmapFromPicture
+import com.penny.planner.helpers.createImageFile
 import com.penny.planner.ui.components.BottomDrawer
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
@@ -305,31 +307,6 @@ class CustomShape : Shape {
         }
         return Outline.Generic(path)
     }
-}
-
-fun Context.createImageFile(): File {
-    val timeStamp = getDateTimeInstance()
-    val imageFileName = "JPEG_" + timeStamp + "_"
-    val image = File.createTempFile(
-        imageFileName,
-        ".jpg",
-        externalCacheDir
-    )
-    return image
-}
-
-private fun createBitmapFromPicture(picture: Picture): ByteArray {
-    val bitmap = Bitmap.createBitmap(
-        picture.width,
-        picture.height,
-        Bitmap.Config.ARGB_8888
-    )
-    val canvas = android.graphics.Canvas(bitmap)
-    canvas.drawColor(android.graphics.Color.WHITE)
-    canvas.drawPicture(picture)
-    val byteArrayStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayStream)
-    return byteArrayStream.toByteArray()
 }
 
 @Preview

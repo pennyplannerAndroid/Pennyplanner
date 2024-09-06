@@ -26,8 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.penny.planner.R
-import com.penny.planner.Utils
-import com.penny.planner.models.FirebaseUser
+import com.penny.planner.helpers.Utils
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import java.util.regex.Pattern
 
@@ -41,7 +40,7 @@ fun SignupAndLoginComposable(
     text: AnnotatedString,
     needForgotPassword: Boolean = false,
     onBackPressed : () -> Unit,
-    buttonClicked : (FirebaseUser) -> Unit,
+    buttonClicked : (String, String) -> Unit,
     googleButtonClicked : () -> Unit,
     facebookButtonClicked : () -> Unit,
     navigationButtonClicked: () -> Unit,
@@ -111,7 +110,7 @@ fun SignupAndLoginComposable(
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                         .size(48.dp),
-                    onClick = { buttonClicked.invoke(FirebaseUser(email, password)) },
+                    onClick = { buttonClicked.invoke(email, password) },
                     enabled = (
                             Patterns.EMAIL_ADDRESS.matcher(email).matches()
                                     && pattern.matcher(password).matches()
@@ -180,7 +179,7 @@ fun PreviewSignUpLoginScreen() {
             ),
             false,
             {},
-            {},
+            {name, email -> },
             {},
             {},
             {}

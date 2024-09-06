@@ -53,5 +53,6 @@
     <string name="name">"Name"</string>
     <string name="get_started">"Get started"</string>
     <string name="new_group">"New Group"</string>
+    <string name="group_same_email_error">"You can't make group with your own!"</string>
 
 </resources>

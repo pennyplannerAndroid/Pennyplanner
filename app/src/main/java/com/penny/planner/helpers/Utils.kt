@@ -1,4 +1,8 @@
-package com.penny.planner
+package com.penny.planner.helpers
+
+import android.graphics.Bitmap
+import android.graphics.Picture
+import java.io.ByteArrayOutputStream
 
 class Utils {
     companion object Navigation {
@@ -17,6 +21,7 @@ class Utils {
         const val DEFAULT_EMAIL_STRING = "@"
         const val NAVIGATION_DESTINATION = "navigation_destination"
         const val CLICK_TAG = "click_tag"
+        const val USER = "User"
 
         //Errors
         const val FAILED = "Operation Failed"
@@ -32,6 +37,27 @@ class Utils {
         const val USERS = "Users"
         const val USER_INFO = "UserInfo"
         const val USER_IMAGE = "UserImage"
+        const val GROUPS = "Groups"
+        const val PENDING = "Pending"
+        const val JOINED = "JOINED"
+
+        fun formatEmailForFirebase(email: String): String {
+            return email.replace('.', ',')
+        }
+
+        fun createBitmapFromPicture(picture: Picture): ByteArray {
+            val bitmap = Bitmap.createBitmap(
+                picture.width,
+                picture.height,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = android.graphics.Canvas(bitmap)
+            canvas.drawColor(android.graphics.Color.WHITE)
+            canvas.drawPicture(picture)
+            val byteArrayStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayStream)
+            return byteArrayStream.toByteArray()
+        }
 
     }
 }

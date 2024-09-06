@@ -9,7 +9,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import com.penny.planner.R
-import com.penny.planner.Utils
+import com.penny.planner.helpers.Utils
 
 @Composable
 fun buildText(start : Int, end: Int) : AnnotatedString {

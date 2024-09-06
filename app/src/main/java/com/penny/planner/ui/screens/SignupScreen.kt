@@ -56,10 +56,10 @@ fun SignupScreen(
             end = R.string.login
         ),
         onBackPressed = onBackPressed,
-        buttonClicked = { user ->
+        buttonClicked = { emailId, password ->
             isLoadingShown = true
-            email = user.email
-            viewModel.signup(user)
+            email = emailId
+            viewModel.signup(emailId, password)
         },
         googleButtonClicked = {
             viewModel.signupWithGoogle()

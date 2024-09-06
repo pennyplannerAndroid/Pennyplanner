@@ -9,7 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.auth.FirebaseAuth
-import com.penny.planner.Utils
+import com.penny.planner.helpers.Utils
+import com.penny.planner.learning.MainActivity2
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,6 +22,9 @@ class MainActivity : ComponentActivity() {
         if (navToOnboardingIfNeeded()) {
             finish()
             return
+        } else {
+            startActivity(Intent(this, MainActivity2::class.java))
+            finish()
         }
         enableEdgeToEdge()
         setContent {

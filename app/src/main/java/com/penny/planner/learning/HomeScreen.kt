@@ -1,6 +1,7 @@
 package com.penny.planner.learning
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,10 +12,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,21 +26,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.penny.planner.R
+import com.penny.planner.models.GroupModel
+import com.penny.planner.ui.components.FriendInfoCard
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.OutLinedTextFieldForEmail
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldErrorIndicator
+import com.penny.planner.ui.screens.AddNewGroupDrawer
 import com.penny.planner.viewmodels.MainActivityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen (
-    startService: () -> Unit,
-    endService: () -> Unit
-){
+fun HomeScreen (){
     var email by remember { mutableStateOf("") }
     var check by remember { mutableStateOf(false) }
     val viewModel = hiltViewModel<MainActivityViewModel>()
+    val friendResult = viewModel.searchEmailResult.observeAsState().value
+    var createGroup by remember {
+        mutableStateOf(false)
+    }
+    var friends by remember {
+        mutableStateOf(listOf<String>())
+    }
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -69,6 +80,18 @@ fun HomeScreen (
                     textRes = R.string.invalid_email,
                     show = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()
                 )
+                if (friendResult != null && friendResult.isSuccess) {
+                    val friend = friendResult.getOrNull()
+                    if (friend != null) {
+                        friends = listOf(friend.email!!)
+                        FriendInfoCard(
+                            modifier = Modifier,
+                            model = friend,
+                            onCLick = { createGroup = true }) {
+                                viewModel.resetFoundFriend()
+                        }
+                    }
+                }
                 PrimaryButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -76,12 +99,19 @@ fun HomeScreen (
                         .size(48.dp), 
                     textRes = R.string.new_group,
                     onClick = {
-                        check = true
-                        viewModel.newGroup(email)
+                        if (email != viewModel.getEmail()) {
+                            check = true
+                            viewModel.findUser(email)
+                        } else
+                            Toast.makeText(context, context.resources.getString(R.string.group_same_email_error), Toast.LENGTH_SHORT).show()
                     },
                     enabled = Patterns.EMAIL_ADDRESS.matcher(email).matches()
                 )
                 FullScreenProgressIndicator(show = check)
+            }
+            AddNewGroupDrawer(onClose = { createGroup = false }, showSheet = createGroup) { name, imageArray, imageUri ->
+                viewModel.newGroup(GroupModel(name = name, path = imageUri, members = friends), imageArray)
+
             }
         }
     )
@@ -90,5 +120,5 @@ fun HomeScreen (
 @Preview
 @Composable
 fun PreviewHomeScreen() {
-    HomeScreen({}, {})
+    HomeScreen()
 }

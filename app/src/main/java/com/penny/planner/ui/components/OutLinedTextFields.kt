@@ -24,7 +24,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.penny.planner.R
-import com.penny.planner.Utils
+import com.penny.planner.helpers.Utils
 import java.util.regex.Pattern
 
 @Composable

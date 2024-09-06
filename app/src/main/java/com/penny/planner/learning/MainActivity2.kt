@@ -13,7 +13,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import com.penny.planner.learning.service.TestForegroundService
 import com.penny.planner.ui.theme.PennyPlannerTheme
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
+@AndroidEntryPoint
 class MainActivity2 : ComponentActivity() {
 
     private val serviceIntent by lazy {
@@ -56,21 +59,7 @@ class MainActivity2 : ComponentActivity() {
 
         setContent {
             PennyPlannerTheme {
-                HomeScreen(
-                    startService = {
-                        Intent(this, TestForegroundService::class.java).also {
-                            it.action = TestForegroundService.Action.START.toString()
-                            startService(it)
-                        }
-                    },
-                    endService = {
-                        Intent(this, TestForegroundService::class.java).also {
-                            it.action = TestForegroundService.Action.END.toString()
-                            startService(it)
-                        }
-                    }
-
-                )
+                HomeScreen()
             }
         }
     }

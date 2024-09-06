@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.repositories.OnboardingRepository
-import com.penny.planner.models.FirebaseUser
 import com.penny.planner.models.LoginResultModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,9 +34,9 @@ class OnboardingViewModel @Inject constructor(
     private val _forgetPasswordSentStatus = MutableLiveData<Result<Boolean>>()
     val forgetPasswordSentStatus = _forgetPasswordSentStatus
 
-    fun login(firebaseUser: FirebaseUser) {
+    fun login(email: String, password: String) {
         viewModelScope.launch {
-            _loginResult.value = repository.login(firebaseUser)
+            _loginResult.value = repository.login(email, password)
         }
     }
 
@@ -49,9 +48,9 @@ class OnboardingViewModel @Inject constructor(
 
     }
 
-    fun signup(user: FirebaseUser) {
+    fun signup(email: String, password: String) {
         viewModelScope.launch {
-            _signupResult.value = repository.signup(user.email, user.password)
+            _signupResult.value = repository.signup(email, password)
         }
     }
 

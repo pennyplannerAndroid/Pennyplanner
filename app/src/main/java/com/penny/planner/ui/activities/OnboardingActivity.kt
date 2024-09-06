@@ -15,7 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.penny.planner.Utils
+import com.penny.planner.helpers.Utils
 import com.penny.planner.ui.screens.EmailVerificationScreen
 import com.penny.planner.ui.screens.ForgotPasswordScreen
 import com.penny.planner.ui.screens.LoginScreen

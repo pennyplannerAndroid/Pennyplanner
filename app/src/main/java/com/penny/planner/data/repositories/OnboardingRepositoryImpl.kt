@@ -5,10 +5,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import com.penny.planner.Utils
-import com.penny.planner.models.FirebaseUser
+import com.penny.planner.helpers.Utils
 import com.penny.planner.models.LoginResultModel
-import com.penny.planner.models.firebase.UserModel
+import com.penny.planner.models.UserModel
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -21,9 +20,9 @@ class OnboardingRepositoryImpl @Inject constructor(
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val storage = FirebaseStorage.getInstance()
 
-    override suspend fun login(firebaseUser: FirebaseUser): Result<LoginResultModel> {
+    override suspend fun login(email: String, password: String): Result<LoginResultModel> {
         return try {
-            val result = auth.signInWithEmailAndPassword(firebaseUser.email, firebaseUser.password).await()
+            val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
             Result.success(LoginResultModel(user.isEmailVerified))
         } catch (e: Exception) {
@@ -63,7 +62,7 @@ class OnboardingRepositoryImpl @Inject constructor(
                 .setPhotoUri(downloadPath)
                 .build()
             auth.currentUser?.updateProfile(profileUpdate)?.await()
-            directoryReference.child(id).child(Utils.USER_INFO).setValue(
+            directoryReference.child(Utils.formatEmailForFirebase(email)).child(Utils.USER_INFO).setValue(
                 UserModel(
                     email,
                     name,

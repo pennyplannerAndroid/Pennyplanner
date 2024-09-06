@@ -58,10 +58,10 @@ fun LoginScreen(
         ),
         needForgotPassword = true,
         onBackPressed = onBackPressed,
-        buttonClicked = { user ->
+        buttonClicked = { emailId, password ->
             isLoadingShown = true
-            email = user.email
-            viewModel.login(user)
+            email = emailId
+            viewModel.login(emailId, password)
         },
         googleButtonClicked = {
             viewModel.loginWithGoogle()

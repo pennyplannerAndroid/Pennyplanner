@@ -60,10 +60,9 @@ import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.google.firebase.auth.FirebaseAuth
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
-import com.penny.planner.data.repositories.OnboardingRepositoryImpl
+import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
 import com.penny.planner.helpers.createImageFile
 import com.penny.planner.ui.components.BottomDrawer
@@ -307,5 +306,5 @@ class CustomShape : Shape {
 @Preview
 @Composable
 fun UpdateProfile() {
-    UpdateProfileScreen(OnboardingViewModel(OnboardingRepositoryImpl(FirebaseAuth.getInstance()))) {}
+    UpdateProfileScreen(OnboardingViewModel(OnboardingRepositoryImpl())) {}
 }

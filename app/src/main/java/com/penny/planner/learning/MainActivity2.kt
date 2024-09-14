@@ -10,11 +10,15 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import com.penny.planner.learning.service.TestForegroundService
+import com.penny.planner.ui.components.TopBar
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 
 @AndroidEntryPoint
 class MainActivity2 : ComponentActivity() {
@@ -59,7 +63,17 @@ class MainActivity2 : ComponentActivity() {
 
         setContent {
             PennyPlannerTheme {
-                HomeScreen()
+                Scaffold(
+                    topBar = {
+                        TopBar(modifier = Modifier, title = "Test") {
+                            finish()
+                        }
+                    }
+                ) { contentPadding ->
+                    Text(
+                        modifier = Modifier.padding(contentPadding),
+                        text = "Testing Service")
+                }
             }
         }
     }

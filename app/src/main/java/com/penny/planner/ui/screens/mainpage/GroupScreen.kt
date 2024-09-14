@@ -1,4 +1,4 @@
-package com.penny.planner.learning
+package com.penny.planner.ui.screens.mainpage
 
 import android.util.Patterns
 import android.widget.Toast
@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,14 +34,14 @@ import com.penny.planner.ui.components.OutLinedTextFieldForEmail
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldErrorIndicator
 import com.penny.planner.ui.screens.AddNewGroupDrawer
-import com.penny.planner.viewmodels.MainActivityViewModel
+import com.penny.planner.viewmodels.GroupViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen (){
+fun GroupScreen() {
     var email by remember { mutableStateOf("") }
     var check by remember { mutableStateOf(false) }
-    val viewModel = hiltViewModel<MainActivityViewModel>()
+    val viewModel = hiltViewModel<GroupViewModel>()
     val friendResult = viewModel.searchEmailResult.observeAsState().value
     var createGroup by remember {
         mutableStateOf(false)
@@ -54,7 +55,7 @@ fun HomeScreen (){
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Hello " + viewModel.getName(),
+                        text = "Groups",
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -91,6 +92,14 @@ fun HomeScreen (){
                                 viewModel.resetFoundFriend()
                         }
                     }
+                } else if (friendResult != null && friendResult.isFailure) {
+                    Toast.makeText(
+                        context,
+                        friendResult.exceptionOrNull()?.message ?: stringResource(
+                            id = R.string.operation_failed
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 PrimaryButton(
                     modifier = Modifier
@@ -99,11 +108,8 @@ fun HomeScreen (){
                         .size(48.dp), 
                     textRes = R.string.new_group,
                     onClick = {
-                        if (email != viewModel.getEmail()) {
-                            check = true
-                            viewModel.findUser(email)
-                        } else
-                            Toast.makeText(context, context.resources.getString(R.string.group_same_email_error), Toast.LENGTH_SHORT).show()
+                        check = true
+                        viewModel.findUser(email)
                     },
                     enabled = Patterns.EMAIL_ADDRESS.matcher(email).matches()
                 )
@@ -119,6 +125,6 @@ fun HomeScreen (){
 
 @Preview
 @Composable
-fun PreviewHomeScreen() {
-    HomeScreen()
+fun PreviewGroupScreen() {
+    GroupScreen()
 }

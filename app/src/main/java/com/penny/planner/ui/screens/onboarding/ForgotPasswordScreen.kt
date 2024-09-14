@@ -25,9 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseAuth
 import com.penny.planner.R
-import com.penny.planner.data.repositories.OnboardingRepositoryImpl
+import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.OutLinedTextFieldForEmail
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldErrorIndicator
@@ -115,8 +114,7 @@ fun ForgotPasswordScreen(
 fun PasswordResetPreview() {
     PennyPlannerTheme {
         ForgotPasswordScreen(modifier = Modifier, OnboardingViewModel(
-            OnboardingRepositoryImpl(
-                FirebaseAuth.getInstance())
+            OnboardingRepositoryImpl()
         ), {}) {
             
         }

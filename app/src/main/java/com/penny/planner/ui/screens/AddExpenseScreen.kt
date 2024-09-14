@@ -43,7 +43,7 @@ import com.penny.planner.ui.components.BottomSheetWithList
 import com.penny.planner.ui.components.BottomSheetWithName
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldWithTrailingIcon
-import com.penny.planner.viewmodels.MainActivityViewModel
+import com.penny.planner.viewmodels.ExpenseAndCategoryViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -55,7 +55,7 @@ const val PAYMENT = 3
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
-    viewModel: MainActivityViewModel,
+    viewModel: ExpenseAndCategoryViewModel,
     onDismiss: () -> Unit
 ) {
     var categoryList: List<CategoryEntity>? = null

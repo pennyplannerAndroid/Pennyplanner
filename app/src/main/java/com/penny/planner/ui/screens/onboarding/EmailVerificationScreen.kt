@@ -24,9 +24,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseAuth
 import com.penny.planner.R
-import com.penny.planner.data.repositories.OnboardingRepositoryImpl
+import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TopBar
 import com.penny.planner.ui.theme.PennyPlannerTheme
@@ -156,8 +155,7 @@ fun textWithPartialColored(email : String): AnnotatedString {
 fun PreviewVerificationScreen() {
     PennyPlannerTheme {
         EmailVerificationScreen(modifier = Modifier, OnboardingViewModel(
-            OnboardingRepositoryImpl(
-                FirebaseAuth.getInstance())
+            OnboardingRepositoryImpl()
         ),"as@gmail.com", {}, {})
     }
 }

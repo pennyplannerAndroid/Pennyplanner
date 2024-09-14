@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.penny.planner.data.repositories.OnboardingRepository
+import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.models.LoginResultModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

@@ -18,7 +18,6 @@ class Utils {
 
         // Home Navigation
         const val HOME = "Home"
-        const val ADD = "Add"
         const val BUDGET = "Budget"
         const val PROFILE = "Profile"
 
@@ -32,6 +31,7 @@ class Utils {
         //Errors
         const val FAILED = "Operation Failed"
         const val USER_NOT_FOUND = "User not found"
+        const val SAME_EMAIL_ERROR = "You can't make group with your own!"
 
         // regex
         private const val SPECIAL_CHARACTERS = "-@%\\[\\}+'!/#$^?:;,\\(\"\\)~`.*=&\\{>\\]<_"

@@ -11,9 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.firebase.auth.FirebaseAuth
 import com.penny.planner.R
-import com.penny.planner.data.repositories.OnboardingRepositoryImpl
+import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.SignupAndLoginComposable
 import com.penny.planner.ui.components.buildText
@@ -77,7 +76,7 @@ fun PreviewSignupScreen() {
     PennyPlannerTheme {
         SignupScreen(
             modifier = Modifier,
-            OnboardingViewModel(OnboardingRepositoryImpl(FirebaseAuth.getInstance())),
+            OnboardingViewModel(OnboardingRepositoryImpl()),
             {}, {}) {}
     }
 }

@@ -20,12 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.ViewModelProvider
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.HomeNavigationItem
 import com.penny.planner.ui.screens.mainpage.BudgetScreen
+import com.penny.planner.ui.screens.mainpage.GroupScreen
 import com.penny.planner.ui.screens.mainpage.HomeScreen
 import com.penny.planner.ui.screens.mainpage.ProfileScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
@@ -45,9 +45,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (navToOnboardingIfNeeded()) {
+        val viewModel = ViewModelProvider(this)[MainActivityViewModel::class]
+        if (!viewModel.getIsUserLoggedIn()) {
+            val intent = Intent(this, OnboardingActivity::class.java)
+            intent.putExtra(Utils.NAVIGATION_DESTINATION, viewModel.getOnboardingNavigation())
+            startActivity(intent)
             finish()
-            return
         }
         enableEdgeToEdge()
         setContent {
@@ -57,27 +60,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun navToOnboardingIfNeeded(): Boolean {
-        val intent = Intent(this, OnboardingActivity::class.java)
-        if (FirebaseAuth.getInstance().currentUser == null)
-            intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.TUTORIAL)
-        else if (!FirebaseAuth.getInstance().currentUser?.isEmailVerified!!)
-            intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.EMAIL_VERIFICATION)
-        else if (FirebaseAuth.getInstance().currentUser?.displayName == null || FirebaseAuth.getInstance().currentUser?.displayName!!.isEmpty()) {
-            intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.UPDATE_PROFILE)
-        } else {
-            return false
-        }
-        startActivity(intent)
-        return true
-    }
-
     @Composable
     fun Home() {
-        val viewModel = hiltViewModel<MainActivityViewModel>()
         val pagerState = rememberPagerState(pageCount = { 4 })
         val scope = rememberCoroutineScope()
-
         val routes = listOf(
             HomeNavigationItem(name = Utils.HOME, selectedIcon = R.drawable.home_selected_icon, unselectedIcon = R.drawable.home_unselected_icon, position = POSITION_HOME),
             HomeNavigationItem(name = Utils.GROUPS, selectedIcon = R.drawable.group_selected_icon, unselectedIcon = R.drawable.group_unselected_icon, position = POSITION_GROUP),
@@ -124,10 +110,10 @@ class MainActivity : ComponentActivity() {
                 state = pagerState
             ) { page ->
                 when(page) {
-                    POSITION_HOME -> HomeScreen(modifier = Modifier.padding(innerPadding), viewModel)
-                    POSITION_GROUP -> com.penny.planner.learning.HomeScreen()
-                    POSITION_BUDGET -> BudgetScreen(viewModel)
-                    POSITION_PROFILE -> ProfileScreen(viewModel)
+                    POSITION_HOME -> HomeScreen(modifier = Modifier.padding(innerPadding))
+                    POSITION_GROUP -> GroupScreen()
+                    POSITION_BUDGET -> BudgetScreen()
+                    POSITION_PROFILE -> ProfileScreen()
                 }
             }
         }

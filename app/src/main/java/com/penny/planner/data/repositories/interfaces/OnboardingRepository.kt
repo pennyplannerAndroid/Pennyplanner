@@ -1,4 +1,4 @@
-package com.penny.planner.data.repositories
+package com.penny.planner.data.repositories.interfaces
 
 import com.penny.planner.models.LoginResultModel
 

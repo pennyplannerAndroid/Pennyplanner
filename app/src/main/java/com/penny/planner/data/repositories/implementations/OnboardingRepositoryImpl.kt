@@ -1,10 +1,11 @@
-package com.penny.planner.data.repositories
+package com.penny.planner.data.repositories.implementations
 
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.LoginResultModel
 import com.penny.planner.models.UserModel
@@ -13,10 +14,9 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class OnboardingRepositoryImpl @Inject constructor(
-    private val auth: FirebaseAuth
-) : OnboardingRepository {
+class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
 
+    private val auth = FirebaseAuth.getInstance()
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val storage = FirebaseStorage.getInstance()
 

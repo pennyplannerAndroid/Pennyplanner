@@ -27,6 +27,7 @@ firebaseAuth = "23.0.0"
 appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.9.0"
+materialVersion = "1.7.0"
 navigationCompose = "2.7.7"
 playServicesAuth = "21.2.0"
 roomRuntime = "2.6.1"
@@ -42,6 +43,7 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 accompanist-permissions-v0290alpha = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }

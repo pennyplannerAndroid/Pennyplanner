@@ -1,10 +1,9 @@
-package com.penny.planner.data.db
+package com.penny.planner.data.db.expense
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.penny.planner.models.expenses.ExpenseItemModel
 
-@Database(entities = [ExpenseItemModel::class], version = 1)
+@Database(entities = [ExpenseEntity::class], version = 1)
 abstract class ExpenseDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
 }

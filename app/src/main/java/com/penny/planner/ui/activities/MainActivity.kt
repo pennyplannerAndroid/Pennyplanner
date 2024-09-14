@@ -5,31 +5,54 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.penny.planner.R
 import com.penny.planner.helpers.Utils
-import com.penny.planner.learning.MainActivity2
+import com.penny.planner.models.HomeNavigationItem
+import com.penny.planner.ui.screens.mainpage.BudgetScreen
+import com.penny.planner.ui.screens.mainpage.HomeScreen
+import com.penny.planner.ui.screens.mainpage.ProfileScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
+import com.penny.planner.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        const val POSITION_HOME = 0
+        const val POSITION_GROUP = 1
+        const val POSITION_BUDGET = 2
+        const val POSITION_PROFILE = 3
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (navToOnboardingIfNeeded()) {
             finish()
             return
-        } else {
-            startActivity(Intent(this, MainActivity2::class.java))
-            finish()
         }
         enableEdgeToEdge()
         setContent {
             PennyPlannerTheme {
-                Text(text = "Hello")
+                Home()
             }
         }
     }
@@ -45,15 +68,75 @@ class MainActivity : ComponentActivity() {
         } else {
             return false
         }
-        startActivity(Intent(this, OnboardingActivity::class.java))
+        startActivity(intent)
         return true
     }
-}
 
+    @Composable
+    fun Home() {
+        val viewModel = hiltViewModel<MainActivityViewModel>()
+        val pagerState = rememberPagerState(pageCount = { 4 })
+        val scope = rememberCoroutineScope()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PennyPlannerTheme {
+        val routes = listOf(
+            HomeNavigationItem(name = Utils.HOME, selectedIcon = R.drawable.home_selected_icon, unselectedIcon = R.drawable.home_unselected_icon, position = POSITION_HOME),
+            HomeNavigationItem(name = Utils.GROUPS, selectedIcon = R.drawable.group_selected_icon, unselectedIcon = R.drawable.group_unselected_icon, position = POSITION_GROUP),
+            HomeNavigationItem(name = Utils.BUDGET, selectedIcon = R.drawable.budget_selected_icon, unselectedIcon = R.drawable.budget_unselected_icon, position = POSITION_BUDGET),
+            HomeNavigationItem(name = Utils.PROFILE, selectedIcon = R.drawable.profile_selected_icon, unselectedIcon = R.drawable.profile_unselected_icon, position = POSITION_PROFILE),
+        )
+        Scaffold(
+            bottomBar = {
+                BottomNavigation(
+                    modifier =  Modifier.navigationBarsPadding(),
+                    backgroundColor = androidx.compose.ui.graphics.Color.White,
+                    elevation = 16.dp
+                ) { routes.forEach { item ->
+                        BottomNavigationItem(
+                            icon = {
+                                Image(
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    painter = painterResource(
+                                        id = if (pagerState.currentPage == item.position) item.selectedIcon
+                                        else item.unselectedIcon
+                                    ),
+                                    contentDescription = item.name
+                                )
+                            },
+                            label = {
+                                Text(
+                                    modifier = Modifier.padding(bottom = 16.dp),
+                                    text = item.name
+                                )
+                            },
+                            selected = pagerState.currentPage == item.position,
+                            onClick = {
+                                scope.launch {
+                                    pagerState.scrollToPage(item.position)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        ) { innerPadding ->
+            HorizontalPager(
+                modifier = Modifier,
+                state = pagerState
+            ) { page ->
+                when(page) {
+                    POSITION_HOME -> HomeScreen(modifier = Modifier.padding(innerPadding), viewModel)
+                    POSITION_GROUP -> com.penny.planner.learning.HomeScreen()
+                    POSITION_BUDGET -> BudgetScreen(viewModel)
+                    POSITION_PROFILE -> ProfileScreen(viewModel)
+                }
+            }
+        }
     }
+
+    @Preview(showBackground = true)
+    @Composable
+    fun GreetingPreview() {
+        Home()
+    }
+
 }

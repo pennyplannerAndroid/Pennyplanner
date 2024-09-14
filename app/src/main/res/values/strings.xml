@@ -54,5 +54,16 @@
     <string name="get_started">"Get started"</string>
     <string name="new_group">"New Group"</string>
     <string name="group_same_email_error">"You can't make group with your own!"</string>
+    <string name="notification">"Notification"</string>
+    <string name="add_expense">"Expense"</string>
+    <string name="how_much">"How much?"</string>
+    <string name="rupee_icon">"₹"</string>
+    <string name="description">"Description"</string>
+    <string name="category">"Category"</string>
+    <string name="sub_category">"Sub Category"</string>
+    <string name="payment">"Payment"</string>
+    <string name="add">"Add"</string>
+    <string name="back">"Back"</string>
+    <string name="spend_limit">"Spend Limit?"</string>
 
 </resources>

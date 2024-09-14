@@ -1,12 +1,19 @@
 package com.penny.planner.data.repositories
 
 import android.net.Uri
+import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.db.category.CategoryDao
+import com.penny.planner.data.db.category.CategoryEntity
+import com.penny.planner.data.db.expense.ExpenseDao
+import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.subcategory.SubCategoryDao
+import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupModel
 import com.penny.planner.models.UserModel
@@ -16,8 +23,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class UserAndExpenseRepositoryImpl @Inject constructor(
-    private val auth: FirebaseAuth
+    private val categoryDao: CategoryDao,
+    private val subCategoryDao: SubCategoryDao,
+    private val expenseDao: ExpenseDao
 ) : UserAndExpenseRepository {
+    private val auth = FirebaseAuth.getInstance()
     private val storage = FirebaseStorage.getInstance()
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
 
@@ -95,4 +105,24 @@ class UserAndExpenseRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>> = expenseDao.getAllExpenses()
+
+    override suspend fun getAllCategories(): LiveData<List<CategoryEntity>> = categoryDao.getAllCategories()
+
+    override suspend fun getAllSubCategories(categoryName: String): List<String> = subCategoryDao.getAllSubCategories(categoryName)
+
+    override suspend fun addExpense(entity: ExpenseEntity) {
+        entity.expensorId = auth.currentUser?.uid ?: ""
+        expenseDao.insert(entity)
+    }
+
+    override suspend fun addCategory(entity: CategoryEntity) {
+        categoryDao.insert(entity)
+    }
+
+    override suspend fun addSubCategory(entity: SubCategoryEntity) {
+        subCategoryDao.addSubCategory(entity)
+    }
+
 }

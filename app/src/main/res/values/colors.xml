@@ -13,5 +13,6 @@
     <color name="transparent_60">#99000000</color>
     <color name="red">#F44336</color>
     <color name="or_with_color">#91919F</color>
+    <color name="text_header_color">#FCFCFC</color>
 
 </resources>

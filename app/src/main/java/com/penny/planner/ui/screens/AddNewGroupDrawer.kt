@@ -49,9 +49,8 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
-import com.penny.planner.helpers.Utils.Navigation.createBitmapFromPicture
+import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
 import com.penny.planner.helpers.createImageFile
-import com.penny.planner.models.GroupModel
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
 import kotlinx.coroutines.launch

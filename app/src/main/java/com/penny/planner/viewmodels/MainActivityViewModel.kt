@@ -4,6 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.penny.planner.data.db.category.CategoryEntity
+import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.repositories.UserAndExpenseRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupModel
@@ -49,4 +52,30 @@ class MainActivityViewModel @Inject constructor(
             _newGroupResult.value = repository.newGroup(group, byteArray)
         }
     }
+
+    suspend fun getAllCategories() = repository.getAllCategories()
+
+    suspend fun getSubCategories(categoryName: String): List<String> = repository.getAllSubCategories(categoryName)
+
+    fun addCategory(entity: CategoryEntity) {
+        viewModelScope.launch {
+            repository.addCategory(entity)
+
+        }
+    }
+
+    fun addSubCategory(entity: SubCategoryEntity) {
+        viewModelScope.launch {
+            repository.addSubCategory(entity)
+
+        }
+    }
+
+    fun addExpense(entity: ExpenseEntity) {
+        viewModelScope.launch {
+            repository.addExpense(entity)
+        }
+    }
+
+    suspend fun getAllExpense() = repository.getAllExpenses()
 }

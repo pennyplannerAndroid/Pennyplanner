@@ -5,7 +5,7 @@ import android.graphics.Picture
 import java.io.ByteArrayOutputStream
 
 class Utils {
-    companion object Navigation {
+    companion object Const {
 
         // Onboarding Navigation
         const val TUTORIAL = "tutorial"
@@ -15,6 +15,12 @@ class Utils {
         const val FORGOT_PASSWORD = "forgot_Password"
         const val UPDATE_PROFILE = "update_Profile"
         const val EMAIL_SENT = "email_sent"
+
+        // Home Navigation
+        const val HOME = "Home"
+        const val ADD = "Add"
+        const val BUDGET = "Budget"
+        const val PROFILE = "Profile"
 
         // Key
         const val EMAIL = "email"
@@ -41,6 +47,11 @@ class Utils {
         const val PENDING = "Pending"
         const val JOINED = "JOINED"
 
+        //tables
+        const val CATEGORY_TABLE = "category_table"
+        const val SUB_CATEGORY_TABLE = "subcategory_table"
+        const val EXPENSE_TABLE = "expense_table"
+
         fun formatEmailForFirebase(email: String): String {
             return email.replace('.', ',')
         }
@@ -58,6 +69,5 @@ class Utils {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayStream)
             return byteArrayStream.toByteArray()
         }
-
     }
 }

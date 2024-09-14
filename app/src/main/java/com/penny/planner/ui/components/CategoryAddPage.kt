@@ -104,7 +104,7 @@ fun CategoryAddPage(
 @Preview
 @Composable
 fun PreviewAddPage() {
-    CategoryAddPage(limit = true, onBack = { /*TODO*/ }) { _, _ ->
+    CategoryAddPage(limit = true, onBack = { }) { _, _ ->
 
     }
 }

@@ -80,7 +80,11 @@ class OnboardingActivity : ComponentActivity() {
                     onBackPressed = { controller.navigate(Utils.TUTORIAL) },
                     forgotPassword = { controller.navigate(Utils.FORGOT_PASSWORD) },
                     navToSignup = { controller.navigate(Utils.SIGNUP) },
-                    loginSuccess = { controller.navigate(Utils.UPDATE_PROFILE) },
+                    loginSuccess = {
+                        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                        finish()
+                    },
+                    goToProfile = { controller.navigate(Utils.UPDATE_PROFILE) },
                     navToVerification = {
                         controller.navigate(
                             route = "${Utils.EMAIL_VERIFICATION}/${it}"

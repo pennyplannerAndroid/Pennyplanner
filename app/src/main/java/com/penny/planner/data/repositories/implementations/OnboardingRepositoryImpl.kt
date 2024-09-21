@@ -24,7 +24,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
-            Result.success(LoginResultModel(user.isEmailVerified))
+            Result.success(LoginResultModel(user.isEmailVerified, !user.displayName.isNullOrBlank()))
         } catch (e: Exception) {
             Result.failure(e)
         }

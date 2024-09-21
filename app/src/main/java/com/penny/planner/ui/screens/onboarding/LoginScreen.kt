@@ -26,6 +26,7 @@ fun LoginScreen(
     forgotPassword : () -> Unit,
     navToSignup : () -> Unit,
     loginSuccess: () -> Unit,
+    goToProfile: () -> Unit,
     navToVerification: (String) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -37,9 +38,12 @@ fun LoginScreen(
     if (result != null && isLoadingShown) {
         isLoadingShown = false
         if (result.isSuccess) {
-            if (result.getOrNull()!!.isEmailVerified)
-                loginSuccess.invoke()
-            else
+            if (result.getOrNull()!!.isEmailVerified) {
+                if (result.getOrNull()!!.isProfileUpdated)
+                    loginSuccess.invoke()
+                else
+                    goToProfile.invoke()
+            } else
                 navToVerification.invoke(email)
         } else {
             Toast.makeText(context, result.exceptionOrNull()?.message ?: stringResource(id = R.string.invalid_user), Toast.LENGTH_LONG).show()
@@ -77,5 +81,5 @@ fun LoginScreen(
 @Composable
 @Preview
 fun PreviewLogin() {
-    LoginScreen(modifier = Modifier, OnboardingViewModel(OnboardingRepositoryImpl()), {}, {}, {}, {}, {})
+    LoginScreen(modifier = Modifier, OnboardingViewModel(OnboardingRepositoryImpl()), {}, {}, {}, {}, {}, {})
 }

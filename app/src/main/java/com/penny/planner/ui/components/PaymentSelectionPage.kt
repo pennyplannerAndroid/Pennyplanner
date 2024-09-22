@@ -21,17 +21,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.penny.planner.helpers.Utils
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentSelectionPage (
     title: String,
-    list: List<String>?,
     onDismiss: () -> Unit,
     enabled: Boolean,
     onItemClicked: (String) -> Unit
 ) {
+    val paymentMap = Utils.getPaymentTypes()
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     if (sheetState.isVisible && !enabled) {
@@ -59,23 +60,21 @@ fun PaymentSelectionPage (
                         .padding(24.dp),
                     columns = GridCells.Fixed(count = 2)
                 ) {
-                    if (list != null) {
-                        items(list) { item ->
-                            Row(
-                                modifier = Modifier
-                                    .padding(bottom = 8.dp)
-                                    .clickable {
-                                        onItemClicked(item)
-                                    }
-                            ) {
-                                Text(
-                                    modifier = Modifier.align(Alignment.CenterVertically),
-                                    text = item,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.Gray
-                                )
-                            }
+                    items(paymentMap.toList()) { item ->
+                        Row(
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .clickable {
+                                    onItemClicked(item.first)
+                                }
+                        ) {
+                            Text(
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                                text = "${item.second} ${item.first}",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.Gray
+                            )
                         }
                     }
                 }
@@ -89,7 +88,6 @@ fun PaymentSelectionPage (
 fun PreviewBottomSheetWithName() {
     PaymentSelectionPage(
         "Sub Categories",
-        listOf("UPI", "Cash", "Card"),
         {},
         true
     ) {

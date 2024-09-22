@@ -9,5 +9,5 @@ data class SubCategoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var name: String = "",
     var category: String = "",
-    var icon: String = "\uD83C\uDF7D"
+    var icon: String = Utils.DEFAULT_ICON
 )

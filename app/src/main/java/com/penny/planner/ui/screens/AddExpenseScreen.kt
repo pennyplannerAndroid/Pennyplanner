@@ -46,7 +46,6 @@ import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.Utils
-import com.penny.planner.helpers.enums.PaymentType
 import com.penny.planner.ui.components.PaymentSelectionPage
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldWithTrailingIcon
@@ -76,12 +75,9 @@ fun AddExpenseScreen(
 
     val alpha = remember { Animatable(0f) }
 
-    // LaunchedEffect to loop fade in and fade out
     LaunchedEffect(Unit) {
         while (true) {
-            // Fade in to 1f (fully visible)
             alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
-            // Fade out to 0f (invisible)
             alpha.animateTo(0f, animationSpec = tween(durationMillis = 500))
         }
     }
@@ -94,8 +90,8 @@ fun AddExpenseScreen(
     var selectedSubCategory by remember {
         mutableStateOf<SubCategoryEntity?>(null)
     }
-    var payment: PaymentType? by remember {
-        mutableStateOf(null)
+    var payment by remember {
+        mutableStateOf("")
     }
 
 
@@ -201,7 +197,7 @@ fun AddExpenseScreen(
                         showDialog = SUBCATEGORY
                 }
                 TextFieldWithTrailingIcon(
-                    value = if (payment == null) "" else payment.toString(),
+                    value = payment,
                     title = R.string.payment
                 ) {
                     showDialog = PAYMENT
@@ -233,22 +229,25 @@ fun AddExpenseScreen(
                         .size(48.dp),
                     textRes = R.string.add,
                     onClick = {
-                        categoryViewModel.addCategory(selectedCategory!!)
-                        categoryViewModel.addSubCategory(selectedSubCategory!!)
+                        if (categoryViewModel.getCategoryEditable())
+                            categoryViewModel.addCategory(selectedCategory!!)
+                        if (categoryViewModel.getSubCategoryEditable() && selectedSubCategory != null)
+                            categoryViewModel.addSubCategory(selectedSubCategory!!)
+
                         categoryViewModel.deleteSelectedSubCategory()
                         categoryViewModel.deleteSelectedCategory()
                         addExpense(
                             ExpenseEntity(
                             content = details,
                             category = selectedCategory?.name ?: "",
-                            subCategory = selectedSubCategory?.name ?: "",
+                            subCategory = selectedSubCategory?.name ?: Utils.DEFAULT,
                             price = amount,
-                            paymentType = payment.toString(),
+                            paymentType = payment,
                             icon = if (selectedCategory != null && selectedSubCategory!!.name.isNotEmpty()) selectedSubCategory!!.icon else selectedCategory?.icon ?: Utils.DEFAULT_ICON
                             )
                         )
                     },
-                    enabled = (amount.isNotEmpty() && selectedCategory?.name?.isNotEmpty() == true && payment != null)
+                    enabled = (amount.isNotEmpty() && selectedCategory?.name?.isNotEmpty() == true && payment.isNotEmpty())
                 )
             }
             when (showDialog) {
@@ -271,11 +270,10 @@ fun AddExpenseScreen(
                 )
                 PAYMENT -> PaymentSelectionPage(
                     title = stringResource(id = R.string.payment),
-                    list =  PaymentType.entries.map { it.toString() },
                     onDismiss = { showDialog = NONE },
                     enabled = true
                 ) {
-                    payment = enumValueOf<PaymentType>(it)
+                    payment = it
                     showDialog = NONE
                 }
                 else -> {}

@@ -43,7 +43,8 @@ class Utils {
         const val PROVIDER = "com.penny.planner.provider"
         const val RUPEE = "₹"
         const val EMOJI_JSON = "emojiJson"
-        const val DEFAULT_ICON = "\uD83C\uDFF7\uFE0F"
+        const val DEFAULT_ICON = "🏷️"
+        const val DEFAULT = "Default"
 
         //limits
         const val PRICE_LIMIT = 7
@@ -93,6 +94,8 @@ class Utils {
         fun filterMap(map: Map<String, String>, key: String): Map<String, String> {
             return map.filter { it.key.lowercase().contains(key.lowercase()) }
         }
+
+        fun getPaymentTypes() = mapOf(Pair("Cash", "💵"), Pair("UPI", "🆙"), Pair("Card", "💳"))
 
     }
 }

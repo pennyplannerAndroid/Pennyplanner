@@ -14,5 +14,6 @@
     <color name="red">#F44336</color>
     <color name="or_with_color">#91919F</color>
     <color name="text_header_color">#FCFCFC</color>
+    <color name="expense_text_color">#292B2D</color>
 
 </resources>

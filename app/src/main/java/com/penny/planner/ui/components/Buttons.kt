@@ -1,12 +1,17 @@
 package com.penny.planner.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -101,5 +106,27 @@ fun OutlinedButtonWIthIcon(
                 fontSize = 18.sp
             )
         }
+    }
+}
+
+@Composable
+fun CircularButtonWithIcon(
+    icon: Int,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
+    IconButton(onClick = onClick,
+        modifier = Modifier
+            .padding(end = 12.dp)
+            .background(
+                color = colorResource(id = R.color.loginText),
+                shape = CircleShape
+            ).size(32.dp)
+    ) {
+        Icon(
+            tint = Color.White,
+            painter = painterResource(id = icon),
+            contentDescription = contentDescription
+        )
     }
 }

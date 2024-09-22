@@ -1,5 +1,6 @@
 package com.penny.planner.ui.screens.mainpage
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -29,22 +30,28 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
 import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.ui.components.CircularBudgetItem
+import com.penny.planner.ui.components.ExpenseListItem
 import com.penny.planner.ui.screens.AddExpenseScreen
-import com.penny.planner.viewmodels.ExpenseAndCategoryViewModel
+import com.penny.planner.viewmodels.ExpenseViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun HomeScreen(modifier: Modifier) {
-    val viewModel = hiltViewModel<ExpenseAndCategoryViewModel>()
+    val viewModel = hiltViewModel<ExpenseViewModel>()
     val scope = rememberCoroutineScope()
     var showAddExpenseDrawer by remember {
         mutableStateOf(false)
@@ -64,7 +71,7 @@ fun HomeScreen(modifier: Modifier) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "September") },
+                title = { Text(text = "Hi ${viewModel.getName()}") },
                 actions = {
                     Image(
                         modifier = Modifier.padding(end = 8.dp),
@@ -87,7 +94,7 @@ fun HomeScreen(modifier: Modifier) {
                         contentDescription = "",
                         contentScale = ContentScale.Crop
                     ) {
-                        it.load(R.drawable.default_user_display)
+                        it.load(viewModel.getPicturePath())
                             .placeholder(R.drawable.default_user_display)
                             .error(R.drawable.default_user_display)
                     }
@@ -98,10 +105,32 @@ fun HomeScreen(modifier: Modifier) {
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)) {
-            LazyColumn {
-                items(expenseList) {
-                    Column(modifier = Modifier.padding(24.dp)) {
-                        Text(text = "${it.category} ${it.price} ${it.content}")
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = "Expense in ${getCalculatedMonths()}"
+                )
+                CircularBudgetItem(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally),
+                    progress = 0.5
+                ) {
+
+                }
+                Text(
+                    modifier = Modifier.padding(start = 24.dp),
+                    text = "Recent Transactions",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Black
+                )
+                LazyColumn {
+                    items(expenseList) {
+                        Column(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top= 8.dp, bottom = 8.dp)) {
+                            ExpenseListItem(it)
+                        }
                     }
                 }
             }
@@ -119,10 +148,22 @@ fun HomeScreen(modifier: Modifier) {
     }
 
     if (showAddExpenseDrawer) {
-        AddExpenseScreen (viewModel = viewModel){
-            showAddExpenseDrawer = false
-        }
+        AddExpenseScreen (
+            onDismiss = {
+                showAddExpenseDrawer = false
+            },
+            addExpense = { expense ->
+                viewModel.addExpense(expense)
+                showAddExpenseDrawer = false
+            }
+        )
     }
+}
+
+@Composable
+@SuppressLint("SimpleDateFormat")
+fun getCalculatedMonths(): String {
+    return SimpleDateFormat("MMMM").format(Calendar.getInstance().time)
 }
 
 @Preview

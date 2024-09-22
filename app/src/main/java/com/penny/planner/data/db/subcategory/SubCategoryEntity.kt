@@ -6,6 +6,8 @@ import com.penny.planner.helpers.Utils
 
 @Entity(tableName = Utils.SUB_CATEGORY_TABLE)
 data class SubCategoryEntity(
-    @PrimaryKey var name: String = "",
-    var category: String = ""
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var name: String = "",
+    var category: String = "",
+    var icon: String = "\uD83C\uDF7D"
 )

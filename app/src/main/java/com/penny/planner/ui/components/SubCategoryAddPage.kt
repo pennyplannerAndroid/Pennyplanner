@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -31,33 +30,27 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
-import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.helpers.Utils
 
 @Composable
-fun CategoryAddPage(
-    isEditable: Boolean,
+fun SubCategoryAddPage(
     emojis: List<String>,
-    selectedCategory: CategoryEntity?,
     onBack: () -> Unit,
-    onAddClicked: (String, String, String) -> Unit
+    onAddClicked: (String, String) -> Unit
 ) {
     var showEmojiList by remember {
         mutableStateOf(false)
     }
     var value by remember {
-        mutableStateOf(selectedCategory?.name ?: "")
+        mutableStateOf("")
     }
-    var spendLimit by remember {
-        mutableStateOf(selectedCategory?.limit ?: "")
-    }
+
     var icon by remember {
-        mutableStateOf(selectedCategory?.icon ?: Utils.DEFAULT_ICON)
+        mutableStateOf(Utils.DEFAULT_ICON)
     }
     Box(modifier = Modifier) {
         Column {
@@ -90,17 +83,15 @@ fun CategoryAddPage(
                 ),
                 leadingIcon = {
                     Row(
-                        modifier = if (isEditable) Modifier
+                        modifier = Modifier
                             .clickable {
                                 showEmojiList = true
                             }
                             .padding(start = 8.dp)
-                        else Modifier.padding(start = 8.dp)
                     ) {
                         Text(
                             text = icon,
                             fontSize = 16.sp
-
                         )
                         Icon(
                             tint = colorResource(id = R.color.loginText),
@@ -116,26 +107,8 @@ fun CategoryAddPage(
                 value = value,
                 onValueChange = { if (it.length < 20) value = it },
                 label = {
-                    Text(stringResource(id = R.string.category))
+                    Text(stringResource(id = R.string.sub_category))
                 },
-                enabled = isEditable,
-                singleLine = true
-            )
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 20.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = colorResource(id = R.color.textField_border),
-                    focusedBorderColor = colorResource(id = R.color.loginText)
-                ),
-                shape = RoundedCornerShape(12.dp),
-                value = spendLimit,
-                onValueChange = { if (it.length < 10) spendLimit = it },
-                label = {
-                    Text(stringResource(id = R.string.spend_limit))
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true
             )
             PrimaryButton(
@@ -144,8 +117,8 @@ fun CategoryAddPage(
                     .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                     .size(48.dp),
                 textRes = R.string.add,
-                onClick = { onAddClicked.invoke(value, spendLimit, icon) },
-                enabled = value.isNotEmpty() && spendLimit.isNotEmpty()
+                onClick = { onAddClicked.invoke(value, icon) },
+                enabled = value.isNotEmpty()
             )
         }
         if (showEmojiList) {
@@ -177,12 +150,10 @@ fun CategoryAddPage(
 
 @Preview
 @Composable
-fun PreviewAddPage() {
-    CategoryAddPage(
-        isEditable = true,
+fun PreviewSubCategoryAddPage() {
+    SubCategoryAddPage(
         emojis = listOf(),
-        CategoryEntity(name = "Food"),
-        onBack = { }) { _, _, _->
+        onBack = { }) { _, _->
 
     }
 }

@@ -9,8 +9,8 @@ import com.penny.planner.helpers.Utils
 @Dao
 interface SubCategoryDao {
 
-    @Query("SELECT name FROM ${Utils.SUB_CATEGORY_TABLE} WHERE category == :categoryName")
-    fun getAllSubCategories(categoryName: String): List<String>
+    @Query("SELECT * FROM ${Utils.SUB_CATEGORY_TABLE} WHERE category == :categoryName")
+    suspend fun getAllSubCategories(categoryName: String): List<SubCategoryEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addSubCategory(entity: SubCategoryEntity)

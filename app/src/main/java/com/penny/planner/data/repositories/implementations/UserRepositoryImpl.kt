@@ -35,7 +35,7 @@ class UserRepositoryImpl @Inject constructor(): UserRepository {
     }
 
     override fun getImagePath(): String {
-        TODO("Not yet implemented")
+        return FirebaseAuth.getInstance().currentUser?.photoUrl?.path ?: ""
     }
 
 }

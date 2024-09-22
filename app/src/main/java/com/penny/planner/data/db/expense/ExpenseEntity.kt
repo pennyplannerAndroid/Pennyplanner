@@ -17,5 +17,6 @@ data class ExpenseEntity(
     val subCategory: String,
     val price: String,
     val time: Long = System.currentTimeMillis(),
-    val paymentType: String = PaymentType.CASH.toString()
+    val paymentType: String = PaymentType.CASH.toString(),
+    val icon: String
 )

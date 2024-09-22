@@ -1,17 +1,18 @@
 package com.penny.planner
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
+import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class MyApplication : Application() {
 
+    @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
+
     override fun onCreate() {
         super.onCreate()
+        categoryAndEmojiRepository.checkServerAndUpdateCategory()
 //        createChannelIds()
     }
 

@@ -1,8 +1,11 @@
 package com.penny.planner.helpers
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Picture
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class Utils {
     companion object Const {
@@ -38,6 +41,12 @@ class Utils {
         const val PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[$SPECIAL_CHARACTERS])(?=\\S+$).{8,20}$"
 
         const val PROVIDER = "com.penny.planner.provider"
+        const val RUPEE = "₹"
+        const val EMOJI_JSON = "emojiJson"
+        const val DEFAULT_ICON = "\uD83C\uDFF7\uFE0F"
+
+        //limits
+        const val PRICE_LIMIT = 7
 
         // firebase paths
         const val USERS = "Users"
@@ -46,11 +55,16 @@ class Utils {
         const val GROUPS = "Groups"
         const val PENDING = "Pending"
         const val JOINED = "JOINED"
+        const val GENERAL_DATA = "GeneralData"
+        const val EMOJI_FILE_ID = "emojiFileID"
 
         //tables
         const val CATEGORY_TABLE = "category_table"
         const val SUB_CATEGORY_TABLE = "subcategory_table"
         const val EXPENSE_TABLE = "expense_table"
+
+        //datastore
+        const val CATEGORY = "category"
 
         fun formatEmailForFirebase(email: String): String {
             return email.replace('.', ',')
@@ -69,5 +83,16 @@ class Utils {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayStream)
             return byteArrayStream.toByteArray()
         }
+
+        @SuppressLint("SimpleDateFormat")
+        fun convertMillisToTime(millis: Long): String {
+            val date = Date(millis)
+            return SimpleDateFormat("HH:mm").format(date)
+        }
+
+        fun filterMap(map: Map<String, String>, key: String): Map<String, String> {
+            return map.filter { it.key.lowercase().contains(key.lowercase()) }
+        }
+
     }
 }

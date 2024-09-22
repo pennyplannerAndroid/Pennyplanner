@@ -1,13 +1,19 @@
 package com.penny.planner.ui.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ModalBottomSheet
@@ -20,32 +26,31 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.penny.planner.R
 import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
+import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.enums.PaymentType
-import com.penny.planner.ui.components.BottomSheetWithList
-import com.penny.planner.ui.components.BottomSheetWithName
+import com.penny.planner.ui.components.PaymentSelectionPage
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldWithTrailingIcon
-import com.penny.planner.viewmodels.ExpenseAndCategoryViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.penny.planner.viewmodels.CategoryViewModel
 
 const val NONE = 0
 const val CATEGORY = 1
@@ -55,12 +60,10 @@ const val PAYMENT = 3
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
-    viewModel: ExpenseAndCategoryViewModel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    addExpense: (ExpenseEntity) -> Unit
 ) {
-    var categoryList: List<CategoryEntity>? = null
-    var subCategoryList: List<String>? = null
-    val scope = rememberCoroutineScope()
+    val categoryViewModel = hiltViewModel<CategoryViewModel>()
     val state = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -71,32 +74,41 @@ fun AddExpenseScreen(
         mutableStateOf("")
     }
 
-    val category by remember {
-        mutableStateOf(CategoryEntity())
+    val alpha = remember { Animatable(0f) }
+
+    // LaunchedEffect to loop fade in and fade out
+    LaunchedEffect(Unit) {
+        while (true) {
+            // Fade in to 1f (fully visible)
+            alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
+            // Fade out to 0f (invisible)
+            alpha.animateTo(0f, animationSpec = tween(durationMillis = 500))
+        }
     }
 
-    val subCategory by remember {
-        mutableStateOf(SubCategoryEntity())
+
+    var selectedCategory by remember {
+        mutableStateOf<CategoryEntity?>(null)
     }
-    var payment by remember {
-        mutableStateOf(PaymentType.CASH)
+
+    var selectedSubCategory by remember {
+        mutableStateOf<SubCategoryEntity?>(null)
+    }
+    var payment: PaymentType? by remember {
+        mutableStateOf(null)
     }
 
 
     var showDialog by remember {
         androidx.compose.runtime.mutableIntStateOf(0)
     }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(keys = emptyArray()) {
-        scope.launch {
-            viewModel.getAllCategories().observe(lifecycleOwner) { list ->
-                categoryList = list
-            }
-        }
-    }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            categoryViewModel.deleteSelectedCategory()
+            categoryViewModel.deleteSelectedSubCategory()
+            onDismiss.invoke()
+        },
         containerColor = Color.Red,
         sheetState = state
     ) {
@@ -130,13 +142,42 @@ fun AddExpenseScreen(
                     color = Color.White
                 )
                 BasicTextField(
-                    modifier = Modifier
-                        .padding(start = 8.dp),
                     value = amount,
-                    onValueChange = { amount= it },
+                    onValueChange = {
+                        if (it.length < Utils.PRICE_LIMIT) {
+                            amount = it
+                        }
+                    },
                     singleLine = true,
+                    modifier = Modifier
+                        .height(64.dp)
+                        .weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     textStyle = LocalTextStyle.current.copy(fontSize = 64.sp, color = Color.White),
-                    cursorBrush = SolidColor(Color.White)
+                    cursorBrush = if (amount.isEmpty()) SolidColor(Color.Transparent) else SolidColor(Color.White),
+                    decorationBox = { innerTextField ->
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier.padding(start = 6.dp)
+                        ) {
+                            if (amount.isEmpty()) {
+                                Box(modifier = Modifier
+                                    .width(2.dp)
+                                    .height(64.dp)
+                                    .graphicsLayer(alpha = alpha.value)
+                                    .background(color = Color.White)
+                                )
+                                Text(
+                                    modifier = Modifier
+                                        .padding(start = 4.dp),
+                                            text = "0",
+                                    color = Color.Black,
+                                    fontSize = 64.sp
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
                 )
             }
             Column(
@@ -146,6 +187,25 @@ fun AddExpenseScreen(
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                     )
             ) {
+                TextFieldWithTrailingIcon(
+                    value = if (selectedCategory == null) "" else "${selectedCategory!!.icon} ${selectedCategory!!.name}",
+                    title = R.string.category
+                ) {
+                    showDialog = CATEGORY
+                }
+                TextFieldWithTrailingIcon(
+                    value = if (selectedSubCategory == null) "" else "${selectedSubCategory!!.icon} ${selectedSubCategory!!.name}",
+                    title = R.string.sub_category
+                ) {
+                    if (selectedCategory?.name?.isNotEmpty() == true)
+                        showDialog = SUBCATEGORY
+                }
+                TextFieldWithTrailingIcon(
+                    value = if (payment == null) "" else payment.toString(),
+                    title = R.string.payment
+                ) {
+                    showDialog = PAYMENT
+                }
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -159,31 +219,13 @@ fun AddExpenseScreen(
                     onValueChange = { details = it },
                     label = {
                         Text(stringResource(id = R.string.description))
+                    },
+                    supportingText = {
+                        Text(
+                            text = "${amount.length}/${Utils.PRICE_LIMIT}",
+                        )
                     }
                 )
-                TextFieldWithTrailingIcon(
-                    value = category.name,
-                    title = R.string.category
-                ) {
-                    showDialog = CATEGORY
-                }
-                TextFieldWithTrailingIcon(
-                    value = subCategory.name,
-                    title = R.string.sub_category
-                ) {
-                    if (category.name.isNotEmpty()) {
-                        scope.launch(Dispatchers.IO) {
-                            subCategoryList = viewModel.getSubCategories(category.name)
-                        }
-                        showDialog = SUBCATEGORY
-                    }
-                }
-                TextFieldWithTrailingIcon(
-                    value = payment.toString(),
-                    title = R.string.payment
-                ) {
-                    showDialog = PAYMENT
-                }
                 PrimaryButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,53 +233,51 @@ fun AddExpenseScreen(
                         .size(48.dp),
                     textRes = R.string.add,
                     onClick = {
-                        viewModel.addExpense(ExpenseEntity(
+                        categoryViewModel.addCategory(selectedCategory!!)
+                        categoryViewModel.addSubCategory(selectedSubCategory!!)
+                        categoryViewModel.deleteSelectedSubCategory()
+                        categoryViewModel.deleteSelectedCategory()
+                        addExpense(
+                            ExpenseEntity(
                             content = details,
-                            category = category.name,
-                            subCategory = subCategory.name,
+                            category = selectedCategory?.name ?: "",
+                            subCategory = selectedSubCategory?.name ?: "",
                             price = amount,
-                            paymentType = payment.toString()
-                        ))
-                        onDismiss.invoke()
+                            paymentType = payment.toString(),
+                            icon = if (selectedCategory != null && selectedSubCategory!!.name.isNotEmpty()) selectedSubCategory!!.icon else selectedCategory?.icon ?: Utils.DEFAULT_ICON
+                            )
+                        )
                     },
-                    enabled = (amount.isNotEmpty() && category.name.isNotEmpty())
+                    enabled = (amount.isNotEmpty() && selectedCategory?.name?.isNotEmpty() == true && payment != null)
                 )
             }
             when (showDialog) {
-                CATEGORY -> BottomSheetWithList(
-                    stringResource(id = R.string.category),
-                    categoryList,
-                    true,
-                    { showDialog = NONE },
-                    true
-                ) { name, limit ->
-                    category.name = name
-                    category.limit = limit
-                    viewModel.addCategory(category)
-                    showDialog = NONE
-                }
+                CATEGORY -> CategorySelectionScreen(
+                    viewModel = categoryViewModel,
+                    enabled = true,
+                    onDismiss = {
+                        showDialog = NONE
+                        selectedCategory = categoryViewModel.getSelectedCategory()
+                    }
+                )
 
-                SUBCATEGORY -> BottomSheetWithName(
-                    title = stringResource(id = R.string.sub_category),
-                    list = subCategoryList,
-                    onDismiss = { showDialog = NONE },
-                    showSheet = true
-                ) {
-                    subCategory.name = it
-                    subCategory.category = category.name
-                    viewModel.addSubCategory(subCategory)
-                    showDialog = NONE
-                }
-                PAYMENT -> BottomSheetWithName(
-                    title = stringResource(id = R.string.sub_category),
+                SUBCATEGORY -> SubCategorySelectionScreen(
+                    viewModel = categoryViewModel,
+                    enabled = true,
+                    onDismiss = {
+                        showDialog = NONE
+                        selectedSubCategory = categoryViewModel.getSelectedSubCategory()
+                    }
+                )
+                PAYMENT -> PaymentSelectionPage(
+                    title = stringResource(id = R.string.payment),
                     list =  PaymentType.entries.map { it.toString() },
                     onDismiss = { showDialog = NONE },
-                    showSheet = true
+                    enabled = true
                 ) {
                     payment = enumValueOf<PaymentType>(it)
                     showDialog = NONE
                 }
-
                 else -> {}
             }
         }
@@ -247,5 +287,5 @@ fun AddExpenseScreen(
 @Preview
 @Composable
 fun PreviewAddExpenseScreen() {
-//    AddExpenseScreen {}
+    AddExpenseScreen({}) {}
 }

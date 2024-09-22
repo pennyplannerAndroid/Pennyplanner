@@ -114,6 +114,16 @@ dependencies {
 
     implementation(libs.androidx.material)
 
+    implementation(libs.gson)
+
+    // datastore
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

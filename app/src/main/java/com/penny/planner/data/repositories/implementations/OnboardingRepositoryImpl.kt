@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.LoginResultModel
@@ -16,6 +17,8 @@ import kotlin.coroutines.suspendCoroutine
 
 class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
 
+    @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
+
     private val auth = FirebaseAuth.getInstance()
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val storage = FirebaseStorage.getInstance()
@@ -24,6 +27,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
+            categoryAndEmojiRepository.checkServerAndUpdateCategory()
             Result.success(LoginResultModel(user.isEmailVerified, !user.displayName.isNullOrBlank()))
         } catch (e: Exception) {
             Result.failure(e)
@@ -35,6 +39,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
             user.sendEmailVerification()
+            categoryAndEmojiRepository.checkServerAndUpdateCategory()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

@@ -74,7 +74,8 @@ fun SelectedSavedAndRecommendedListComponent(
             }
             Text(
                 modifier = Modifier
-                    .align(Alignment.Center),
+                    .align(Alignment.CenterStart)
+                    .padding(start = 18.dp),
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold

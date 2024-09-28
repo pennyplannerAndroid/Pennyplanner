@@ -1,6 +1,5 @@
 package com.penny.planner.ui.screens
 
-import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -11,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,7 +27,6 @@ fun CategorySelectionScreen (
     enabled: Boolean,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var savedList by remember {
         mutableStateOf(listOf<CategoryEntity>())
@@ -62,24 +59,21 @@ fun CategorySelectionScreen (
         ) {
             if (add) {
                 CategoryAddPage(
-                    isEditable = viewModel.getCategoryEditable(),
+                    canEdit = viewModel.getCategoryEditable(),
                     emojis = viewModel.getAllEmojis(),
                     selectedCategory = selectedCategory,
+                    savedList = savedCategories,
+                    recommendedList = recommendedCategories,
                     onBack = {
                         if (!viewModel.getCategoryEditable()) {
                             selectedCategory = viewModel.getSelectedCategory()
                         }
                         add = false
                     }
-                ) { name, limit, icon ->
-                    if (viewModel.getCategoryEditable()
-                        && (savedCategories.filter { it.key.lowercase() == name.lowercase() }.isNotEmpty()
-                                || recommendedCategories.filter { it.key.lowercase() == name.lowercase() }.isNotEmpty())) {
-                        Toast.makeText(context, context.resources.getString(R.string.name_match_error), Toast.LENGTH_SHORT).show()
-                    } else {
-                        viewModel.setSelectedCategory(CategoryEntity(name, limit, icon))
-                        onDismiss.invoke()
-                    }
+                ) { name, limit, icon, isEditable ->
+                    viewModel.setCategoryEditable(isEditable)
+                    viewModel.setSelectedCategory(CategoryEntity(name, limit, icon))
+                    onDismiss.invoke()
                 }
             } else {
                 LaunchedEffect(keys = emptyArray()) {
@@ -95,7 +89,7 @@ fun CategorySelectionScreen (
                     title = stringResource(id = R.string.select_a_category),
                     selectedItem = if (selectedCategory == null) Pair("", "") else  Pair(
                         selectedCategory!!.name, selectedCategory!!.icon),
-                    recommendedList = recommendedCategories.filter { !savedCategories.containsKey(it.key) },
+                    recommendedList = recommendedCategories.filter { !savedCategories.containsKey(it.key) }.filter { it.key.lowercase() != selectedCategory?.name?.lowercase() },
                     savedList = savedCategories,
                     selectedItemDeleted = {
                         selectedCategory = null

@@ -38,15 +38,21 @@ import androidx.compose.ui.unit.sp
 import com.penny.planner.R
 import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.ui.enums.EnteredTextInfo
 
 @Composable
 fun CategoryAddPage(
-    isEditable: Boolean,
+    canEdit: Boolean,
     emojis: List<String>,
     selectedCategory: CategoryEntity?,
+    savedList: Map<String, String>,
+    recommendedList: Map<String, String>,
     onBack: () -> Unit,
-    onAddClicked: (String, String, String) -> Unit
+    onAddClicked: (String, String, String, Boolean) -> Unit
 ) {
+    var isEditable by remember {
+        mutableStateOf(canEdit)
+    }
     var showEmojiList by remember {
         mutableStateOf(false)
     }
@@ -59,6 +65,10 @@ fun CategoryAddPage(
     var icon by remember {
         mutableStateOf(selectedCategory?.icon ?: Utils.DEFAULT_ICON)
     }
+    var enteredTextInfo by remember {
+        mutableStateOf(EnteredTextInfo.VALID)
+    }
+
     Box(modifier = Modifier) {
         Column {
             Box(
@@ -86,7 +96,8 @@ fun CategoryAddPage(
                     .padding(start = 20.dp, end = 20.dp, top = 20.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = colorResource(id = R.color.textField_border),
-                    focusedBorderColor = colorResource(id = R.color.loginText)
+                    focusedBorderColor = colorResource(
+                        id = if (enteredTextInfo == EnteredTextInfo.SAVED) R.color.red else R.color.loginText)
                 ),
                 leadingIcon = {
                     Row(
@@ -100,7 +111,6 @@ fun CategoryAddPage(
                         Text(
                             text = icon,
                             fontSize = 16.sp
-
                         )
                         Icon(
                             tint = colorResource(id = R.color.loginText),
@@ -114,12 +124,31 @@ fun CategoryAddPage(
                 },
                 shape = RoundedCornerShape(12.dp),
                 value = value,
-                onValueChange = { if (it.length < 20) value = it },
+                onValueChange = {
+                    if (it.length < 20) value = it
+                    enteredTextInfo = if (savedList.filter { savedItem -> savedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                        EnteredTextInfo.SAVED
+                    else if (recommendedList.filter { recommendedItem -> recommendedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                        EnteredTextInfo.RECOMMENDED
+                    else
+                        EnteredTextInfo.VALID
+                },
                 label = {
                     Text(stringResource(id = R.string.category))
                 },
                 enabled = isEditable,
                 singleLine = true
+            )
+            TextFieldErrorIndicator(
+                modifier = Modifier,
+                textRes = if (enteredTextInfo == EnteredTextInfo.SAVED)
+                    R.string.name_match_error else R.string.suggested_text,
+                show = isEditable && enteredTextInfo != EnteredTextInfo.VALID,
+                showAsSuggestion = enteredTextInfo == EnteredTextInfo.RECOMMENDED,
+                onClick = {
+                    icon = recommendedList[value] ?: Utils.DEFAULT_ICON
+                    isEditable = false
+                }
             )
             OutlinedTextField(
                 modifier = Modifier
@@ -144,7 +173,9 @@ fun CategoryAddPage(
                     .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                     .size(48.dp),
                 textRes = R.string.add,
-                onClick = { onAddClicked.invoke(value, spendLimit, icon) },
+                onClick = {
+                    onAddClicked.invoke(value, spendLimit, icon, isEditable)
+                          },
                 enabled = value.isNotEmpty() && spendLimit.isNotEmpty()
             )
         }
@@ -179,10 +210,13 @@ fun CategoryAddPage(
 @Composable
 fun PreviewAddPage() {
     CategoryAddPage(
-        isEditable = true,
+        canEdit = true,
         emojis = listOf(),
         CategoryEntity(name = "Food"),
-        onBack = { }) { _, _, _->
+        mapOf(),
+        mapOf(),
+        onBack = { },
+    ) { _, _, _, _->
 
     }
 }

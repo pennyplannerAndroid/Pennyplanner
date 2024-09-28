@@ -69,7 +69,10 @@
     <string name="currently_selected">"Currently Selected"</string>
     <string name="saved">"Saved"</string>
     <string name="recommended">"Recommended"</string>
-    <string name="name_match_error">"Name slready exists in saved or recommended list!"</string>
+    <string name="name_match_error">"Category already saved!"</string>
+    <string name="suggested_text">"Category exist in recommended list. Use it?"</string>
+    <string name="name_match_error_subcategory">"Sub Category already saved!"</string>
+    <string name="suggested_text_subcategory">"Sub Category exist in recommended list. Use it?"</string>
     <string name="select_a_category">"Select a Category"</string>
     <string name="select_a_subcategory">"Select a Sub-Category"</string>
     <string name="view_more">"View More"</string>

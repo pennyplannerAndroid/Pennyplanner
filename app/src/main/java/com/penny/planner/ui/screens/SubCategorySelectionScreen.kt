@@ -1,6 +1,5 @@
 package com.penny.planner.ui.screens
 
-import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -11,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,7 +27,6 @@ fun SubCategorySelectionScreen (
     onDismiss: () -> Unit
 ) {
     val category = viewModel.getSelectedCategory()!!.name
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var savedList by remember {
         mutableStateOf(mapOf<String, String>())
@@ -59,23 +56,22 @@ fun SubCategorySelectionScreen (
             if (add) {
                 SubCategoryAddPage(
                     emojis = viewModel.getAllEmojis(),
+                    selectedSubCategory = selectedSubCategory,
+                    savedList = savedList,
+                    recommendedList = recommendedSubCategories,
                     onBack = {
                         add = false
                     }
-                ) { name, icon ->
-                    if (savedList.filter { it.key.lowercase() == name.lowercase() }.isNotEmpty()
-                        || recommendedSubCategories.filter { it.key.lowercase() == name.lowercase() }.isNotEmpty()) {
-                        Toast.makeText(context, context.resources.getString(R.string.name_match_error), Toast.LENGTH_SHORT).show()
-                    } else {
-                        viewModel.setSelectedSubCategory(
-                            SubCategoryEntity(
-                                name = name,
-                                category = category,
-                                icon = icon
-                            )
+                ) { name, icon, isEditable ->
+                    viewModel.setSelectedSubCategory(
+                        SubCategoryEntity(
+                            name = name,
+                            category = category,
+                            icon = icon
                         )
-                        onDismiss.invoke()
-                    }
+                    )
+                    viewModel.setSubCategoryEditable(isEditable)
+                    onDismiss.invoke()
                 }
             } else {
                 LaunchedEffect(keys = emptyArray()) {
@@ -89,7 +85,7 @@ fun SubCategorySelectionScreen (
                     title = stringResource(id = R.string.select_a_subcategory),
                     selectedItem = if (selectedSubCategory == null) Pair("", "") else  Pair(
                         selectedSubCategory!!.name, selectedSubCategory!!.icon),
-                    recommendedList = recommendedSubCategories.filter { !savedList.containsKey(it.key) },
+                    recommendedList = recommendedSubCategories.filter { !savedList.containsKey(it.key) }.filter { it.key.lowercase() != selectedSubCategory?.name?.lowercase() },
                     savedList = savedList,
                     selectedItemDeleted = {
                         selectedSubCategory = null

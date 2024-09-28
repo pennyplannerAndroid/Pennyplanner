@@ -34,24 +34,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
+import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.ui.enums.EnteredTextInfo
 
 @Composable
 fun SubCategoryAddPage(
     emojis: List<String>,
+    selectedSubCategory: SubCategoryEntity?,
+    savedList: Map<String, String>,
+    recommendedList: Map<String, String>,
     onBack: () -> Unit,
-    onAddClicked: (String, String) -> Unit
+    onAddClicked: (String, String, Boolean) -> Unit
 ) {
     var showEmojiList by remember {
         mutableStateOf(false)
     }
     var value by remember {
-        mutableStateOf("")
+        mutableStateOf(selectedSubCategory?.name ?: "")
+    }
+    var icon by remember {
+        mutableStateOf(selectedSubCategory?.icon ?: Utils.DEFAULT_ICON)
+    }
+    var enteredTextInfo by remember {
+        mutableStateOf(EnteredTextInfo.VALID)
     }
 
-    var icon by remember {
-        mutableStateOf(Utils.DEFAULT_ICON)
-    }
     Box(modifier = Modifier) {
         Column {
             Box(
@@ -79,7 +87,8 @@ fun SubCategoryAddPage(
                     .padding(start = 20.dp, end = 20.dp, top = 20.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = colorResource(id = R.color.textField_border),
-                    focusedBorderColor = colorResource(id = R.color.loginText)
+                    focusedBorderColor = colorResource(
+                        id = if (enteredTextInfo == EnteredTextInfo.SAVED) R.color.red else R.color.loginText)
                 ),
                 leadingIcon = {
                     Row(
@@ -105,11 +114,30 @@ fun SubCategoryAddPage(
                 },
                 shape = RoundedCornerShape(12.dp),
                 value = value,
-                onValueChange = { if (it.length < 20) value = it },
+                onValueChange = {
+                    if (it.length < 20) value = it
+                    enteredTextInfo = if (savedList.filter { savedItem -> savedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                        EnteredTextInfo.SAVED
+                    else if (recommendedList.filter { recommendedItem -> recommendedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                        EnteredTextInfo.RECOMMENDED
+                    else
+                        EnteredTextInfo.VALID
+                },
                 label = {
                     Text(stringResource(id = R.string.sub_category))
                 },
                 singleLine = true
+            )
+            TextFieldErrorIndicator(
+                modifier = Modifier,
+                textRes = if (enteredTextInfo == EnteredTextInfo.SAVED)
+                    R.string.name_match_error_subcategory else R.string.suggested_text_subcategory,
+                show = enteredTextInfo != EnteredTextInfo.VALID,
+                showAsSuggestion = enteredTextInfo == EnteredTextInfo.RECOMMENDED,
+                onClick = {
+                    val item = recommendedList.filter { it.key.lowercase() == value.lowercase() }.toList()[0]
+                    onAddClicked.invoke(item.first, item.second, false)
+                }
             )
             PrimaryButton(
                 modifier = Modifier
@@ -117,7 +145,7 @@ fun SubCategoryAddPage(
                     .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                     .size(48.dp),
                 textRes = R.string.add,
-                onClick = { onAddClicked.invoke(value, icon) },
+                onClick = { onAddClicked.invoke(value, icon, true) },
                 enabled = value.isNotEmpty()
             )
         }
@@ -153,7 +181,10 @@ fun SubCategoryAddPage(
 fun PreviewSubCategoryAddPage() {
     SubCategoryAddPage(
         emojis = listOf(),
-        onBack = { }) { _, _->
+        selectedSubCategory = SubCategoryEntity(),
+        savedList = mapOf(),
+        recommendedList = mapOf(),
+        onBack = { }) { _, _, _->
 
     }
 }

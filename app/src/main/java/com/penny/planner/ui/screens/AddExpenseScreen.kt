@@ -256,7 +256,12 @@ fun AddExpenseScreen(
                     enabled = true,
                     onDismiss = {
                         showDialog = NONE
-                        selectedCategory = categoryViewModel.getSelectedCategory()
+                        val updatedCategory = categoryViewModel.getSelectedCategory()
+                        if (selectedCategory == null || updatedCategory == null ||
+                            selectedCategory!!.name != updatedCategory.name) {
+                            selectedSubCategory = null
+                        }
+                        selectedCategory = updatedCategory
                     }
                 )
 

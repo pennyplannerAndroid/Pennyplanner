@@ -2,6 +2,7 @@ package com.penny.planner.ui.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -18,7 +19,9 @@ import com.penny.planner.R
 fun TextFieldErrorIndicator(
     modifier: Modifier,
     textRes: Int,
-    show: Boolean
+    show: Boolean,
+    showAsSuggestion: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     if (show) {
         Row(
@@ -30,12 +33,13 @@ fun TextFieldErrorIndicator(
                 modifier = modifier
                     .align(Alignment.CenterVertically)
                     .padding(end = 8.dp),
-                painter = painterResource(id = R.drawable.error_image),
+                painter = painterResource(id = if (showAsSuggestion) R.drawable.change_icon else R.drawable.error_image),
                 contentDescription = "invalid"
             )
             Text(
+                modifier = if (showAsSuggestion) Modifier.clickable(onClick = onClick) else Modifier,
                 text = stringResource(id = textRes),
-                color = colorResource(id = R.color.red)
+                color = colorResource(id = if (showAsSuggestion) R.color.loginText else R.color.red)
             )
         }
     }

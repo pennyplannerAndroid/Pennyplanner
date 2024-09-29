@@ -1,6 +1,6 @@
 package com.penny.planner.data.repositories.interfaces
 
-interface DataStoreRepository {
+interface DataStoreEmojiRepository {
     suspend fun readEmojiFileId(): String?
     suspend fun saveEmojiFileId(fileId: String)
     suspend fun readEmojiJson(): String?

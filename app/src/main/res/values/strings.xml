@@ -77,5 +77,7 @@
     <string name="select_a_subcategory">"Select a Sub-Category"</string>
     <string name="view_more">"View More"</string>
     <string name="view_less">"View Less"</string>
+    <string name="set_budget">"Set Budget"</string>
+    <string name="save">"Save"</string>
 
 </resources>

@@ -11,7 +11,7 @@ import com.penny.planner.data.db.subcategory.SubCategoryDao
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.network.RetrofitInstance
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
-import com.penny.planner.data.repositories.interfaces.DataStoreRepository
+import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.EmojiModel
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ import javax.inject.Inject
 class CategoryAndEmojiRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao,
     private val subCategoryDao: SubCategoryDao,
-    private val dataStoreRepository: DataStoreRepository
+    private val dataStoreRepository: DataStoreEmojiRepository
 ): CategoryAndEmojiRepository {
 
     private val generalDataRef = FirebaseDatabase.getInstance().getReference(Utils.GENERAL_DATA)

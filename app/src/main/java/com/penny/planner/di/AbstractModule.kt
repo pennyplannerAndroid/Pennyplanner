@@ -1,7 +1,8 @@
 package com.penny.planner.di
 
-import com.penny.planner.data.repositories.implementations.DataStoreRepositoryImpl
+import com.penny.planner.data.repositories.implementations.DataStoreEmojiRepositoryImpl
 import com.penny.planner.data.repositories.implementations.CategoryAndEmojiRepositoryImpl
+import com.penny.planner.data.repositories.implementations.DataStoreBudgetRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.implementations.GroupRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
@@ -11,7 +12,8 @@ import com.penny.planner.data.repositories.implementations.ExpenseRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.data.repositories.implementations.UserRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
-import com.penny.planner.data.repositories.interfaces.DataStoreRepository
+import com.penny.planner.data.repositories.interfaces.DataStoreBudgetRepository
+import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -44,6 +46,9 @@ abstract class AbstractModule {
 
     @Singleton
     @Binds
-    abstract fun bindDataStoreRepository(repository: DataStoreRepositoryImpl): DataStoreRepository
+    abstract fun bindEmojiDataStoreRepository(repository: DataStoreEmojiRepositoryImpl): DataStoreEmojiRepository
 
+    @Singleton
+    @Binds
+    abstract fun bindBudgetDataStoreRepository(repository: DataStoreBudgetRepositoryImpl): DataStoreBudgetRepository
 }

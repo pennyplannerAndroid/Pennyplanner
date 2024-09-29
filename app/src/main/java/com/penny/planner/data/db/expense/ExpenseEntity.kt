@@ -17,5 +17,6 @@ data class ExpenseEntity(
     val price: String,
     val time: Long = System.currentTimeMillis(),
     val paymentType: String,
-    val icon: String
+    val icon: String,
+    val uploadedOnServer: Int = 0
 )

@@ -2,6 +2,7 @@ package com.penny.planner.di
 
 import android.content.Context
 import androidx.room.Room
+import com.penny.planner.data.db.budget.BudgetDatabase
 import com.penny.planner.data.db.category.CategoryDatabase
 import com.penny.planner.data.db.expense.ExpenseDatabase
 import com.penny.planner.data.db.subcategory.SubCategoryDatabase
@@ -43,5 +44,14 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun bindExpenseDao(db: ExpenseDatabase) = db.expenseDao()
+
+    @Singleton
+    @Provides
+    fun bindBudgetDatabase(@ApplicationContext context: Context) =
+        Room.databaseBuilder(context, BudgetDatabase::class.java, Utils.BUDGET_TABLE).build()
+
+    @Singleton
+    @Provides
+    fun bindBudgetDao(db: BudgetDatabase) = db.getBudgetDao()
 
 }

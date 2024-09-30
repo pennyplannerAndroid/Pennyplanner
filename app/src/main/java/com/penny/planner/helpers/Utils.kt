@@ -63,6 +63,7 @@ class Utils {
         const val CATEGORY_TABLE = "category_table"
         const val SUB_CATEGORY_TABLE = "subcategory_table"
         const val EXPENSE_TABLE = "expense_table"
+        const val BUDGET_TABLE = "budget_table"
 
         //datastore
         const val CATEGORY = "category"

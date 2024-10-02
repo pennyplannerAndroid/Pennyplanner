@@ -35,6 +35,7 @@ class Utils {
         const val FAILED = "Operation Failed"
         const val USER_NOT_FOUND = "User not found"
         const val SAME_EMAIL_ERROR = "You can't make group with your own!"
+        const val SESSION_EXPIRED_ERROR = "Session expired! Login again."
 
         // regex
         private const val SPECIAL_CHARACTERS = "-@%\\[\\}+'!/#$^?:;,\\(\"\\)~`.*=&\\{>\\]<_"
@@ -46,8 +47,10 @@ class Utils {
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"
 
-        //limits
+        //values
         const val PRICE_LIMIT = 7
+        const val ADMIN_VALUE = 1
+        const val NON_ADMIN_VALUE = 0
 
         // firebase paths
         const val USERS = "Users"
@@ -58,12 +61,14 @@ class Utils {
         const val JOINED = "JOINED"
         const val GENERAL_DATA = "GeneralData"
         const val EMOJI_FILE_ID = "emojiFileID"
+        const val PROFILE_URL = "profileUrl"
 
         //tables
         const val CATEGORY_TABLE = "category_table"
         const val SUB_CATEGORY_TABLE = "subcategory_table"
         const val EXPENSE_TABLE = "expense_table"
         const val BUDGET_TABLE = "budget_table"
+        const val GROUP_TABLE = "group_table"
 
         //datastore
         const val CATEGORY = "category"

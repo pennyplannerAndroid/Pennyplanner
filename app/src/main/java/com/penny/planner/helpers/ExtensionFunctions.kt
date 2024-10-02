@@ -1,6 +1,8 @@
 package com.penny.planner.helpers
 
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.text.DateFormat.getDateTimeInstance
 
@@ -14,3 +16,6 @@ fun Context.createImageFile(): File {
     )
     return image
 }
+
+inline fun <reified T> Gson.fromJson(json: String) =
+    fromJson<T>(json, object : TypeToken<T>() {}.type)

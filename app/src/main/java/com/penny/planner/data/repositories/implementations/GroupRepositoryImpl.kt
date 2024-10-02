@@ -1,6 +1,7 @@
 package com.penny.planner.data.repositories.implementations
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -8,36 +9,104 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.db.groups.GroupDao
+import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.GroupModel
 import com.penny.planner.models.UserModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class GroupRepositoryImpl @Inject constructor(): GroupRepository {
+class GroupRepositoryImpl @Inject constructor(
+    private val groupDao: GroupDao
+): GroupRepository {
 
+    val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val auth = FirebaseAuth.getInstance()
     private val storage = FirebaseStorage.getInstance()
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
 
-    override suspend fun getAllGroups(): LiveData<List<GroupModel>> {
-        TODO("Not yet implemented")
+    override fun getAllPendingGroups() {
+        if (auth.currentUser != null) {
+            scope.launch {
+                getAllPendingGroupsFromFirebase()
+            }
+        }
     }
 
-    override suspend fun newGroup(group: GroupModel, byteArray: ByteArray?): Result<Boolean> {
+    private suspend fun getAllPendingGroupsFromFirebase() {
+        userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUPS)
+            .child(Utils.PENDING).addValueEventListener(object: ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val pendingGroups = snapshot.value as Map<*, *>
+                        if (pendingGroups.isNotEmpty()) {
+                            for (groupId in pendingGroups.keys) {
+                                FirebaseDatabase.getInstance()
+                                    .getReference(Utils.GROUPS)
+                                    .child(groupId.toString()).addValueEventListener(object: ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            if (snapshot.exists()) {
+                                                val entity = snapshot.getValue(GroupEntity::class.java)
+                                                if (entity != null) {
+                                                    scope.launch {
+                                                        groupDao.addGroup(entity)
+                                                        updatePendingNode(entity)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        override fun onCancelled(error: DatabaseError) {
+                                            Log.d("GroupRepository:: ", error.message)
+                                        }
+                                    })
+                            }
+                        }
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("GroupRepository:: ", error.message)
+                }
+            })
+    }
+
+    fun updatePendingNode(entity: GroupEntity) {
+        userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUPS)
+            .child(Utils.JOINED).child(entity.groupId).setValue(Utils.NON_ADMIN_VALUE)
+        userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUPS)
+            .child(Utils.PENDING).child(entity.groupId).removeValue()
+    }
+
+    override suspend fun getAllGroups(): LiveData<List<GroupEntity>> {
+        return groupDao.getAllGroups()
+    }
+
+    override suspend fun newGroup(name: String, path: String?, members: List<String>, byteArray: ByteArray?): Result<Boolean> {
         if (auth.currentUser != null) {
             val groupId = "${auth.currentUser!!.uid}${System.currentTimeMillis()}"
+            val groupEntity = GroupEntity(
+                groupId = groupId,
+                name = name,
+                members = members.plus(auth.currentUser!!.email!!),
+                profileUrl = "",
+                creatorId = auth.currentUser!!.email
+            )
             FirebaseDatabase.getInstance()
                 .getReference(Utils.GROUPS)
                 .child(groupId)
-                .setValue(GroupModel(
-                    name = group.name,
-                    members = group.members?.plus(auth.currentUser!!.email!!),
-                    id = groupId
-                )).await()
+                .setValue(groupEntity).await()
             var downloadPath: Uri? = null
             if (byteArray != null) {
                 val storageRef = storage.getReference(Utils.USER_IMAGE).child(groupId)
@@ -52,24 +121,26 @@ class GroupRepositoryImpl @Inject constructor(): GroupRepository {
                 FirebaseDatabase.getInstance()
                     .getReference(Utils.GROUPS)
                     .child(groupId)
-                    .child("profileUrl").setValue(downloadPath.toString())
+                    .child(Utils.PROFILE_URL).setValue(downloadPath.toString())
             }
             userDirectory
                 .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
                 .child(Utils.GROUPS)
-                .child(Utils.JOINED).child(groupId).setValue("1")
-            for (user in group.members!!) {
+                .child(Utils.JOINED).child(groupId).setValue(Utils.ADMIN_VALUE)
+            for (user in groupEntity.members) {
                 if (user.isNotEmpty()) {
                     userDirectory
                         .child(Utils.formatEmailForFirebase(user))
                         .child(Utils.GROUPS)
-                        .child(Utils.PENDING).child(groupId).setValue("0")
+                        .child(Utils.PENDING).child(groupId).setValue(Utils.NON_ADMIN_VALUE)
                 }
             }
+            groupEntity.profileUrl = path
+            groupDao.addGroup(entity = groupEntity)
             return Result.success(true)
         } else {
             auth.signOut()
-            return Result.failure(Exception("Session expired! Login again."))
+            return Result.failure(Exception(Utils.SESSION_EXPIRED_ERROR))
         }
     }
 

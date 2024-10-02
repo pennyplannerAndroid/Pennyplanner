@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.GroupModel
 import com.penny.planner.models.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -26,6 +26,9 @@ class GroupViewModel @Inject constructor(
     private val _newGroupResult = MutableLiveData<Result<Boolean>>()
     val newGroupResult: LiveData<Result<Boolean>> = _newGroupResult
 
+    private var _pendingGroups: LiveData<List<GroupEntity>?> = MutableLiveData()
+    val pendingGroups: LiveData<List<GroupEntity>?> = _pendingGroups
+
     fun findUser(email: String) {
         viewModelScope.launch {
             _searchEmailResult.value = groupRepository.findUser(email)
@@ -36,9 +39,9 @@ class GroupViewModel @Inject constructor(
         _searchEmailResult.value = Result.failure(Exception(Utils.USER_NOT_FOUND))
     }
 
-    fun newGroup(group: GroupModel, byteArray: ByteArray?) {
+    fun newGroup(name: String, path: String?, members: List<String>, byteArray: ByteArray?) {
         viewModelScope.launch {
-            _newGroupResult.value = groupRepository.newGroup(group, byteArray)
+            _newGroupResult.value = groupRepository.newGroup(name, path, members, byteArray)
         }
     }
 }

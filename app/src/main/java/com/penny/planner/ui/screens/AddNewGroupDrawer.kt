@@ -61,7 +61,7 @@ import java.util.Objects
 fun AddNewGroupDrawer(
     onClose: () -> Unit,
     showSheet: Boolean,
-    onClick: (String, ByteArray?, Uri?) -> Unit
+    onClick: (String, ByteArray?, String?) -> Unit
 ) {
     var name by remember {
         mutableStateOf("")
@@ -210,7 +210,7 @@ fun AddNewGroupDrawer(
                     onClick = {
                         showLoader = true
                         val byteArray = if (imageUri != null) createBitmapFromPicture(picture) else null
-                        onClick.invoke(name, byteArray, imageUri)
+                        onClick.invoke(name, byteArray, imageUri?.toString())
                     },
                     enabled = true
                 )
@@ -223,7 +223,7 @@ fun AddNewGroupDrawer(
 @Preview
 @Composable
 fun PreviewAddGroupScreen() {
-    AddNewGroupDrawer({}, true) { name, imageArray, imageUri ->
+    AddNewGroupDrawer({}, true) { _, _, _ ->
 
     }
 }

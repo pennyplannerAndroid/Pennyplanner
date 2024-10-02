@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
+import com.penny.planner.helpers.Utils
 import com.penny.planner.ui.components.PrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +71,7 @@ fun SetBudgetScreen(
                     ),
                     shape = RoundedCornerShape(12.dp),
                     value = budget,
-                    onValueChange = { if (it.length < 7) budget = it },
+                    onValueChange = { if (it.length < Utils.PRICE_LIMIT) budget = it },
                     label = {
                         Text(stringResource(id = R.string.set_budget))
                     },

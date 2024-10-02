@@ -1,5 +1,6 @@
 package com.penny.planner.ui.screens.mainpage
 
+import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.penny.planner.R
-import com.penny.planner.models.GroupModel
 import com.penny.planner.ui.components.FriendInfoCard
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.OutLinedTextFieldForEmail
@@ -43,6 +43,12 @@ fun GroupScreen() {
     var check by remember { mutableStateOf(false) }
     val viewModel = hiltViewModel<GroupViewModel>()
     val friendResult = viewModel.searchEmailResult.observeAsState().value
+    val pendingGroup = viewModel.pendingGroups.observeAsState().value
+    if (pendingGroup != null) {
+        for (i in pendingGroup) {
+            Log.d("PendingGroups :: ", i.name)
+        }
+    }
     var createGroup by remember {
         mutableStateOf(false)
     }
@@ -116,7 +122,7 @@ fun GroupScreen() {
                 FullScreenProgressIndicator(show = check)
             }
             AddNewGroupDrawer(onClose = { createGroup = false }, showSheet = createGroup) { name, imageArray, imageUri ->
-                viewModel.newGroup(GroupModel(name = name, path = imageUri, members = friends), imageArray)
+                viewModel.newGroup(name = name, path = imageUri, members = friends, byteArray = imageArray)
 
             }
         }

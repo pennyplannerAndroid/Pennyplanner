@@ -2,6 +2,7 @@ package com.penny.planner
 
 import android.app.Application
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.data.repositories.interfaces.GroupRepository
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -9,10 +10,12 @@ import javax.inject.Inject
 class MyApplication : Application() {
 
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
+    @Inject lateinit var groupRepository: GroupRepository
 
     override fun onCreate() {
         super.onCreate()
         categoryAndEmojiRepository.checkServerAndUpdateCategory()
+        groupRepository.getAllPendingGroups()
 //        createChannelIds()
     }
 

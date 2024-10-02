@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.penny.planner.data.db.budget.BudgetDatabase
 import com.penny.planner.data.db.category.CategoryDatabase
 import com.penny.planner.data.db.expense.ExpenseDatabase
+import com.penny.planner.data.db.groups.GroupDatabase
 import com.penny.planner.data.db.subcategory.SubCategoryDatabase
 import com.penny.planner.helpers.Utils
 import dagger.Module
@@ -53,5 +54,14 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun bindBudgetDao(db: BudgetDatabase) = db.getBudgetDao()
+
+    @Singleton
+    @Provides
+    fun bindGroupDatabase(@ApplicationContext context: Context) =
+        Room.databaseBuilder(context, GroupDatabase::class.java, Utils.GROUP_TABLE).build()
+
+    @Singleton
+    @Provides
+    fun bindGroupDao(db: GroupDatabase) = db.getGroupDao()
 
 }

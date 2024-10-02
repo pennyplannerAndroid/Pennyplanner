@@ -2,7 +2,6 @@ package com.penny.planner.data.repositories.interfaces
 
 import androidx.lifecycle.LiveData
 import com.penny.planner.data.db.groups.GroupEntity
-import com.penny.planner.models.GroupModel
 import com.penny.planner.models.UserModel
 
 interface GroupRepository {

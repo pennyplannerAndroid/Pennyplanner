@@ -70,9 +70,6 @@ class Utils {
         const val BUDGET_TABLE = "budget_table"
         const val GROUP_TABLE = "group_table"
 
-        //datastore
-        const val CATEGORY = "category"
-
         fun formatEmailForFirebase(email: String): String {
             return email.replace('.', ',')
         }

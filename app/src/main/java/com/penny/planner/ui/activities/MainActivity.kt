@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 setContent {
                     PennyPlannerTheme {
                         if(budget != null) {
-                            Home(viewModel)
+                            Home()
                         }else {
                             SetBudgetScreen(viewModel.getName()) {
                                 viewModel.setBudget(it)
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Home(viewModel: MainActivityViewModel) {
+    fun Home() {
         val pagerState = rememberPagerState(pageCount = { 4 })
         val scope = rememberCoroutineScope()
         val routes = listOf(

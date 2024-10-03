@@ -10,5 +10,7 @@ data class GroupEntity(
     val name: String = "",
     var members: List<String> = listOf(),
     var profileUrl: String? = "",
-    var creatorId: String? = ""
+    var creatorId: String? = "",
+    var version: Long = 0,
+    var lastUpdate: Long = 0
 )

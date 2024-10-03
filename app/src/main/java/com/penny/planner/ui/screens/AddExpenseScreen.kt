@@ -229,13 +229,15 @@ fun AddExpenseScreen(
                         .size(48.dp),
                     textRes = R.string.add,
                     onClick = {
-                        if (categoryViewModel.getCategoryEditable())
+                        if (categoryViewModel.addCategoryToDb)
                             categoryViewModel.addCategory(selectedCategory!!)
-                        if (categoryViewModel.getSubCategoryEditable() && selectedSubCategory != null)
+                        if (selectedSubCategory != null)
                             categoryViewModel.addSubCategory(selectedSubCategory!!)
 
                         categoryViewModel.deleteSelectedSubCategory()
                         categoryViewModel.deleteSelectedCategory()
+                        categoryViewModel.limit = ""
+                        categoryViewModel.addCategoryToDb = false
                         addExpense(
                             ExpenseEntity(
                             content = details,
@@ -243,7 +245,7 @@ fun AddExpenseScreen(
                             subCategory = selectedSubCategory?.name ?: Utils.DEFAULT,
                             price = amount,
                             paymentType = payment,
-                            icon = if (selectedCategory != null && selectedSubCategory!!.name.isNotEmpty()) selectedSubCategory!!.icon else selectedCategory?.icon ?: Utils.DEFAULT_ICON
+                            icon = if (selectedSubCategory != null && selectedSubCategory!!.name.isNotEmpty()) selectedSubCategory!!.icon else selectedCategory?.icon ?: Utils.DEFAULT_ICON
                             )
                         )
                     },

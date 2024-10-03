@@ -18,6 +18,8 @@ class CategoryViewModel @Inject constructor(
     private var selectedSubCategory: SubCategoryEntity? = null
     private var categoryEditable = false
     private var subCategoryEditable = false
+    var limit = ""
+    var addCategoryToDb = false
 
     fun setSelectedCategory(item: CategoryEntity?) {
         selectedCategory = item
@@ -63,7 +65,7 @@ class CategoryViewModel @Inject constructor(
 
     fun addCategory(entity: CategoryEntity) {
         viewModelScope.launch {
-            repository.addCategory(entity)
+            repository.addCategory(entity, limit)
         }
     }
 

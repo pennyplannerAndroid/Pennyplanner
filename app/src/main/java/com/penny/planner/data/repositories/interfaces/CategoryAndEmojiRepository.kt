@@ -14,7 +14,7 @@ interface CategoryAndEmojiRepository {
     suspend fun getAllSavedCategories(): LiveData<List<CategoryEntity>>
     suspend fun getAllSavedSubCategories(categoryName: String): List<SubCategoryEntity>
 
-    suspend fun addCategory(entity: CategoryEntity)
+    suspend fun addCategory(entity: CategoryEntity, limit: String)
     suspend fun addSubCategory(entity: SubCategoryEntity)
 
 }

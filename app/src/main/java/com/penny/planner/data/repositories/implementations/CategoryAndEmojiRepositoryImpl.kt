@@ -100,13 +100,14 @@ class CategoryAndEmojiRepositoryImpl @Inject constructor(
 
     override suspend fun getAllSavedSubCategories(categoryName: String): List<SubCategoryEntity> = subCategoryDao.getAllSubCategories(categoryName)
 
-    override suspend fun addCategory(entity: CategoryEntity) {
+    override suspend fun addCategory(entity: CategoryEntity, limit: String) {
         categoryDao.insert(entity)
-        budgetDao.addBudgetItem(BudgetEntity(name = entity.name, limit = entity.limit))
+        budgetDao.addBudgetItem(BudgetEntity(name = entity.name, limit = limit))
     }
 
     override suspend fun addSubCategory(entity: SubCategoryEntity) {
-        subCategoryDao.addSubCategory(entity)
+        if (subCategoryDao.getSubCategory(entity.category, entity.name).isEmpty())
+            subCategoryDao.addSubCategory(entity)
     }
 
 }

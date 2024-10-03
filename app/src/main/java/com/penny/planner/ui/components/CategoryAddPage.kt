@@ -45,6 +45,7 @@ fun CategoryAddPage(
     canEdit: Boolean,
     emojis: List<String>,
     selectedCategory: CategoryEntity?,
+    limit: String,
     savedList: Map<String, String>,
     recommendedList: Map<String, String>,
     onBack: () -> Unit,
@@ -60,7 +61,7 @@ fun CategoryAddPage(
         mutableStateOf(selectedCategory?.name ?: "")
     }
     var spendLimit by remember {
-        mutableStateOf(selectedCategory?.limit ?: "")
+        mutableStateOf(limit)
     }
     var icon by remember {
         mutableStateOf(selectedCategory?.icon ?: Utils.DEFAULT_ICON)
@@ -213,6 +214,7 @@ fun PreviewAddPage() {
         canEdit = true,
         emojis = listOf(),
         CategoryEntity(name = "Food"),
+        limit = "",
         mapOf(),
         mapOf(),
         onBack = { },

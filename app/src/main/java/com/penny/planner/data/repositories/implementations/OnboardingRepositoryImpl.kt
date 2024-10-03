@@ -6,10 +6,13 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.LoginResultModel
 import com.penny.planner.models.UserModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -17,7 +20,9 @@ import kotlin.coroutines.suspendCoroutine
 
 class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
 
+    @Inject lateinit var applicationScope: CoroutineScope
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
+    @Inject lateinit var groupRepository: GroupRepository
 
     private val auth = FirebaseAuth.getInstance()
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
@@ -27,10 +32,18 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
-            categoryAndEmojiRepository.checkServerAndUpdateCategory()
+            getExistingDataFromServer(true)
             Result.success(LoginResultModel(user.isEmailVerified, !user.displayName.isNullOrBlank()))
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private fun getExistingDataFromServer(isLogin: Boolean = false) {
+        applicationScope.launch {
+            categoryAndEmojiRepository.checkServerAndUpdateCategory()
+            if (isLogin)
+                groupRepository.getAllGroupsFromFirebase()
         }
     }
 
@@ -39,7 +52,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
             user.sendEmailVerification()
-            categoryAndEmojiRepository.checkServerAndUpdateCategory()
+            getExistingDataFromServer()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

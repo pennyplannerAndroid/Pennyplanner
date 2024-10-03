@@ -8,6 +8,6 @@ import androidx.room.OnConflictStrategy
 interface BudgetDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun addBudgetItem(entity: BudgetEntity)
+    suspend fun addBudgetItem(entity: BudgetEntity)
 
 }

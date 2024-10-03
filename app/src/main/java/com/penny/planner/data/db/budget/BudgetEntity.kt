@@ -6,7 +6,7 @@ import com.penny.planner.helpers.Utils
 
 @Entity(tableName = Utils.BUDGET_TABLE)
 data class BudgetEntity(
-    @PrimaryKey(autoGenerate = true) var id: Int = 1,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
     val name: String,
     var limit: String,
     val groupId: String = ""

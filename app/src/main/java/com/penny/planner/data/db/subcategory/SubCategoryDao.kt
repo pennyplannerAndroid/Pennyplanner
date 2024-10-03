@@ -15,4 +15,7 @@ interface SubCategoryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addSubCategory(entity: SubCategoryEntity)
 
+    @Query("SELECT * FROM ${Utils.SUB_CATEGORY_TABLE} WHERE category == :categoryName AND name ==:subCategoryName")
+    suspend fun getSubCategory(categoryName: String, subCategoryName: String): List<SubCategoryEntity>
+
 }

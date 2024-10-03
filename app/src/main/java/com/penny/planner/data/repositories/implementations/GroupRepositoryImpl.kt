@@ -13,6 +13,7 @@ import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.GroupFireBaseModel
 import com.penny.planner.models.UserModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,42 +33,33 @@ class GroupRepositoryImpl @Inject constructor(
     private val storage = FirebaseStorage.getInstance()
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
 
-    override fun getAllPendingGroups() {
+    override fun getAllGroupsFromFirebase() {
         if (auth.currentUser != null) {
             scope.launch {
-                getAllPendingGroupsFromFirebase()
+                fetchAllGroupsFromFirebase(Utils.JOINED)
             }
         }
     }
 
-    private suspend fun getAllPendingGroupsFromFirebase() {
+    override fun getAllPendingGroups() {
+        if (auth.currentUser != null) {
+            scope.launch {
+                fetchAllGroupsFromFirebase(Utils.PENDING)
+            }
+        }
+    }
+
+    private fun fetchAllGroupsFromFirebase(source: String) {
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
             .child(Utils.GROUPS)
-            .child(Utils.PENDING).addValueEventListener(object: ValueEventListener{
+            .child(source).addValueEventListener(object: ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val pendingGroups = snapshot.value as Map<*, *>
                         if (pendingGroups.isNotEmpty()) {
                             for (groupId in pendingGroups.keys) {
-                                FirebaseDatabase.getInstance()
-                                    .getReference(Utils.GROUPS)
-                                    .child(groupId.toString()).addValueEventListener(object: ValueEventListener {
-                                        override fun onDataChange(snapshot: DataSnapshot) {
-                                            if (snapshot.exists()) {
-                                                val entity = snapshot.getValue(GroupEntity::class.java)
-                                                if (entity != null) {
-                                                    scope.launch {
-                                                        groupDao.addGroup(entity)
-                                                        updatePendingNode(entity)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        override fun onCancelled(error: DatabaseError) {
-                                            Log.d("GroupRepository:: ", error.message)
-                                        }
-                                    })
+                                updateLocalWithPendingGroups(groupId.toString(), source == Utils.PENDING)
                             }
                         }
                     }
@@ -78,7 +70,29 @@ class GroupRepositoryImpl @Inject constructor(
             })
     }
 
-    fun updatePendingNode(entity: GroupEntity) {
+    private fun updateLocalWithPendingGroups(groupId: String, needUpdatePendingList: Boolean) {
+        FirebaseDatabase.getInstance()
+            .getReference(Utils.GROUPS)
+            .child(groupId).addValueEventListener(object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val entity = snapshot.getValue(GroupEntity::class.java)
+                        if (entity != null) {
+                            scope.launch {
+                                groupDao.addGroup(entity)
+                                if (needUpdatePendingList)
+                                    updatePendingNode(entity)
+                            }
+                        }
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("GroupRepository:: ", error.message)
+                }
+            })
+    }
+
+    private fun updatePendingNode(entity: GroupEntity) {
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
             .child(Utils.GROUPS)
@@ -89,7 +103,7 @@ class GroupRepositoryImpl @Inject constructor(
             .child(Utils.PENDING).child(entity.groupId).removeValue()
     }
 
-    override suspend fun getAllGroups(): LiveData<List<GroupEntity>> {
+    override suspend fun getAllGroups(): LiveData<List<GroupEntity>?> {
         return groupDao.getAllGroups()
     }
 
@@ -101,12 +115,19 @@ class GroupRepositoryImpl @Inject constructor(
                 name = name,
                 members = members.plus(auth.currentUser!!.email!!),
                 profileUrl = "",
-                creatorId = auth.currentUser!!.email
+                creatorId = auth.currentUser!!.email!!
             )
             FirebaseDatabase.getInstance()
                 .getReference(Utils.GROUPS)
                 .child(groupId)
-                .setValue(groupEntity).await()
+                .setValue(
+                    GroupFireBaseModel(
+                    groupId = groupId,
+                    name = name,
+                    members = groupEntity.members,
+                    creatorId = groupEntity.creatorId!!
+                    )
+                ).await()
             var downloadPath: Uri? = null
             if (byteArray != null) {
                 val storageRef = storage.getReference(Utils.USER_IMAGE).child(groupId)

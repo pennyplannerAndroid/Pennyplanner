@@ -62,6 +62,7 @@ fun CategorySelectionScreen (
                     canEdit = viewModel.getCategoryEditable(),
                     emojis = viewModel.getAllEmojis(),
                     selectedCategory = selectedCategory,
+                    limit = viewModel.limit,
                     savedList = savedCategories,
                     recommendedList = recommendedCategories,
                     onBack = {
@@ -72,7 +73,8 @@ fun CategorySelectionScreen (
                     }
                 ) { name, limit, icon, isEditable ->
                     viewModel.setCategoryEditable(isEditable)
-                    viewModel.setSelectedCategory(CategoryEntity(name, limit, icon))
+                    viewModel.setSelectedCategory(CategoryEntity(name, icon))
+                    viewModel.limit = limit
                     onDismiss.invoke()
                 }
             } else {
@@ -100,21 +102,34 @@ fun CategorySelectionScreen (
                         add = true
                     },
                     savedItemClicked = {
+                        viewModel.addCategoryToDb = false
+                        var savedItem: CategoryEntity? = null
                         for (item in savedList) {
                             if (item.name == it) {
-                                viewModel.setSelectedCategory(item)
+                                savedItem = item
                                 break
                             }
                         }
-                        viewModel.setCategoryEditable(false)
-                        onDismiss.invoke()
+                        if (savedItem != null) {
+                            scope.launch {
+                                viewModel.setSelectedCategory(CategoryEntity(name = savedItem.name, icon = savedItem.icon))
+                                // check in budget table for limit set or not and code accordingly
+                                viewModel.setCategoryEditable(false)
+                                onDismiss.invoke()
+                            }
+                        } else {
+                            viewModel.setCategoryEditable(false)
+                            onDismiss.invoke()
+                        }
                     },
                     recommendedItemClicked = {
+                        viewModel.addCategoryToDb = true
                         selectedCategory = CategoryEntity(name = it, icon = recommendedCategories[it]!!)
                         viewModel.setCategoryEditable(false)
                         add = true
                     },
                     onAddClicked = {
+                        viewModel.addCategoryToDb = true
                         viewModel.setCategoryEditable(true)
                         add = true
                     }

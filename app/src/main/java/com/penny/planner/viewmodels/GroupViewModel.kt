@@ -9,7 +9,9 @@ import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,12 +28,21 @@ class GroupViewModel @Inject constructor(
     private val _newGroupResult = MutableLiveData<Result<Boolean>>()
     val newGroupResult: LiveData<Result<Boolean>> = _newGroupResult
 
-    private var _pendingGroups: LiveData<List<GroupEntity>?> = MutableLiveData()
-    val pendingGroups: LiveData<List<GroupEntity>?> = _pendingGroups
+    private var _allGroups: LiveData<List<GroupEntity>?> = MutableLiveData()
+    val allGroups: LiveData<List<GroupEntity>?> = _allGroups
 
     fun findUser(email: String) {
         viewModelScope.launch {
             _searchEmailResult.value = groupRepository.findUser(email)
+        }
+    }
+
+    fun getAllGroups() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val groups = groupRepository.getAllGroups()
+            withContext(Dispatchers.Main) {
+                _allGroups = groups
+            }
         }
     }
 

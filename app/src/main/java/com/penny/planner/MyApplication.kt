@@ -4,6 +4,10 @@ import android.app.Application
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -12,11 +16,18 @@ class MyApplication : Application() {
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
     @Inject lateinit var groupRepository: GroupRepository
 
+    val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     override fun onCreate() {
         super.onCreate()
         categoryAndEmojiRepository.checkServerAndUpdateCategory()
         groupRepository.getAllPendingGroups()
 //        createChannelIds()
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        applicationScope.cancel()
     }
 
 // Note : Creating an existing notification channel with its original values performs no operation,

@@ -7,6 +7,5 @@ import com.penny.planner.helpers.Utils
 @Entity(tableName = Utils.CATEGORY_TABLE)
 data class CategoryEntity(
     @PrimaryKey var name: String = "",
-    var limit: String = "",
     var icon: String = Utils.DEFAULT_ICON
 )

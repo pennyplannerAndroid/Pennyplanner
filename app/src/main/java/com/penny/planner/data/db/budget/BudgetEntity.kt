@@ -7,7 +7,10 @@ import com.penny.planner.helpers.Utils
 @Entity(tableName = Utils.BUDGET_TABLE)
 data class BudgetEntity(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    val name: String,
-    var limit: String,
-    val groupId: String = ""
+    val category: String,
+    var spendLimit: Double,
+    val entityId: String = "",
+    var alertAdded: Boolean = false,
+    var alertLimit: Int = 100,
+    var icon: String,
 )

@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     PennyPlannerTheme {
                         if(budget != null) {
                             Home()
-                        }else {
+                        } else {
                             SetBudgetScreen(viewModel.getName()) {
                                 viewModel.setBudget(it)
                                 budget = it

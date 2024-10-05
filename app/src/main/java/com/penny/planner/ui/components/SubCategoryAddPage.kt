@@ -36,14 +36,15 @@ import androidx.compose.ui.unit.sp
 import com.penny.planner.R
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.NameIconPairWithKeyModel
 import com.penny.planner.ui.enums.EnteredTextInfo
 
 @Composable
 fun SubCategoryAddPage(
     emojis: List<String>,
     selectedSubCategory: SubCategoryEntity?,
-    savedList: Map<String, String>,
-    recommendedList: Map<String, String>,
+    savedList: Set<String>,
+    recommendedList: List<NameIconPairWithKeyModel>,
     onBack: () -> Unit,
     onAddClicked: (String, String, Boolean) -> Unit
 ) {
@@ -116,9 +117,9 @@ fun SubCategoryAddPage(
                 value = value,
                 onValueChange = {
                     if (it.length < 20) value = it
-                    enteredTextInfo = if (savedList.filter { savedItem -> savedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                    enteredTextInfo = if (savedList.contains(it.lowercase()))
                         EnteredTextInfo.SAVED
-                    else if (recommendedList.filter { recommendedItem -> recommendedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                    else if (recommendedList.any { recommendedItem -> recommendedItem.searchKey == it.lowercase() })
                         EnteredTextInfo.RECOMMENDED
                     else
                         EnteredTextInfo.VALID
@@ -135,8 +136,8 @@ fun SubCategoryAddPage(
                 show = enteredTextInfo != EnteredTextInfo.VALID,
                 showAsSuggestion = enteredTextInfo == EnteredTextInfo.RECOMMENDED,
                 onClick = {
-                    val item = recommendedList.filter { it.key.lowercase() == value.lowercase() }.toList()[0]
-                    onAddClicked.invoke(item.first, item.second, false)
+                    val item = recommendedList.find { it.searchKey == value.lowercase() }!!
+                    onAddClicked.invoke(item.name, item.icon, false)
                 }
             )
             PrimaryButton(
@@ -182,8 +183,8 @@ fun PreviewSubCategoryAddPage() {
     SubCategoryAddPage(
         emojis = listOf(),
         selectedSubCategory = SubCategoryEntity(),
-        savedList = mapOf(),
-        recommendedList = mapOf(),
+        savedList = setOf(),
+        recommendedList = listOf(),
         onBack = { }) { _, _, _->
 
     }

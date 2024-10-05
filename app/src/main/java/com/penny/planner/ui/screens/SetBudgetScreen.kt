@@ -97,6 +97,6 @@ fun SetBudgetScreen(
 @Preview
 @Composable
 fun PreviewSetBudgetScreen() {
-    SetBudgetScreen("Aseem") {
+    SetBudgetScreen("User") {
     }
 }

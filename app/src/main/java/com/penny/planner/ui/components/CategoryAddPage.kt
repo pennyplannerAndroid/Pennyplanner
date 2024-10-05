@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.penny.planner.R
 import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.NameIconPairWithKeyModel
 import com.penny.planner.ui.enums.EnteredTextInfo
 
 @Composable
@@ -46,8 +47,8 @@ fun CategoryAddPage(
     emojis: List<String>,
     selectedCategory: CategoryEntity?,
     limit: String,
-    savedList: Map<String, String>,
-    recommendedList: Map<String, String>,
+    savedList: Set<String>,
+    recommendedList: List<NameIconPairWithKeyModel>,
     onBack: () -> Unit,
     onAddClicked: (String, String, String, Boolean) -> Unit
 ) {
@@ -127,9 +128,9 @@ fun CategoryAddPage(
                 value = value,
                 onValueChange = {
                     if (it.length < 20) value = it
-                    enteredTextInfo = if (savedList.filter { savedItem -> savedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                    enteredTextInfo = if (savedList.contains(it.lowercase()))
                         EnteredTextInfo.SAVED
-                    else if (recommendedList.filter { recommendedItem -> recommendedItem.key.lowercase() == it.lowercase() }.isNotEmpty())
+                    else if (recommendedList.any { recommendedItem -> recommendedItem.searchKey == it.lowercase() })
                         EnteredTextInfo.RECOMMENDED
                     else
                         EnteredTextInfo.VALID
@@ -147,7 +148,9 @@ fun CategoryAddPage(
                 show = isEditable && enteredTextInfo != EnteredTextInfo.VALID,
                 showAsSuggestion = enteredTextInfo == EnteredTextInfo.RECOMMENDED,
                 onClick = {
-                    icon = recommendedList[value] ?: Utils.DEFAULT_ICON
+                    val item = recommendedList.find { it.searchKey == value.lowercase() }!!
+                    value = item.name
+                    icon = item.icon
                     isEditable = false
                 }
             )
@@ -215,8 +218,8 @@ fun PreviewAddPage() {
         emojis = listOf(),
         CategoryEntity(name = "Food"),
         limit = "",
-        mapOf(),
-        mapOf(),
+        setOf("travel"),
+        listOf(NameIconPairWithKeyModel(name = "Rent")),
         onBack = { },
     ) { _, _, _, _->
 

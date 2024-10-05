@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.penny.planner.R
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
+import com.penny.planner.models.NameIconPairWithKeyModel
 import com.penny.planner.ui.components.SubCategoryAddPage
 import com.penny.planner.viewmodels.CategoryViewModel
 import kotlinx.coroutines.launch
@@ -29,7 +30,18 @@ fun SubCategorySelectionScreen (
     val category = viewModel.getSelectedCategory()!!.name
     val scope = rememberCoroutineScope()
     var savedList by remember {
-        mutableStateOf(mapOf<String, String>())
+        mutableStateOf(listOf<NameIconPairWithKeyModel>())
+    }
+    var savedSubCategories by remember {
+        mutableStateOf(setOf<String>())
+    }
+
+    LaunchedEffect(keys = emptyArray()) {
+        scope.launch {
+            val list = viewModel.getAllSavedSubCategories(category)
+            savedSubCategories = list.map { it.searchKey }.toSet()
+            savedList = list.map { NameIconPairWithKeyModel(name = it.name, icon = it.icon) }
+        }
     }
     val recommendedSubCategories = viewModel.getAllRecommendedSubCategories(category)
     var selectedSubCategory by remember {
@@ -57,7 +69,7 @@ fun SubCategorySelectionScreen (
                 SubCategoryAddPage(
                     emojis = viewModel.getAllEmojis(),
                     selectedSubCategory = selectedSubCategory,
-                    savedList = savedList,
+                    savedList = savedSubCategories,
                     recommendedList = recommendedSubCategories,
                     onBack = {
                         add = false
@@ -74,18 +86,12 @@ fun SubCategorySelectionScreen (
                     onDismiss.invoke()
                 }
             } else {
-                LaunchedEffect(keys = emptyArray()) {
-                    scope.launch {
-                        savedList = viewModel.getAllSavedSubCategories(category).associate { it.name to it.icon }
-                    }
-                }
-
                 SelectedSavedAndRecommendedListComponent(
                     addNeeded = selectedSubCategory == null,
                     title = stringResource(id = R.string.select_a_subcategory),
                     selectedItem = if (selectedSubCategory == null) Pair("", "") else  Pair(
                         selectedSubCategory!!.name, selectedSubCategory!!.icon),
-                    recommendedList = recommendedSubCategories.filter { !savedList.containsKey(it.key) }.filter { it.key.lowercase() != selectedSubCategory?.name?.lowercase() },
+                    recommendedList = recommendedSubCategories.filter { !savedSubCategories.contains(it.searchKey) }.filter { it.searchKey != selectedSubCategory?.name?.lowercase() },
                     savedList = savedList,
                     selectedItemDeleted = {
                         selectedSubCategory = null
@@ -95,22 +101,22 @@ fun SubCategorySelectionScreen (
                     editClicked = {
                         add = true
                     },
-                    savedItemClicked = {
+                    savedItemClicked = { name, icon ->
                         viewModel.setSelectedSubCategory(
                             SubCategoryEntity(
-                                name = it,
-                                icon = savedList[it]!!,
+                                name = name,
+                                icon = icon,
                                 category = category
                             )
                         )
                         viewModel.setSubCategoryEditable(false)
                         onDismiss.invoke()
                     },
-                    recommendedItemClicked = {
+                    recommendedItemClicked = { name, icon ->
                         viewModel.setSelectedSubCategory(
                             SubCategoryEntity(
-                                name = it,
-                                icon = recommendedSubCategories[it]!!,
+                                name = name,
+                                icon = icon,
                                 category = category
                             )
                         )

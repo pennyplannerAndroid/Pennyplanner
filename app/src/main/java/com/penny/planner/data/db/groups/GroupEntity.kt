@@ -12,5 +12,6 @@ data class GroupEntity(
     var profileUrl: String? = "",
     var creatorId: String? = "",
     var version: Long = 0,
-    var lastUpdate: Long = 0
+    var lastUpdate: Long = 0,
+    var totalSpendLimit: Double = 0.0
 )

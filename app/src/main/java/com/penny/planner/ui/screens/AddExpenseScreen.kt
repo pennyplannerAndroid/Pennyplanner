@@ -243,7 +243,7 @@ fun AddExpenseScreen(
                             content = details,
                             category = selectedCategory?.name ?: "",
                             subCategory = selectedSubCategory?.name ?: Utils.DEFAULT,
-                            price = amount,
+                            price = amount.toDouble(),
                             paymentType = payment,
                             icon = if (selectedSubCategory != null && selectedSubCategory!!.name.isNotEmpty()) selectedSubCategory!!.icon else selectedCategory?.icon ?: Utils.DEFAULT_ICON
                             )
@@ -261,6 +261,7 @@ fun AddExpenseScreen(
                         val updatedCategory = categoryViewModel.getSelectedCategory()
                         if (selectedCategory == null || updatedCategory == null ||
                             selectedCategory!!.name != updatedCategory.name) {
+                            categoryViewModel.setSelectedCategory(null)
                             selectedSubCategory = null
                         }
                         selectedCategory = updatedCategory

@@ -16,6 +16,7 @@ import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.EmojiModel
+import com.penny.planner.models.NameIconPairWithKeyModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -77,23 +78,33 @@ class CategoryAndEmojiRepositoryImpl @Inject constructor(
         return emojiMap.values.toList()
     }
 
-    override fun getAllRecommendedCategories(): Map<String, String> {
-        val map = mutableMapOf<String, String>()
-        for(category in categoryMap.keys) {
-            map[category] = emojiMap[category].toString()
+    override fun getAllRecommendedCategories(): List<NameIconPairWithKeyModel> {
+        val list = mutableListOf<NameIconPairWithKeyModel>()
+        for (category in categoryMap.keys) {
+            list.add(
+                NameIconPairWithKeyModel(
+                    name = category,
+                    icon = emojiMap[category].toString()
+                )
+            )
         }
-        return map
+        return list
     }
 
-    override fun getRecommendedSubCategory(category: String): Map<String, String> {
-        val map = mutableMapOf<String, String>()
+    override fun getRecommendedSubCategory(category: String): List<NameIconPairWithKeyModel> {
+        val list = mutableListOf<NameIconPairWithKeyModel>()
         val subCategories = categoryMap[category]
         if (!subCategories.isNullOrEmpty()) {
             for(subCategory in subCategories) {
-                map[subCategory] = emojiMap[subCategory].toString()
+                list.add(
+                    NameIconPairWithKeyModel(
+                        name = subCategory,
+                        icon = emojiMap[subCategory].toString()
+                    )
+                )
             }
         }
-        return map
+        return list
     }
 
     override suspend fun getAllSavedCategories(): LiveData<List<CategoryEntity>> = categoryDao.getAllCategories()
@@ -102,7 +113,15 @@ class CategoryAndEmojiRepositoryImpl @Inject constructor(
 
     override suspend fun addCategory(entity: CategoryEntity, limit: String) {
         categoryDao.insert(entity)
-        budgetDao.addBudgetItem(BudgetEntity(name = entity.name, limit = limit))
+        budgetDao.addBudgetItem(
+            BudgetEntity
+                (
+                category = entity.name,
+                icon = entity.icon,
+                spendLimit = limit.toDouble(),
+                entityId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            )
+        )
     }
 
     override suspend fun addSubCategory(entity: SubCategoryEntity) {

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.NameIconPairWithKeyModel
 import com.penny.planner.ui.components.CategoryListViewItem
 import com.penny.planner.ui.components.CircularButtonWithIcon
 import com.penny.planner.ui.components.PreSelectedItem
@@ -40,13 +41,13 @@ fun SelectedSavedAndRecommendedListComponent(
     addNeeded: Boolean,
     title: String,
     selectedItem: Pair<String, String>,
-    recommendedList: Map<String, String>,
-    savedList: Map<String, String>,
+    recommendedList: List<NameIconPairWithKeyModel>,
+    savedList: List<NameIconPairWithKeyModel>,
     selectedItemDeleted: () -> Unit,
     editNeeded: Boolean,
     editClicked: () -> Unit,
-    savedItemClicked: (String) -> Unit,
-    recommendedItemClicked: (String) -> Unit,
+    savedItemClicked: (String, String) -> Unit,
+    recommendedItemClicked: (String, String) -> Unit,
     onAddClicked: () -> Unit
 ) {
     var searchMode by remember {
@@ -159,16 +160,16 @@ fun SelectedSavedAndRecommendedListComponent(
         }
         CategoryListViewItem(
             title = stringResource(id = R.string.saved),
-            categoryList = if (searchText.isEmpty()) savedList else Utils.filterMap(savedList, searchText)
-        ) {
-            savedItemClicked(it)
+            categoryList = savedList.filter { it.searchKey.contains(searchText) }
+        ) { name, icon ->
+            savedItemClicked(name, icon)
         }
 
         CategoryListViewItem(
             title = stringResource(id = R.string.recommended),
-            categoryList = if (searchText.isEmpty()) recommendedList else Utils.filterMap(recommendedList, searchText)
-        ) {
-            recommendedItemClicked(it)
+            categoryList = recommendedList.filter { it.searchKey.contains(searchText) }
+        ) { name, icon ->
+            recommendedItemClicked(name, icon)
         }
     }
 }
@@ -181,15 +182,25 @@ fun PreviewSelectedSavedAndRecommended() {
         addNeeded = true,
         title = "Select a Category",
         selectedItem = Pair("Food", "\uD83C\uDF7D"),
-        recommendedList = mapOf(
-            "1" to "1", "2" to "2", "3" to "3", "4" to "4", "5" to "5"),
-        savedList = mapOf(
-            "1" to "1", "2" to "2", "3" to "3", "4" to "4", "5" to "5"),
+        recommendedList = listOf(
+            NameIconPairWithKeyModel(name = "Food"),
+            NameIconPairWithKeyModel(name = "Travel"),
+            NameIconPairWithKeyModel(name = "Bills"),
+            NameIconPairWithKeyModel(name = "Rent"),
+            NameIconPairWithKeyModel(name = "Gym")
+        ),
+        savedList = listOf(
+            NameIconPairWithKeyModel(name = "1"),
+            NameIconPairWithKeyModel(name = "2"),
+            NameIconPairWithKeyModel(name = "3"),
+            NameIconPairWithKeyModel(name = "4"),
+            NameIconPairWithKeyModel(name = "5")
+        ),
         selectedItemDeleted = {},
         editNeeded = true,
         editClicked = {},
-        savedItemClicked = {},
-        recommendedItemClicked = {},
+        savedItemClicked = {_,_ ->},
+        recommendedItemClicked = {_,_ ->},
     ) {
 
     }

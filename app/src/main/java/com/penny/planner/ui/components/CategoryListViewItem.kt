@@ -30,12 +30,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
+import com.penny.planner.models.NameIconPairWithKeyModel
 
 @Composable
 fun CategoryListViewItem(
     title: String,
-    categoryList: Map<String, String>,
-    onItemClick: (String) -> Unit
+    categoryList: List<NameIconPairWithKeyModel>,
+    onItemClick: (String, String) -> Unit
 ) {
     var viewMore by remember {
         mutableStateOf(
@@ -67,18 +68,18 @@ fun CategoryListViewItem(
                         items(categoryList.toList().subList(0, 4)) { item ->
                             CategorySingleItem(
                                 modifier = Modifier,
-                                item = item
+                                item = item.name to item.icon
                             ) {
-                                onItemClick.invoke(item.first)
+                                onItemClick.invoke(item.name, item.icon)
                             }
                         }
                     } else {
                         items(categoryList.toList()) { item ->
                             CategorySingleItem(
                                 modifier = Modifier,
-                                item = item
+                                item = item.name to item.icon
                             ) {
-                                onItemClick.invoke(item.first)
+                                onItemClick.invoke(item.name, item.icon)
                             }
                         }
                     }
@@ -167,9 +168,14 @@ fun PreSelectedItem(
 fun PreviewListItem() {
     CategoryListViewItem(
         title = "Recommended",
-        categoryList = mapOf(
-            "1" to "1", "2" to "2", "3" to "3", "4" to "4", "5" to "5")
-    ) {
+        categoryList = listOf(
+            NameIconPairWithKeyModel(name = "Food"),
+            NameIconPairWithKeyModel(name = "Travel"),
+            NameIconPairWithKeyModel(name = "Bills"),
+            NameIconPairWithKeyModel(name = "Rent"),
+            NameIconPairWithKeyModel(name = "Gym")
+        )
+    ) { _, _ ->
 
     }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.models.NameIconPairWithKeyModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -55,9 +56,9 @@ class CategoryViewModel @Inject constructor(
 
     fun getAllEmojis(): List<String> = repository.getAllEmoji()
 
-    fun getAllRecommendedCategories(): Map<String, String> = repository.getAllRecommendedCategories()
+    fun getAllRecommendedCategories(): List<NameIconPairWithKeyModel> = repository.getAllRecommendedCategories()
 
-    fun getAllRecommendedSubCategories(categoryName: String) : Map<String, String> = repository.getRecommendedSubCategory(categoryName)
+    fun getAllRecommendedSubCategories(categoryName: String) : List<NameIconPairWithKeyModel> = repository.getRecommendedSubCategory(categoryName)
 
     suspend fun getAllSavedCategories() = repository.getAllSavedCategories()
 

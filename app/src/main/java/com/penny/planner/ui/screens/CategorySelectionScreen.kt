@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
 import com.penny.planner.data.db.category.CategoryEntity
+import com.penny.planner.models.NameIconPairWithKeyModel
 import com.penny.planner.ui.components.CategoryAddPage
 import com.penny.planner.viewmodels.CategoryViewModel
 import kotlinx.coroutines.launch
@@ -29,10 +30,10 @@ fun CategorySelectionScreen (
 ) {
     val scope = rememberCoroutineScope()
     var savedList by remember {
-        mutableStateOf(listOf<CategoryEntity>())
+        mutableStateOf(listOf<NameIconPairWithKeyModel>())
     }
     var savedCategories by remember {
-        mutableStateOf(mapOf<String, String>())
+        mutableStateOf(setOf<String>())
     }
     val recommendedCategories = viewModel.getAllRecommendedCategories()
     var selectedCategory by remember {
@@ -44,6 +45,14 @@ fun CategorySelectionScreen (
         mutableStateOf(false)
     }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    LaunchedEffect(keys = emptyArray()) {
+        scope.launch {
+            viewModel.getAllSavedCategories().observe(lifecycleOwner) { list ->
+                savedList = list.map { NameIconPairWithKeyModel(name = it.name, icon = it.icon) }
+                savedCategories = list.map { it.searchKey }.toSet()
+            }
+        }
+    }
     if (sheetState.isVisible && !enabled) {
         LaunchedEffect(key1 = "") {
             scope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -78,21 +87,13 @@ fun CategorySelectionScreen (
                     onDismiss.invoke()
                 }
             } else {
-                LaunchedEffect(keys = emptyArray()) {
-                    scope.launch {
-                        viewModel.getAllSavedCategories().observe(lifecycleOwner) { list ->
-                            savedList = list
-                            savedCategories = list.associate { it.name to it.icon }
-                        }
-                    }
-                }
                 SelectedSavedAndRecommendedListComponent(
                     addNeeded = selectedCategory == null,
                     title = stringResource(id = R.string.select_a_category),
                     selectedItem = if (selectedCategory == null) Pair("", "") else  Pair(
                         selectedCategory!!.name, selectedCategory!!.icon),
-                    recommendedList = recommendedCategories.filter { !savedCategories.containsKey(it.key) }.filter { it.key.lowercase() != selectedCategory?.name?.lowercase() },
-                    savedList = savedCategories,
+                    recommendedList = recommendedCategories.filter { !savedCategories.contains(it.searchKey) }.filter { it.searchKey != selectedCategory?.name?.lowercase() },
+                    savedList = savedList,
                     selectedItemDeleted = {
                         selectedCategory = null
                         viewModel.deleteSelectedCategory()
@@ -101,30 +102,19 @@ fun CategorySelectionScreen (
                     editClicked = {
                         add = true
                     },
-                    savedItemClicked = {
+                    savedItemClicked = { name, icon ->
                         viewModel.addCategoryToDb = false
-                        var savedItem: CategoryEntity? = null
-                        for (item in savedList) {
-                            if (item.name == it) {
-                                savedItem = item
-                                break
-                            }
-                        }
-                        if (savedItem != null) {
-                            scope.launch {
-                                viewModel.setSelectedCategory(CategoryEntity(name = savedItem.name, icon = savedItem.icon))
-                                // check in budget table for limit set or not and code accordingly
-                                viewModel.setCategoryEditable(false)
-                                onDismiss.invoke()
-                            }
-                        } else {
+                        val savedItem = CategoryEntity(name = name, icon = icon)
+                        scope.launch {
+                            viewModel.setSelectedCategory(savedItem)
+                            // check in budget table for limit set or not and code accordingly
                             viewModel.setCategoryEditable(false)
                             onDismiss.invoke()
                         }
                     },
-                    recommendedItemClicked = {
+                    recommendedItemClicked = { name, icon ->
                         viewModel.addCategoryToDb = true
-                        selectedCategory = CategoryEntity(name = it, icon = recommendedCategories[it]!!)
+                        selectedCategory = CategoryEntity(name = name, icon = icon)
                         viewModel.setCategoryEditable(false)
                         add = true
                     },

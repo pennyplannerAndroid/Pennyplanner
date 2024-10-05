@@ -108,7 +108,7 @@ fun PreviewExpenseItem() {
             content = "Date Night",
             category = "Food",
             subCategory = "Restaurant",
-            price = "500",
+            price = 500.0,
             icon = Utils.DEFAULT_ICON,
             paymentType = "UPI"
         )

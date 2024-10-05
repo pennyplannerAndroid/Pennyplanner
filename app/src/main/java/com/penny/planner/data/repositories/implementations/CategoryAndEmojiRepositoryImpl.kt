@@ -5,8 +5,6 @@ import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
-import com.penny.planner.data.db.budget.BudgetDao
-import com.penny.planner.data.db.budget.BudgetEntity
 import com.penny.planner.data.db.category.CategoryDao
 import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.subcategory.SubCategoryDao
@@ -27,8 +25,7 @@ import javax.inject.Inject
 class CategoryAndEmojiRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao,
     private val subCategoryDao: SubCategoryDao,
-    private val dataStoreRepository: DataStoreEmojiRepository,
-    private val budgetDao: BudgetDao
+    private val dataStoreRepository: DataStoreEmojiRepository
 ): CategoryAndEmojiRepository {
 
     private val generalDataRef = FirebaseDatabase.getInstance().getReference(Utils.GENERAL_DATA)
@@ -111,17 +108,8 @@ class CategoryAndEmojiRepositoryImpl @Inject constructor(
 
     override suspend fun getAllSavedSubCategories(categoryName: String): List<SubCategoryEntity> = subCategoryDao.getAllSubCategories(categoryName)
 
-    override suspend fun addCategory(entity: CategoryEntity, limit: String) {
+    override suspend fun addCategory(entity: CategoryEntity) {
         categoryDao.insert(entity)
-        budgetDao.addBudgetItem(
-            BudgetEntity
-                (
-                category = entity.name,
-                icon = entity.icon,
-                spendLimit = limit.toDouble(),
-                entityId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-            )
-        )
     }
 
     override suspend fun addSubCategory(entity: SubCategoryEntity) {

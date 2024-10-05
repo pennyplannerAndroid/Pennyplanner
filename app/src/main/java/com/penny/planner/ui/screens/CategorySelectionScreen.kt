@@ -82,7 +82,7 @@ fun CategorySelectionScreen (
                     }
                 ) { name, limit, icon, isEditable ->
                     viewModel.setCategoryEditable(isEditable)
-                    viewModel.setSelectedCategory(CategoryEntity(name, icon))
+                    viewModel.setSelectedCategory(CategoryEntity(name = name, icon = icon))
                     viewModel.limit = limit
                     onDismiss.invoke()
                 }
@@ -107,18 +107,27 @@ fun CategorySelectionScreen (
                         val savedItem = CategoryEntity(name = name, icon = icon)
                         scope.launch {
                             viewModel.setSelectedCategory(savedItem)
-                            // check in budget table for limit set or not and code accordingly
-                            viewModel.setCategoryEditable(false)
-                            onDismiss.invoke()
+                            if (viewModel.doesBudgetExists(entityId = "", category = name)) {
+                                viewModel.addBudget = false
+                                viewModel.setCategoryEditable(false)
+                                onDismiss.invoke()
+                            } else {
+                                viewModel.addBudget = true
+                                selectedCategory = CategoryEntity(name = name, icon = icon)
+                                viewModel.setCategoryEditable(false)
+                                add = true
+                            }
                         }
                     },
                     recommendedItemClicked = { name, icon ->
+                        viewModel.addBudget = true
                         viewModel.addCategoryToDb = true
                         selectedCategory = CategoryEntity(name = name, icon = icon)
                         viewModel.setCategoryEditable(false)
                         add = true
                     },
                     onAddClicked = {
+                        viewModel.addBudget = true
                         viewModel.addCategoryToDb = true
                         viewModel.setCategoryEditable(true)
                         add = true

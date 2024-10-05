@@ -52,7 +52,6 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
             user.sendEmailVerification()
-            getExistingDataFromServer()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -87,6 +86,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                     downloadPath?.toString() ?: "", id
                 )
             ).await()
+            getExistingDataFromServer()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

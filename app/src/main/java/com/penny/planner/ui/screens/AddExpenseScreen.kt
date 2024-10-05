@@ -233,11 +233,13 @@ fun AddExpenseScreen(
                             categoryViewModel.addCategory(selectedCategory!!)
                         if (selectedSubCategory != null)
                             categoryViewModel.addSubCategory(selectedSubCategory!!)
-
+                        if (categoryViewModel.addBudget)
+                            categoryViewModel.addBudget(selectedCategory!!)
                         categoryViewModel.deleteSelectedSubCategory()
                         categoryViewModel.deleteSelectedCategory()
                         categoryViewModel.limit = ""
                         categoryViewModel.addCategoryToDb = false
+                        categoryViewModel.addBudget = true
                         addExpense(
                             ExpenseEntity(
                             content = details,
@@ -261,7 +263,7 @@ fun AddExpenseScreen(
                         val updatedCategory = categoryViewModel.getSelectedCategory()
                         if (selectedCategory == null || updatedCategory == null ||
                             selectedCategory!!.name != updatedCategory.name) {
-                            categoryViewModel.setSelectedCategory(null)
+                            categoryViewModel.setSelectedSubCategory(null)
                             selectedSubCategory = null
                         }
                         selectedCategory = updatedCategory

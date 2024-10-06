@@ -16,7 +16,7 @@ class MyApplication : Application() {
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
     @Inject lateinit var groupRepository: GroupRepository
 
-    val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()

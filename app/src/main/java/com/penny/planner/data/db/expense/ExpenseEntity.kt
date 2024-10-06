@@ -17,5 +17,20 @@ data class ExpenseEntity(
     val price: Double,
     val subCategory: String,
     val time: Long = System.currentTimeMillis(),
-    val uploadedOnServer: Boolean = false
-)
+    var uploadedOnServer: Boolean = false
+) {
+
+    fun toFireBaseEntity() =
+        mapOf(
+            Pair("category", category),
+            Pair("content", content),
+            Pair("entityType", entityType),
+            Pair("expensorId", expensorId),
+            Pair("groupId", groupId),
+            Pair("icon", icon),
+            Pair("paymentType", paymentType),
+            Pair("price", price),
+            Pair("subCategory", subCategory),
+            Pair("time", time)
+        )
+}

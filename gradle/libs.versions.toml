@@ -8,6 +8,7 @@ daggerCompiler = "2.51.1"
 datastorePreferences = "1.1.1"
 firebaseBom = "33.1.1"
 firebaseBomVersion = "33.1.2"
+firebaseFirestoreKtx = "25.1.0"
 googleHiltAndroid = "2.44"
 googleHiltAndroidVersion = "2.35.1"
 gson = "2.10.1"
@@ -60,6 +61,7 @@ dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-bom-v3312 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-database = { module = "com.google.firebase:firebase-database" }
+firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

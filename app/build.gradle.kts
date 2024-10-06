@@ -97,7 +97,8 @@ dependencies {
     kaptTest("com.google.dagger:hilt-compiler:2.51.1")
 
     implementation(libs.firebase.database)
-    
+    implementation (libs.firebase.firestore.ktx)
+
     // dependency for the Cloud Storage library
     implementation(libs.firebase.storage)
 

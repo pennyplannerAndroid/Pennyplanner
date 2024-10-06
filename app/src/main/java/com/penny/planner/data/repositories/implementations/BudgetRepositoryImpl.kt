@@ -1,14 +1,25 @@
 package com.penny.planner.data.repositories.implementations
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.penny.planner.data.db.budget.BudgetDao
 import com.penny.planner.data.db.budget.BudgetEntity
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
+import com.penny.planner.helpers.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BudgetRepositoryImpl @Inject constructor(
     private val budgetDao: BudgetDao
 ): BudgetRepository {
+    val db = FirebaseFirestore.getInstance()
+    @Inject lateinit var applicationScope: CoroutineScope
+
+    private val budgetCollectionRef = db.collection(Utils.USER_EXPENSES)
+        .document(FirebaseAuth.getInstance().currentUser!!.uid)
+        .collection(Utils.BUDGET_DETAILS)
 
     override suspend fun addBudget(
         category: String,
@@ -16,14 +27,19 @@ class BudgetRepositoryImpl @Inject constructor(
         spendLimit: Double,
         entityId: String
     ) {
-        budgetDao.addBudgetItem(
-            BudgetEntity(
-                category = category,
-                icon = icon,
-                spendLimit = spendLimit,
-                entityId = if (entityId == "") FirebaseAuth.getInstance().currentUser!!.uid else entityId
-            )
+        val budgetEntity = BudgetEntity(
+            category = category,
+            icon = icon,
+            spendLimit = spendLimit,
+            entityId = if (entityId == "") FirebaseAuth.getInstance().currentUser!!.uid else entityId
         )
+        budgetDao.addBudgetItem(budgetEntity)
+        budgetCollectionRef.document(category).set(budgetEntity.toFireBaseEntity()).addOnSuccessListener {
+            budgetEntity.uploadedOnServer = true
+            applicationScope.launch(Dispatchers.IO) {
+                budgetDao.updateEntity(budgetEntity)
+            }
+        }
     }
 
     override suspend fun isBudgetAvailable(entityId: String, category: String): Boolean {

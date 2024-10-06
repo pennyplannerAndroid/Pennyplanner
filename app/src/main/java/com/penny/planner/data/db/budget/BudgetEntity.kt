@@ -13,4 +13,14 @@ data class BudgetEntity(
     var alertAdded: Boolean = false,
     var alertLimit: Int = 100,
     var icon: String,
-)
+    var uploadedOnServer: Boolean = false
+) {
+    fun toFireBaseEntity() =
+        mapOf(
+            Pair("category", category),
+            Pair("spendLimit", spendLimit),
+            Pair("alertAdded", alertAdded),
+            Pair("alertLimit", alertLimit),
+            Pair("icon", icon)
+        )
+}

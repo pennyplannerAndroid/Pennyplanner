@@ -21,10 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.HomeNavigationItem
-import com.penny.planner.ui.screens.SetBudgetScreen
 import com.penny.planner.ui.screens.mainpage.BudgetScreen
 import com.penny.planner.ui.screens.mainpage.GroupScreen
 import com.penny.planner.ui.screens.mainpage.HomeScreen
@@ -32,10 +32,8 @@ import com.penny.planner.ui.screens.mainpage.ProfileScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -55,23 +53,21 @@ class MainActivity : ComponentActivity() {
             intent.putExtra(Utils.NAVIGATION_DESTINATION, viewModel.getOnboardingNavigation())
             startActivity(intent)
             finish()
+            return
         }
         enableEdgeToEdge()
-        CoroutineScope(Dispatchers.IO).launch {
-            var budget = viewModel.getBudget()
-            withContext(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (viewModel.getIsBudgetSet()) {
                 setContent {
                     PennyPlannerTheme {
-                        if(budget != null) {
-                            Home()
-                        } else {
-                            SetBudgetScreen(viewModel.getName()) {
-                                viewModel.setBudget(it)
-                                budget = it
-                            }
-                        }
+                        Home()
                     }
                 }
+            } else {
+                val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
+                intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.SET_MONTHLY_BUDGET)
+                startActivity(intent)
+                finish()
             }
         }
     }
@@ -140,7 +136,7 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun GreetingPreview() {
-//        Home()
+        Home()
     }
 
 }

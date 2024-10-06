@@ -78,6 +78,7 @@
     <string name="view_more">"View More"</string>
     <string name="view_less">"View Less"</string>
     <string name="set_budget">"Set Budget"</string>
+    <string name="set_monthly_budget">"Lets define your monthly budget!"</string>
     <string name="save">"Save"</string>
 
 </resources>

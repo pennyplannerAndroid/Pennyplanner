@@ -3,7 +3,7 @@ package com.penny.planner.di
 import com.penny.planner.data.repositories.implementations.BudgetRepositoryImpl
 import com.penny.planner.data.repositories.implementations.DataStoreEmojiRepositoryImpl
 import com.penny.planner.data.repositories.implementations.CategoryAndEmojiRepositoryImpl
-import com.penny.planner.data.repositories.implementations.DataStoreBudgetRepositoryImpl
+import com.penny.planner.data.repositories.implementations.MonthlyBudgetRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.implementations.GroupRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
@@ -14,7 +14,7 @@ import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.data.repositories.implementations.UserRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
-import com.penny.planner.data.repositories.interfaces.DataStoreBudgetRepository
+import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
 import dagger.Binds
 import dagger.Module
@@ -52,7 +52,7 @@ abstract class AbstractModule {
 
     @Singleton
     @Binds
-    abstract fun bindBudgetDataStoreRepository(repository: DataStoreBudgetRepositoryImpl): DataStoreBudgetRepository
+    abstract fun bindBudgetDataStoreRepository(repository: MonthlyBudgetRepositoryImpl): MonthlyBudgetRepository
 
     @Singleton
     @Binds

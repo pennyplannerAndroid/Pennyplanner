@@ -3,9 +3,13 @@ package com.penny.planner.data.repositories.implementations
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
@@ -23,19 +27,45 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
     @Inject lateinit var applicationScope: CoroutineScope
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
     @Inject lateinit var groupRepository: GroupRepository
+    @Inject lateinit var budgetRepository: MonthlyBudgetRepository
 
     private val auth = FirebaseAuth.getInstance()
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val storage = FirebaseStorage.getInstance()
 
     override suspend fun login(email: String, password: String): Result<LoginResultModel> {
-        return try {
+        try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
             getExistingDataFromServer(true)
-            Result.success(LoginResultModel(user.isEmailVerified, !user.displayName.isNullOrBlank()))
+            return suspendCoroutine { continuation ->
+                directoryReference.child(Utils.formatEmailForFirebase(email))
+                    .child(Utils.BUDGET_INFO).child(Utils.MONTHLY_BUDGET)
+                    .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            applicationScope.launch {
+                                budgetRepository.updateLocalWithMonthlyBudget(snapshot.value.toString())
+                            }
+                        }
+                        continuation.resume(
+                            Result.success(
+                                LoginResultModel(
+                                    user.isEmailVerified,
+                                    !user.displayName.isNullOrBlank(),
+                                    snapshot.exists()
+                                )
+                            )
+                        )
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        throw Exception(Utils.FAILED)
+                    }
+                })
+            }
         } catch (e: Exception) {
-            Result.failure(e)
+            return Result.failure(e)
         }
     }
 
@@ -130,6 +160,10 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
 
     override fun getEmailId(): String {
         return auth.currentUser?.email ?: ""
+    }
+
+    override fun getName(): String {
+        return auth.currentUser?.displayName ?: ""
     }
 
 }

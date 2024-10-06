@@ -20,6 +20,7 @@ import com.penny.planner.ui.screens.onboarding.EmailVerificationScreen
 import com.penny.planner.ui.screens.onboarding.ForgotPasswordScreen
 import com.penny.planner.ui.screens.onboarding.LoginScreen
 import com.penny.planner.ui.screens.onboarding.PasswordResetEmailScreen
+import com.penny.planner.ui.screens.onboarding.SetBudgetScreen
 import com.penny.planner.ui.screens.onboarding.SignupScreen
 import com.penny.planner.ui.screens.onboarding.TutorialScreen
 import com.penny.planner.ui.screens.onboarding.UpdateProfileScreen
@@ -89,6 +90,9 @@ class OnboardingActivity : ComponentActivity() {
                         controller.navigate(
                             route = "${Utils.EMAIL_VERIFICATION}/${it}"
                         )
+                    },
+                    navToSetBudget = {
+                        controller.navigate(Utils.SET_MONTHLY_BUDGET)
                     }
                 )
             }
@@ -147,10 +151,18 @@ class OnboardingActivity : ComponentActivity() {
                 UpdateProfileScreen(
                     viewModel = viewModel,
                     buttonClicked = {
-                        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
-                        finish()
+                        controller.navigate(Utils.SET_MONTHLY_BUDGET)
                     }
                 )
+            }
+            composable(route = Utils.SET_MONTHLY_BUDGET) {
+                SetBudgetScreen(
+                    viewModel = viewModel,
+                    name = viewModel.getName()
+                ) {
+                    startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                    finish()
+                }
             }
         }
     }

@@ -21,14 +21,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
-import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TopBar
-import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.OnboardingViewModel
 
 @Composable
@@ -147,15 +144,5 @@ fun textWithPartialColored(email : String): AnnotatedString {
         append(
             stringResource(id = R.string.verify_your_email_body_2)
         )
-    }
-}
-
-@Preview
-@Composable
-fun PreviewVerificationScreen() {
-    PennyPlannerTheme {
-        EmailVerificationScreen(modifier = Modifier, OnboardingViewModel(
-            OnboardingRepositoryImpl()
-        ),"as@gmail.com", {}, {})
     }
 }

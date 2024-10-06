@@ -22,16 +22,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
-import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.OutLinedTextFieldForEmail
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TextFieldErrorIndicator
 import com.penny.planner.ui.components.TopBar
-import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.OnboardingViewModel
 
 @Composable
@@ -107,16 +104,4 @@ fun ForgotPasswordScreen(
             }
         }
     )
-}
-
-@Preview
-@Composable
-fun PasswordResetPreview() {
-    PennyPlannerTheme {
-        ForgotPasswordScreen(modifier = Modifier, OnboardingViewModel(
-            OnboardingRepositoryImpl()
-        ), {}) {
-            
-        }
-    }
 }

@@ -52,7 +52,7 @@ class GroupRepositoryImpl @Inject constructor(
     private fun fetchAllGroupsFromFirebase(source: String) {
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-            .child(Utils.GROUPS)
+            .child(Utils.GROUP_INFO)
             .child(source).addValueEventListener(object: ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
@@ -95,11 +95,11 @@ class GroupRepositoryImpl @Inject constructor(
     private fun updatePendingNode(entity: GroupEntity) {
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-            .child(Utils.GROUPS)
+            .child(Utils.GROUP_INFO)
             .child(Utils.JOINED).child(entity.groupId).setValue(Utils.NON_ADMIN_VALUE)
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-            .child(Utils.GROUPS)
+            .child(Utils.GROUP_INFO)
             .child(Utils.PENDING).child(entity.groupId).removeValue()
     }
 
@@ -146,13 +146,13 @@ class GroupRepositoryImpl @Inject constructor(
             }
             userDirectory
                 .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-                .child(Utils.GROUPS)
+                .child(Utils.GROUP_INFO)
                 .child(Utils.JOINED).child(groupId).setValue(Utils.ADMIN_VALUE)
             for (user in groupEntity.members) {
                 if (user.isNotEmpty()) {
                     userDirectory
                         .child(Utils.formatEmailForFirebase(user))
-                        .child(Utils.GROUPS)
+                        .child(Utils.GROUP_INFO)
                         .child(Utils.PENDING).child(groupId).setValue(Utils.NON_ADMIN_VALUE)
                 }
             }

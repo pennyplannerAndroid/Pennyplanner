@@ -50,7 +50,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -62,7 +61,6 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
-import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
 import com.penny.planner.helpers.createImageFile
 import com.penny.planner.ui.components.BottomDrawer
@@ -301,10 +299,4 @@ class CustomShape : Shape {
         }
         return Outline.Generic(path)
     }
-}
-
-@Preview
-@Composable
-fun UpdateProfile() {
-    UpdateProfileScreen(OnboardingViewModel(OnboardingRepositoryImpl())) {}
 }

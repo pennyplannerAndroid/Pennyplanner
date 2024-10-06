@@ -10,4 +10,5 @@ interface OnboardingRepository {
     suspend fun sendPasswordResetEmail(email: String) : Result<Boolean>
     suspend fun signup(email: String, password: String) : Result<Boolean>
     fun getEmailId() : String
+    fun getName(): String
 }

@@ -10,9 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.penny.planner.R
-import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.SignupAndLoginComposable
 import com.penny.planner.ui.components.buildText
@@ -27,7 +25,8 @@ fun LoginScreen(
     navToSignup : () -> Unit,
     loginSuccess: () -> Unit,
     goToProfile: () -> Unit,
-    navToVerification: (String) -> Unit
+    navToVerification: (String) -> Unit,
+    navToSetBudget: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     val result = viewModel.loginResult.observeAsState().value
@@ -39,8 +38,12 @@ fun LoginScreen(
         isLoadingShown = false
         if (result.isSuccess) {
             if (result.getOrNull()!!.isEmailVerified) {
-                if (result.getOrNull()!!.isProfileUpdated)
-                    loginSuccess.invoke()
+                if (result.getOrNull()!!.isProfileUpdated) {
+                    if (result.getOrNull()!!.isBudgetSet)
+                        loginSuccess.invoke()
+                    else
+                        navToSetBudget.invoke()
+                }
                 else
                     goToProfile.invoke()
             } else
@@ -76,10 +79,4 @@ fun LoginScreen(
         forgotPasswordClicked = forgotPassword
     )
     FullScreenProgressIndicator(show = isLoadingShown)
-}
-
-@Composable
-@Preview
-fun PreviewLogin() {
-    LoginScreen(modifier = Modifier, OnboardingViewModel(OnboardingRepositoryImpl()), {}, {}, {}, {}, {}, {})
 }

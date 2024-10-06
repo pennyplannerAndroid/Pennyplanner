@@ -18,6 +18,7 @@ class Utils {
         const val FORGOT_PASSWORD = "forgot_Password"
         const val UPDATE_PROFILE = "update_Profile"
         const val EMAIL_SENT = "email_sent"
+        const val SET_MONTHLY_BUDGET = "set_monthly_budget"
 
         // Home Navigation
         const val HOME = "Home"
@@ -55,6 +56,8 @@ class Utils {
         // firebase paths
         const val USERS = "Users"
         const val USER_INFO = "UserInfo"
+        const val GROUP_INFO = "GroupInfo"
+        const val BUDGET_INFO = "BudgetInfo"
         const val USER_IMAGE = "UserImage"
         const val GROUPS = "Groups"
         const val PENDING = "Pending"
@@ -62,6 +65,7 @@ class Utils {
         const val GENERAL_DATA = "GeneralData"
         const val EMOJI_FILE_ID = "emojiFileID"
         const val PROFILE_URL = "profileUrl"
+        const val MONTHLY_BUDGET = "monthlyBudget"
 
         //tables
         const val CATEGORY_TABLE = "category_table"
@@ -92,10 +96,6 @@ class Utils {
         fun convertMillisToTime(millis: Long): String {
             val date = Date(millis)
             return SimpleDateFormat("HH:mm").format(date)
-        }
-
-        fun filterMap(map: Map<String, String>, key: String): Map<String, String> {
-            return map.filter { it.key.lowercase().contains(key.lowercase()) }
         }
 
         fun getPaymentTypes() = mapOf(Pair("Cash", "💵"), Pair("UPI", "🆙"), Pair("Card", "💳"))

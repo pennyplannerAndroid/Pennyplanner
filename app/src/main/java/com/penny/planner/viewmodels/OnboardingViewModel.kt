@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.models.LoginResultModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val repository : OnboardingRepository
+    private val repository : OnboardingRepository,
+    private val budgetRepository: MonthlyBudgetRepository
 ): ViewModel() {
     //login
     private val _loginResult = MutableLiveData<Result<LoginResultModel>>()
@@ -33,6 +35,9 @@ class OnboardingViewModel @Inject constructor(
     //forget password
     private val _forgetPasswordSentStatus = MutableLiveData<Result<Boolean>>()
     val forgetPasswordSentStatus = _forgetPasswordSentStatus
+    // set monthly budget
+    private val _monthlyBudgetStatus = MutableLiveData<Result<Boolean>>()
+    val monthlyBudgetStatus = _monthlyBudgetStatus
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
@@ -55,21 +60,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun signupWithGoogle() {
-//        viewModelScope.launch {
-//            var signInRequest = BeginSignInRequest.builder()
-//                .setGoogleIdTokenRequestOptions(
-//                    BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-//                        .setSupported(true)
-//                        // Your server's client ID, not your Android client ID.
-//                        .setServerClientId(getString(
-//                            R.string.web_client_id_for_google
-//                        ))
-//                        // Only show accounts previously used to sign in.
-//                        .setFilterByAuthorizedAccounts(true)
-//                        .build()
-//                )
-//                .build()
-//        }
+
     }
 
     fun signupWithFacebook() {
@@ -87,6 +78,14 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun setMonthlyLimit(amount: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = budgetRepository.updateMonthlyBudget(amount)
+            withContext(Dispatchers.Main) {
+                _monthlyBudgetStatus.value = result
+            }
+        }
+    }
 
     fun sendVerificationEmail() {
         viewModelScope.launch {
@@ -108,6 +107,10 @@ class OnboardingViewModel @Inject constructor(
 
     fun getEmail(): String {
         return repository.getEmailId()
+    }
+
+    fun getName(): String {
+        return repository.getName()
     }
 
 }

@@ -42,7 +42,6 @@ import com.penny.planner.R
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.ui.components.CircularBudgetItem
 import com.penny.planner.ui.components.ExpenseListItem
-import com.penny.planner.ui.screens.AddExpenseScreen
 import com.penny.planner.viewmodels.ExpenseViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -50,12 +49,11 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun HomeScreen(modifier: Modifier) {
+fun HomeScreen(
+    modifier: Modifier,
+    addExpenseClick: () -> Unit) {
     val viewModel = hiltViewModel<ExpenseViewModel>()
     val scope = rememberCoroutineScope()
-    var showAddExpenseDrawer by remember {
-        mutableStateOf(false)
-    }
     var expenseList by remember {
         mutableStateOf(listOf<ExpenseEntity>())
     }
@@ -138,25 +136,13 @@ fun HomeScreen(modifier: Modifier) {
                 modifier = modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                onClick = { showAddExpenseDrawer = true },
+                onClick = { addExpenseClick.invoke() },
             ) {
                 Image(painter = painterResource(id = R.drawable.add_group_icon), contentDescription = stringResource(
                     id = R.string.add_expense
                 ))
             }
         }
-    }
-
-    if (showAddExpenseDrawer) {
-        AddExpenseScreen (
-            onDismiss = {
-                showAddExpenseDrawer = false
-            },
-            addExpense = { expense ->
-                viewModel.addExpense(expense)
-                showAddExpenseDrawer = false
-            }
-        )
     }
 }
 

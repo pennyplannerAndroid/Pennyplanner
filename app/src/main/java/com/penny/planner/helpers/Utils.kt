@@ -25,6 +25,11 @@ class Utils {
         const val BUDGET = "Budget"
         const val PROFILE = "Profile"
 
+        // Main Page Navigation
+        const val MAIN_PAGE = "main_page"
+        const val ADD_EXPENSE = "add_expense"
+        const val CREATE_GROUP = "create_group"
+
         // Key
         const val EMAIL = "email"
         const val DEFAULT_EMAIL_STRING = "@"

@@ -1,5 +1,6 @@
 package com.penny.planner.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -14,13 +15,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,15 +55,18 @@ const val CATEGORY = 1
 const val SUBCATEGORY = 2
 const val PAYMENT = 3
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
     onDismiss: () -> Unit,
     addExpense: (ExpenseEntity) -> Unit
 ) {
     val categoryViewModel = hiltViewModel<CategoryViewModel>()
-    val state = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+    BackHandler(
+        onBack = {
+            categoryViewModel.deleteSelectedCategory()
+            categoryViewModel.deleteSelectedSubCategory()
+            onDismiss.invoke()
+        }
     )
     var amount by remember {
         mutableStateOf("")
@@ -82,7 +84,6 @@ fun AddExpenseScreen(
         }
     }
 
-
     var selectedCategory by remember {
         mutableStateOf<CategoryEntity?>(null)
     }
@@ -99,17 +100,11 @@ fun AddExpenseScreen(
         androidx.compose.runtime.mutableIntStateOf(0)
     }
 
-    ModalBottomSheet(
-        onDismissRequest = {
-            categoryViewModel.deleteSelectedCategory()
-            categoryViewModel.deleteSelectedSubCategory()
-            onDismiss.invoke()
-        },
-        containerColor = Color.Red,
-        sheetState = state
-    ) {
+    Scaffold(
+        modifier = Modifier.background(color = Color.Red),
+    ) { contentPadding ->
         Column(
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.background(color = Color.Red).padding(contentPadding)
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),

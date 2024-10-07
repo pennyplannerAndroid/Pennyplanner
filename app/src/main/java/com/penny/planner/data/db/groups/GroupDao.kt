@@ -14,6 +14,6 @@ interface GroupDao {
     suspend fun addGroup(entity: GroupEntity)
 
     @Query("SELECT * FROM ${Utils.GROUP_TABLE}")
-    fun getAllGroups(): LiveData<List<GroupEntity>?>
+    fun getAllGroups(): LiveData<List<GroupEntity>>
 
 }

@@ -7,7 +7,7 @@ import com.penny.planner.models.UserModel
 interface GroupRepository {
     fun getAllGroupsFromFirebase()
     fun getAllPendingGroups()
-    suspend fun getAllGroups(): LiveData<List<GroupEntity>?>
+    suspend fun getAllGroups(): LiveData<List<GroupEntity>>
     suspend fun newGroup(name: String, path: String?, members: List<String>, byteArray: ByteArray?): Result<Boolean>
     suspend fun findUser(email: String): Result<UserModel>
 }

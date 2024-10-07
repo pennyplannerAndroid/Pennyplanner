@@ -103,7 +103,7 @@ class GroupRepositoryImpl @Inject constructor(
             .child(Utils.PENDING).child(entity.groupId).removeValue()
     }
 
-    override suspend fun getAllGroups(): LiveData<List<GroupEntity>?> {
+    override suspend fun getAllGroups(): LiveData<List<GroupEntity>> {
         return groupDao.getAllGroups()
     }
 

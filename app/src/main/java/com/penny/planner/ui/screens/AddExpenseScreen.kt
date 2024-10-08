@@ -231,17 +231,7 @@ fun AddExpenseScreen(
                         .size(48.dp),
                     textRes = R.string.add,
                     onClick = {
-                        if (categoryViewModel.addCategoryToDb)
-                            categoryViewModel.addCategory(selectedCategory!!)
-                        if (selectedSubCategory != null)
-                            categoryViewModel.addSubCategory(selectedSubCategory!!)
-                        if (categoryViewModel.addBudget)
-                            categoryViewModel.addBudget(selectedCategory!!)
-                        categoryViewModel.deleteSelectedSubCategory()
-                        categoryViewModel.deleteSelectedCategory()
-                        categoryViewModel.limit = ""
-                        categoryViewModel.addCategoryToDb = false
-                        categoryViewModel.addBudget = true
+                        categoryViewModel.addCategoryAndBudgetToDb()
                         addExpense(
                             ExpenseEntity(
                             content = details,

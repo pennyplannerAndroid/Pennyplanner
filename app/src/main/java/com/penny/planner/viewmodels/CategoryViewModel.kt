@@ -90,6 +90,24 @@ class CategoryViewModel @Inject constructor(
         }
     }
 
+    fun addCategoryAndBudgetToDb() {
+        if (addCategoryToDb)
+            addCategory(selectedCategory!!)
+        if (selectedSubCategory != null)
+            addSubCategory(selectedSubCategory!!)
+        if (addBudget)
+            addBudget(selectedCategory!!)
+        resetLocalValues()
+    }
+
+    private fun resetLocalValues() {
+        deleteSelectedSubCategory()
+        deleteSelectedCategory()
+        limit = ""
+        addCategoryToDb = false
+        addBudget = true
+    }
+
     suspend fun doesBudgetExists(entityId: String, category: String) =
         budgetRepository.isBudgetAvailable(entityId = entityId, category = category)
 

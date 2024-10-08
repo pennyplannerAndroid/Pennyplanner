@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +47,10 @@ import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.helpers.keyboardAsState
 import com.penny.planner.ui.components.PaymentSelectionPage
 import com.penny.planner.ui.components.PrimaryButton
+import com.penny.planner.ui.components.RedTopBar
 import com.penny.planner.ui.components.TextFieldWithTrailingIcon
 import com.penny.planner.viewmodels.CategoryViewModel
 
@@ -60,14 +64,9 @@ fun AddExpenseScreen(
     onDismiss: () -> Unit,
     addExpense: (ExpenseEntity) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     val categoryViewModel = hiltViewModel<CategoryViewModel>()
-    BackHandler(
-        onBack = {
-            categoryViewModel.deleteSelectedCategory()
-            categoryViewModel.deleteSelectedSubCategory()
-            onDismiss.invoke()
-        }
-    )
+    val isKeyboardOpen by keyboardAsState()
     var amount by remember {
         mutableStateOf("")
     }
@@ -76,13 +75,6 @@ fun AddExpenseScreen(
     }
 
     val alpha = remember { Animatable(0f) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
-            alpha.animateTo(0f, animationSpec = tween(durationMillis = 500))
-        }
-    }
 
     var selectedCategory by remember {
         mutableStateOf<CategoryEntity?>(null)
@@ -95,27 +87,43 @@ fun AddExpenseScreen(
         mutableStateOf("")
     }
 
-
     var showDialog by remember {
         androidx.compose.runtime.mutableIntStateOf(0)
     }
 
+    if (!isKeyboardOpen)
+        focusManager.clearFocus()
+    BackHandler(
+        onBack = {
+            categoryViewModel.deleteSelectedCategory()
+            categoryViewModel.deleteSelectedSubCategory()
+            onDismiss.invoke()
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
+            alpha.animateTo(0f, animationSpec = tween(durationMillis = 500))
+        }
+    }
+
     Scaffold(
-        modifier = Modifier.background(color = Color.Red),
+        topBar = {
+            RedTopBar(
+                modifier = Modifier,
+                title = stringResource(id = R.string.add_expense),
+                onBackPressed = onDismiss
+            )
+        }
     ) { contentPadding ->
         Column(
-            modifier = Modifier.background(color = Color.Red).padding(contentPadding)
+            modifier = Modifier.background(color = Color.Red)
         ) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(id = R.string.add_expense),
-                color = Color.White,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp
-            )
             Text(
                 modifier = Modifier
                     .padding(start = 24.dp, top = 64.dp)
+                    .padding(contentPadding)
                     .alpha(0.64f),
                 text = stringResource(id = R.string.how_much),
                 fontSize = 18.sp,
@@ -124,7 +132,7 @@ fun AddExpenseScreen(
             )
             Row(
                 modifier = Modifier
-                    .padding(start = 24.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
+                    .padding(start = 24.dp, top = 8.dp, bottom = 24.dp, end = 24.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.rupee_icon),
@@ -152,12 +160,15 @@ fun AddExpenseScreen(
                             modifier = Modifier.padding(start = 6.dp)
                         ) {
                             if (amount.isEmpty()) {
-                                Box(modifier = Modifier
-                                    .width(2.dp)
-                                    .height(64.dp)
-                                    .graphicsLayer(alpha = alpha.value)
-                                    .background(color = Color.White)
-                                )
+                                if (isKeyboardOpen) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(2.dp)
+                                            .height(64.dp)
+                                            .graphicsLayer(alpha = alpha.value)
+                                            .background(color = Color.White)
+                                    )
+                                }
                                 Text(
                                     modifier = Modifier
                                         .padding(start = 4.dp),
@@ -177,6 +188,7 @@ fun AddExpenseScreen(
                         color = Color.White,
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                     )
+                    .fillMaxSize()
             ) {
                 TextFieldWithTrailingIcon(
                     value = if (selectedCategory == null) "" else "${selectedCategory!!.icon} ${selectedCategory!!.name}",
@@ -210,11 +222,6 @@ fun AddExpenseScreen(
                     onValueChange = { details = it },
                     label = {
                         Text(stringResource(id = R.string.description))
-                    },
-                    supportingText = {
-                        Text(
-                            text = "${amount.length}/${Utils.PRICE_LIMIT}",
-                        )
                     }
                 )
                 PrimaryButton(

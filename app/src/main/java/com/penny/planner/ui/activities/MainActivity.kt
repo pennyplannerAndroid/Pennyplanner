@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
             finish()
             return
         }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         lifecycleScope.launch(Dispatchers.Main) {
             if (viewModel.getIsBudgetSet()) {

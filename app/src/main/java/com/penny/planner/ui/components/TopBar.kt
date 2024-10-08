@@ -6,11 +6,14 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.penny.planner.R
 
@@ -39,4 +42,46 @@ fun TopBar (
             )
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RedTopBar(
+    modifier: Modifier,
+    title: String,
+    onBackPressed: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarColors(
+            containerColor = Color.Red,
+            actionIconContentColor = Color.Black,
+            navigationIconContentColor = Color.Black,
+            titleContentColor = Color.White,
+            scrolledContainerColor = Color.Transparent
+        ),
+        title = {
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        },
+        navigationIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_back),
+                contentDescription = null,
+                modifier = modifier
+                    .clickable(onClick = onBackPressed)
+                    .padding(start = 16.dp)
+            )
+        }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewTopBar() {
+    RedTopBar(modifier = Modifier, title = "Expense") {
+        
+    }
 }

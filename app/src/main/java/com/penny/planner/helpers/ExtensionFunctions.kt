@@ -1,6 +1,12 @@
 package com.penny.planner.helpers
 
 import android.content.Context
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalDensity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -17,5 +23,11 @@ fun Context.createImageFile(): File {
     return image
 }
 
-inline fun <reified T> Gson.fromJson(json: String) =
-    fromJson<T>(json, object : TypeToken<T>() {}.type)
+inline fun <reified T> Gson.fromJson(json: String): T =
+    fromJson(json, object : TypeToken<T>() {}.type)
+
+@Composable
+fun keyboardAsState(): State<Boolean> {
+    val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    return rememberUpdatedState(isImeVisible)
+}

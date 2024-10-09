@@ -62,6 +62,7 @@ const val PAYMENT = 3
 @Composable
 fun AddExpenseScreen(
     onDismiss: () -> Unit,
+    groupId: String,
     addExpense: (ExpenseEntity) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -231,7 +232,7 @@ fun AddExpenseScreen(
                         .size(48.dp),
                     textRes = R.string.add,
                     onClick = {
-                        categoryViewModel.addCategoryAndBudgetToDb()
+                        categoryViewModel.addCategoryAndBudgetToDb(groupId)
                         addExpense(
                             ExpenseEntity(
                             content = details,
@@ -249,6 +250,7 @@ fun AddExpenseScreen(
             when (showDialog) {
                 CATEGORY -> CategorySelectionScreen(
                     viewModel = categoryViewModel,
+                    groupId = groupId,
                     enabled = true,
                     onDismiss = {
                         showDialog = NONE
@@ -287,5 +289,5 @@ fun AddExpenseScreen(
 @Preview
 @Composable
 fun PreviewAddExpenseScreen() {
-    AddExpenseScreen({}) {}
+    AddExpenseScreen({}, "") {}
 }

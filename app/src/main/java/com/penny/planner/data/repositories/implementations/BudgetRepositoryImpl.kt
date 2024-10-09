@@ -21,6 +21,8 @@ class BudgetRepositoryImpl @Inject constructor(
         .document(FirebaseAuth.getInstance().currentUser!!.uid)
         .collection(Utils.BUDGET_DETAILS)
 
+    private val groupExpenseCollectionRef = db.collection(Utils.GROUP_EXPENSES)
+
     override suspend fun addBudget(
         category: String,
         icon: String,
@@ -34,12 +36,33 @@ class BudgetRepositoryImpl @Inject constructor(
             entityId = if (entityId == "") FirebaseAuth.getInstance().currentUser!!.uid else entityId
         )
         budgetDao.addBudgetItem(budgetEntity)
-        budgetCollectionRef.document(category).set(budgetEntity.toFireBaseEntity()).addOnSuccessListener {
-            budgetEntity.uploadedOnServer = true
+       if (entityId.isNotEmpty())
+           addExpenseForGroup(budgetEntity)
+        else
+            addBudgetForSelf(budgetEntity)
+    }
+
+    private suspend fun addBudgetForSelf(entity: BudgetEntity) {
+        budgetCollectionRef.document(entity.category).set(entity.toFireBaseEntity()).addOnSuccessListener {
+            entity.uploadedOnServer = true
             applicationScope.launch(Dispatchers.IO) {
-                budgetDao.updateEntity(budgetEntity)
+                budgetDao.updateEntity(entity)
             }
         }
+    }
+
+    private suspend fun addExpenseForGroup(entity: BudgetEntity) {
+        groupExpenseCollectionRef
+            .document(entity.entityId)
+            .collection(Utils.BUDGET_DETAILS)
+            .document(entity.category)
+            .set(entity.toFireBaseEntity())
+            .addOnSuccessListener {
+                entity.uploadedOnServer = true
+                applicationScope.launch(Dispatchers.IO) {
+                    budgetDao.updateEntity(entity)
+                }
+            }
     }
 
     override suspend fun isBudgetAvailable(entityId: String, category: String): Boolean {

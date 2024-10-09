@@ -187,4 +187,8 @@ class GroupRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getGroupById(groupId: String): GroupEntity {
+        return groupDao.getGroupByGroupId(groupId = groupId)
+    }
 }

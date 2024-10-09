@@ -10,4 +10,5 @@ interface GroupRepository {
     suspend fun getAllGroups(): LiveData<List<GroupEntity>>
     suspend fun newGroup(name: String, path: String?, members: List<String>, byteArray: ByteArray?): Result<Boolean>
     suspend fun findUser(email: String): Result<UserModel>
+    suspend fun getGroupById(groupId: String): GroupEntity
 }

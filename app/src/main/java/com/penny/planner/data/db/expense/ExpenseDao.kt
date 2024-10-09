@@ -19,4 +19,7 @@ interface ExpenseDao {
     @Update
     suspend fun update(entity: ExpenseEntity)
 
+    @Query("Select * From expense_table WHERE groupId = :groupId Order by time DESC")
+    fun getAllExpenses(groupId: String) : LiveData<List<ExpenseEntity>>
+
 }

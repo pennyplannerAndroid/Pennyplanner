@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CategorySelectionScreen (
     viewModel: CategoryViewModel,
+    groupId: String,
     enabled: Boolean,
     onDismiss: () -> Unit
 ) {
@@ -107,7 +108,7 @@ fun CategorySelectionScreen (
                         val savedItem = CategoryEntity(name = name, icon = icon)
                         scope.launch {
                             viewModel.setSelectedCategory(savedItem)
-                            if (viewModel.doesBudgetExists(entityId = "", category = name)) {
+                            if (viewModel.doesBudgetExists(entityId = groupId, category = name)) {
                                 viewModel.addBudget = false
                                 viewModel.setCategoryEditable(false)
                                 onDismiss.invoke()
@@ -143,6 +144,7 @@ fun CategorySelectionScreen (
 fun PreviewBottomSheetWithList() {
     CategorySelectionScreen(
         hiltViewModel<CategoryViewModel>(),
+        "",
         true
     ) {}
 }

@@ -29,6 +29,7 @@ class Utils {
         const val MAIN_PAGE = "main_page"
         const val ADD_EXPENSE = "add_expense"
         const val CREATE_GROUP = "create_group"
+        const val GROUP_SESSION = "group_session"
 
         // Key
         const val EMAIL = "email"
@@ -52,6 +53,7 @@ class Utils {
         const val EMOJI_JSON = "emojiJson"
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"
+        const val GROUP_ID = "group_id"
 
         //values
         const val PRICE_LIMIT = 7
@@ -73,6 +75,7 @@ class Utils {
         const val MONTHLY_BUDGET = "monthlyBudget"
         const val BUDGET_DETAILS = "BudgetDetails"
         const val USER_EXPENSES = "UserExpenses"
+        const val GROUP_EXPENSES = "GroupExpenses"
         const val EXPENSES = "Expenses"
 
         //tables

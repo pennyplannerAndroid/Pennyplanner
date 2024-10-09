@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun GroupScreen(
     modifier: Modifier,
-    addGroup: () -> Unit
+    addGroup: () -> Unit,
+    groupSession: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val viewModel = hiltViewModel<GroupViewModel>()
@@ -78,7 +79,9 @@ fun GroupScreen(
                     columns = GridCells.Fixed(count = 2)
                 ) {
                     items(groups) {
-                        GroupItem(modifier = Modifier, entity = it)
+                        GroupItem(modifier = Modifier, entity = it) {
+                            groupSession.invoke(it.groupId)
+                        }
                     }
                 }
                 FloatingActionButton(
@@ -100,5 +103,5 @@ fun GroupScreen(
 @Preview
 @Composable
 fun PreviewGroupScreen() {
-    GroupScreen(Modifier) {}
+    GroupScreen(Modifier, {}) {}
 }

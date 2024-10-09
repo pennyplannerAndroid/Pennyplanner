@@ -67,36 +67,36 @@ class CategoryViewModel @Inject constructor(
 
     suspend fun getAllSavedSubCategories(categoryName: String): List<SubCategoryEntity> = categoryAndEmojiRepository.getAllSavedSubCategories(categoryName)
 
-    fun addCategory(entity: CategoryEntity) {
+    private fun addCategory(entity: CategoryEntity) {
         viewModelScope.launch {
             categoryAndEmojiRepository.addCategory(entity)
         }
     }
 
-    fun addSubCategory(entity: SubCategoryEntity) {
+    private fun addSubCategory(entity: SubCategoryEntity) {
         viewModelScope.launch {
             categoryAndEmojiRepository.addSubCategory(entity)
         }
     }
 
-    fun addBudget(entity: CategoryEntity) {
+    private fun addBudget(entity: CategoryEntity, groupId: String) {
         viewModelScope.launch {
             budgetRepository.addBudget(
                 category = entity.name,
                 icon = entity.icon,
                 spendLimit = limit.toDouble(),
-                entityId = ""
+                entityId = groupId
             )
         }
     }
 
-    fun addCategoryAndBudgetToDb() {
+    fun addCategoryAndBudgetToDb(groupId: String) {
         if (addCategoryToDb)
             addCategory(selectedCategory!!)
         if (selectedSubCategory != null)
             addSubCategory(selectedSubCategory!!)
         if (addBudget)
-            addBudget(selectedCategory!!)
+            addBudget(selectedCategory!!, groupId)
         resetLocalValues()
     }
 

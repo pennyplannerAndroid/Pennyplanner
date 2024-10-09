@@ -24,14 +24,17 @@ import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.HomeNavigationItem
 import com.penny.planner.ui.screens.AddExpenseScreen
 import com.penny.planner.ui.screens.AddNewGroupScreen
+import com.penny.planner.ui.screens.GroupSessionScreen
 import com.penny.planner.ui.screens.mainpage.BudgetScreen
 import com.penny.planner.ui.screens.mainpage.GroupScreen
 import com.penny.planner.ui.screens.mainpage.HomeScreen
@@ -89,7 +92,12 @@ class MainActivity : ComponentActivity() {
             composable(route = Utils.MAIN_PAGE) {
                 Home(
                     createGroupClicked = { controller.navigate(Utils.CREATE_GROUP) },
-                    addExpense = { controller.navigate(Utils.ADD_EXPENSE) }
+                    addExpense = { controller.navigate(Utils.ADD_EXPENSE) },
+                    openGroupSession = {
+                        controller.navigate(
+                            route = "${Utils.GROUP_SESSION}/${it}"
+                        )
+                    }
                 )
             }
             composable(route = Utils.CREATE_GROUP) {
@@ -102,11 +110,23 @@ class MainActivity : ComponentActivity() {
                     onDismiss = {
                         controller.popBackStack()
                     },
+                    groupId = "",
                     addExpense = { expense ->
                         viewModel.addExpense(expense)
                         controller.popBackStack()
                     }
                 )
+            }
+            composable(
+                route = "${Utils.GROUP_SESSION}/{${Utils.GROUP_ID}}",
+                arguments = listOf(
+                    navArgument(Utils.GROUP_ID) {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) {
+                GroupSessionScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "")
             }
         }
     }
@@ -114,7 +134,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Home(
         createGroupClicked: () -> Unit,
-        addExpense: () -> Unit
+        addExpense: () -> Unit,
+        openGroupSession: (String) -> Unit
     ) {
         val pagerState = rememberPagerState(pageCount = { 4 })
         val scope = rememberCoroutineScope()
@@ -168,8 +189,11 @@ class MainActivity : ComponentActivity() {
                     POSITION_HOME -> HomeScreen(modifier = Modifier.padding(innerPadding)) {
                         addExpense.invoke()
                     }
-                    POSITION_GROUP -> GroupScreen(modifier = Modifier.padding(innerPadding)) {
-                       createGroupClicked.invoke()
+                    POSITION_GROUP -> GroupScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        addGroup = { createGroupClicked.invoke() }
+                    ) {
+                       openGroupSession.invoke(it)
                     }
                     POSITION_BUDGET -> BudgetScreen()
                     POSITION_PROFILE -> ProfileScreen()

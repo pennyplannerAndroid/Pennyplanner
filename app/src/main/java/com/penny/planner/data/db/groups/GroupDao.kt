@@ -16,4 +16,7 @@ interface GroupDao {
     @Query("SELECT * FROM ${Utils.GROUP_TABLE}")
     fun getAllGroups(): LiveData<List<GroupEntity>>
 
+    @Query("SELECT * FROM group_table WHERE groupId = :groupId")
+    suspend fun getGroupByGroupId(groupId: String): GroupEntity
+
 }

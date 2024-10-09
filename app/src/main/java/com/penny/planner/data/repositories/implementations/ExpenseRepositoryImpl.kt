@@ -25,13 +25,40 @@ class ExpenseRepositoryImpl @Inject constructor(
         .document(FirebaseAuth.getInstance().currentUser!!.uid)
         .collection(Utils.EXPENSES)
 
+    private val groupExpenseCollectionRef = db.collection(Utils.GROUP_EXPENSES)
+
     override suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>> =
         expenseDao.getAllExpenses()
+
+    override suspend fun getAllExpenses(groupId: String): LiveData<List<ExpenseEntity>> {
+       return expenseDao.getAllExpenses(groupId)
+    }
 
     override suspend fun addExpense(entity: ExpenseEntity) {
         entity.expensorId = auth.currentUser?.uid ?: ""
         expenseDao.insert(entity)
+        if (entity.groupId.isNotEmpty())
+            addExpenseForGroup(entity)
+        else
+            addExpenseForSelf(entity)
+    }
+
+    private suspend fun addExpenseForSelf(entity: ExpenseEntity) {
         expenseCollectionRef
+            .document(entity.time.toString())
+            .set(entity.toFireBaseEntity())
+            .addOnSuccessListener {
+                applicationScope.launch(Dispatchers.IO) {
+                    entity.uploadedOnServer = true
+                    expenseDao.update(entity)
+                }
+            }
+    }
+
+    private suspend fun addExpenseForGroup(entity: ExpenseEntity) {
+        groupExpenseCollectionRef
+            .document(entity.groupId)
+            .collection(Utils.EXPENSES)
             .document(entity.time.toString())
             .set(entity.toFireBaseEntity())
             .addOnSuccessListener {

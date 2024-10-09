@@ -13,7 +13,6 @@ import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.GroupFireBaseModel
 import com.penny.planner.models.UserModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -120,14 +119,7 @@ class GroupRepositoryImpl @Inject constructor(
             FirebaseDatabase.getInstance()
                 .getReference(Utils.GROUPS)
                 .child(groupId)
-                .setValue(
-                    GroupFireBaseModel(
-                    groupId = groupId,
-                    name = name,
-                    members = groupEntity.members,
-                    creatorId = groupEntity.creatorId!!
-                    )
-                ).await()
+                .setValue(groupEntity.toFireBaseModel()).await()
             var downloadPath: Uri? = null
             if (byteArray != null) {
                 val storageRef = storage.getReference(Utils.USER_IMAGE).child(groupId)

@@ -14,4 +14,15 @@ data class GroupEntity(
     var version: Long = 0,
     var lastUpdate: Long = 0,
     var totalSpendLimit: Double = 0.0
-)
+) {
+    fun toFireBaseModel() {
+        mapOf(
+            Pair("groupId", groupId),
+            Pair("name", name),
+            Pair("members", members),
+            Pair("creatorId", creatorId),
+            Pair("totalSpendLimit", totalSpendLimit),
+            Pair("profileUrl", profileUrl)
+            )
+    }
+}

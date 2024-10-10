@@ -9,8 +9,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.data.repositories.interfaces.GroupBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
-import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.LoginResultModel
@@ -26,7 +26,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
 
     @Inject lateinit var applicationScope: CoroutineScope
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
-    @Inject lateinit var groupRepository: GroupRepository
+    @Inject lateinit var groupRepository: GroupBackgroundSyncRepository
     @Inject lateinit var budgetRepository: MonthlyBudgetRepository
 
     private val auth = FirebaseAuth.getInstance()

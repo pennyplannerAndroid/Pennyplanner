@@ -2,7 +2,7 @@ package com.penny.planner
 
 import android.app.Application
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
-import com.penny.planner.data.repositories.interfaces.GroupRepository
+import com.penny.planner.data.repositories.interfaces.GroupBackgroundSyncRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class MyApplication : Application() {
 
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
-    @Inject lateinit var groupRepository: GroupRepository
+    @Inject lateinit var groupRepository: GroupBackgroundSyncRepository
 
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -22,6 +22,7 @@ class MyApplication : Application() {
         super.onCreate()
         categoryAndEmojiRepository.checkServerAndUpdateCategory()
         groupRepository.getAllPendingGroups()
+        groupRepository.updateGroupsTransactions()
 //        createChannelIds()
     }
 

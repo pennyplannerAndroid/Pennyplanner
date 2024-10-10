@@ -10,12 +10,16 @@ import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.data.repositories.implementations.OnboardingRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.implementations.ExpenseRepositoryImpl
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
+import com.penny.planner.data.repositories.implementations.FriendsDirectoryRepositoryImpl
+import com.penny.planner.data.repositories.implementations.GroupBackgroundSyncRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.data.repositories.implementations.UserRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
+import com.penny.planner.data.repositories.interfaces.GroupBackgroundSyncRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -57,4 +61,12 @@ abstract class AbstractModule {
     @Singleton
     @Binds
     abstract fun bindBudgetRepository(repository: BudgetRepositoryImpl): BudgetRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindGroupBackgroundSyncRepository(repository: GroupBackgroundSyncRepositoryImpl): GroupBackgroundSyncRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindFriendDirectoryRepository(repository: FriendsDirectoryRepositoryImpl): FriendsDirectoryRepository
 }

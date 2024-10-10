@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.UserModel
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
+    private val friendRepository: FriendsDirectoryRepository
 ): ViewModel() {
 
     private val _searchEmailResult = MutableLiveData<Result<UserModel>>()
@@ -24,7 +26,7 @@ class GroupViewModel @Inject constructor(
 
     fun findUser(email: String) {
         viewModelScope.launch {
-            _searchEmailResult.value = groupRepository.findUser(email)
+            _searchEmailResult.value = friendRepository.findUser(email)
         }
     }
 

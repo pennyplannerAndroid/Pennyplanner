@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.penny.planner.helpers.Utils
 
 @Dao
@@ -19,4 +20,9 @@ interface GroupDao {
     @Query("SELECT * FROM group_table WHERE groupId = :groupId")
     suspend fun getGroupByGroupId(groupId: String): GroupEntity
 
+    @Query("SELECT * FROM ${Utils.GROUP_TABLE}")
+    fun getAllExistingGroupsFromDb(): List<GroupEntity>
+
+    @Update
+    suspend fun updateEntity(entity: GroupEntity)
 }

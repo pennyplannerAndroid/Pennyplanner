@@ -62,9 +62,25 @@ class ExpenseRepositoryImpl @Inject constructor(
             .document(entity.time.toString())
             .set(entity.toFireBaseEntity())
             .addOnSuccessListener {
+                entity.uploadedOnServer = true
                 applicationScope.launch(Dispatchers.IO) {
-                    entity.uploadedOnServer = true
                     expenseDao.update(entity)
+                }
+                val versionRef = groupExpenseCollectionRef
+                    .document(entity.groupId)
+                    .collection(Utils.VERSION_DETAILS)
+                    .document(Utils.EXPENSE_VERSION)
+                db.runTransaction { transaction ->
+                    val snapshot = transaction.get(versionRef)
+                    val version: Long
+                    val currentValue: Long = snapshot.data?.get("value") as Long? ?: 0L
+                    if (currentValue == 0L) {
+                        version = 1
+                        transaction.set(versionRef, mapOf("value" to version))
+                    } else {
+                        version = currentValue + 1
+                        transaction.update(versionRef, "value", version)
+                    }
                 }
             }
     }

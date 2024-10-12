@@ -4,4 +4,5 @@ interface GroupBackgroundSyncRepository {
     fun getAllGroupsFromFirebase()
     fun getAllPendingGroups()
     fun updateGroupsTransactions()
+    fun addGroupForFirebaseListener(groupId: String)
 }

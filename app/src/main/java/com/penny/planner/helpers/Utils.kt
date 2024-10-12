@@ -54,6 +54,7 @@ class Utils {
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"
         const val GROUP_ID = "group_id"
+        const val EXPENSE_VERSION = "expenseVersion"
 
         //values
         const val PRICE_LIMIT = 7
@@ -74,6 +75,7 @@ class Utils {
         const val PROFILE_URL = "profileUrl"
         const val MONTHLY_BUDGET = "monthlyBudget"
         const val BUDGET_DETAILS = "BudgetDetails"
+        const val VERSION_DETAILS = "VersionDetails"
         const val USER_EXPENSES = "UserExpenses"
         const val GROUP_EXPENSES = "GroupExpenses"
         const val EXPENSES = "Expenses"

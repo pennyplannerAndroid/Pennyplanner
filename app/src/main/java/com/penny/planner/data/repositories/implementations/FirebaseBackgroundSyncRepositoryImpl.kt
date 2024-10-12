@@ -35,6 +35,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao
 ): FirebaseBackgroundSyncRepository {
 
+    private val tag = "FirebaseBackgroundSyncRepositoryImpl"
+
     val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
@@ -99,12 +101,10 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 expenseEntity
             }
             expenseDao.insert(allExpenses)
-            Log.d("GroupSync ::", "expense :: ${expensesQuery.size()}")
         } catch (e: Exception) {
-            Log.d("GroupSync ::", "expenseError :: $e")
+            Log.d("$tag ::", "personalExpense :: $e")
         }
     }
-
 
     override fun getAllGroupsFromFirebase() {
         if (auth.currentUser != null) {
@@ -180,7 +180,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                     }
                 }
                 override fun onCancelled(error: DatabaseError) {
-                    Log.d("GroupRepository:: ", error.message)
+                    Log.d("$tag :: ", error.message)
                 }
             })
     }
@@ -215,11 +215,10 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             .collection(Utils.VERSION_DETAILS).document(Utils.EXPENSE_VERSION)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Log.d("GroupSync ::", "expense :: $e")
+                    Log.d("$tag ::", "expenseVersion :: $e")
                 }
                 if (snapshots != null) {
                     val serverVersion = snapshots.data?.get("value") as Long? ?: 0L
-                    Log.d("GroupSync ::", "fetchExpenseVersion :: $serverVersion")
                     scope.launch(Dispatchers.IO) {
                         if (serverVersion > group.expenseVersion) {
                             fetchExpenseAndUpdate(group)
@@ -235,7 +234,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             .collection(Utils.BUDGET_DETAILS)
             .addSnapshotListener{ budgets, e ->
                 if (e != null) {
-                    Log.d("GroupSync ::", "budget :: $e")
+                    Log.d("$tag ::", "groupBudget :: $e")
                 }
                 if (budgets != null) {
                     scope.launch(Dispatchers.IO) {
@@ -261,7 +260,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                 }
                             }
                         } catch (e: Exception) {
-                            Log.d("GroupSync ::", e.toString())
+                            Log.d("$tag ::", e.toString())
                         }
                     }
                 }
@@ -302,9 +301,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             } else {
                 expenseDao.insert(newExpenses)
             }
-            Log.d("GroupSync ::", "expense :: ${expensesQuery.size()}")
         } catch (e: Exception) {
-            Log.d("GroupSync ::", "expenseError :: $e")
+            Log.d("$tag ::", "groupExpenseError :: $e")
         }
     }
 

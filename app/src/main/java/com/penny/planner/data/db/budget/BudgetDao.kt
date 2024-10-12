@@ -12,6 +12,9 @@ interface BudgetDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addBudgetItem(entity: BudgetEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addBudgetList(list: List<BudgetEntity>)
+
     @Query("Select EXISTS (SELECT 1 From budget_table Where category == :category AND entityId = :entityId)")
     suspend fun isBudgetAvailable(entityId: String, category: String): Boolean
 

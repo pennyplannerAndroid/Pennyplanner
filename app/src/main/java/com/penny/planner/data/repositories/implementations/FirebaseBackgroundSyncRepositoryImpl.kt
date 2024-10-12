@@ -18,7 +18,7 @@ import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.subcategory.SubCategoryDao
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
-import com.penny.planner.data.repositories.interfaces.GroupBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.helpers.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,21 +27,84 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class GroupBackgroundSyncRepositoryImpl @Inject constructor(
+class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
     private val budgetDao: BudgetDao,
     private val subCategoryDao: SubCategoryDao,
     private val categoryDao: CategoryDao,
     private val expenseDao: ExpenseDao
-): GroupBackgroundSyncRepository {
+): FirebaseBackgroundSyncRepository {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
     private val groupExpenseCollectionRef = db.collection(Utils.GROUP_EXPENSES)
+    private val personalExpenseCollectionRef = db.collection(Utils.USER_EXPENSES)
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val budgetMap = mutableMapOf<String, MutableSet<String>>()
     private val subcategories = mutableMapOf<String, MutableSet<String>>()
+
+    override fun getAllPersonalExpenses() {
+        if (auth.currentUser != null) {
+            scope.launch {
+                fetchPersonalBudgetAndUpdate()
+                fetchPersonalExpenseAndUpdate()
+            }
+        }
+    }
+
+    private suspend fun fetchPersonalBudgetAndUpdate() {
+        val budgetDetails = personalExpenseCollectionRef.document(auth.currentUser!!.uid)
+            .collection(Utils.BUDGET_DETAILS)
+            .get()
+            .await()
+        val budgets = budgetDetails.documents.mapNotNull { document ->
+            val budgetEntity = document.toObject(BudgetEntity::class.java)
+            if (budgetEntity != null) {
+                categoryDao.insert(
+                    CategoryEntity(
+                        name = budgetEntity.category,
+                        icon = budgetEntity.icon
+                    )
+                )
+            }
+            budgetEntity
+        }
+        budgetDao.addBudgetList(budgets)
+    }
+
+    private suspend fun fetchPersonalExpenseAndUpdate() {
+        try {
+            val expensesQuery = personalExpenseCollectionRef.document(auth.currentUser!!.uid)
+                .collection(Utils.EXPENSES)
+                .get()
+                .await()
+            val allExpenses = expensesQuery.documents.mapNotNull { document ->
+                val expenseEntity = document.toObject(ExpenseEntity::class.java)
+                if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() &&
+                    (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
+                    if (subcategories.containsKey(expenseEntity.category)) {
+                        subcategories[expenseEntity.category]!!.add(expenseEntity.subCategory)
+                    } else {
+                        subcategories[expenseEntity.category] = mutableSetOf(expenseEntity.subCategory)
+                    }
+                    subCategoryDao.addSubCategory(
+                        SubCategoryEntity(
+                            name = expenseEntity.subCategory,
+                            icon = expenseEntity.icon,
+                            category = expenseEntity.category
+                        )
+                    )
+                }
+                expenseEntity
+            }
+            expenseDao.insert(allExpenses)
+            Log.d("GroupSync ::", "expense :: ${expensesQuery.size()}")
+        } catch (e: Exception) {
+            Log.d("GroupSync ::", "expenseError :: $e")
+        }
+    }
+
 
     override fun getAllGroupsFromFirebase() {
         if (auth.currentUser != null) {
@@ -214,7 +277,13 @@ class GroupBackgroundSyncRepositoryImpl @Inject constructor(
                 .await()
             val newExpenses = expensesQuery.documents.mapNotNull { document ->
                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
-                if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() && !subcategories.containsKey(expenseEntity.subCategory)) {
+                if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() &&
+                    (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
+                    if (subcategories.containsKey(expenseEntity.category)) {
+                        subcategories[expenseEntity.category]!!.add(expenseEntity.subCategory)
+                    } else {
+                        subcategories[expenseEntity.category] = mutableSetOf(expenseEntity.subCategory)
+                    }
                     subCategoryDao.addSubCategory(
                         SubCategoryEntity(
                             name = expenseEntity.subCategory,
@@ -224,10 +293,15 @@ class GroupBackgroundSyncRepositoryImpl @Inject constructor(
                     )
                 }
                 expenseEntity
-            }.filter { it.expensorId != auth.currentUser!!.uid }
+            }
             group.lastUpdate = newExpenses.maxOfOrNull{ it.time } ?: group.lastUpdate
             groupDao.updateEntity(group)
-            expenseDao.insert(newExpenses)
+            if (expenseDao.isExpenseAvailable(group.groupId) > 0) {
+                val filteredList = newExpenses.filter { it.expensorId != auth.currentUser!!.uid }
+                expenseDao.insert(filteredList)
+            } else {
+                expenseDao.insert(newExpenses)
+            }
             Log.d("GroupSync ::", "expense :: ${expensesQuery.size()}")
         } catch (e: Exception) {
             Log.d("GroupSync ::", "expenseError :: $e")

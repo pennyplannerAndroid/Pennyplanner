@@ -9,7 +9,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
-import com.penny.planner.data.repositories.interfaces.GroupBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
@@ -26,7 +26,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
 
     @Inject lateinit var applicationScope: CoroutineScope
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
-    @Inject lateinit var groupRepository: GroupBackgroundSyncRepository
+    @Inject lateinit var firebaseBackgroundRepository: FirebaseBackgroundSyncRepository
     @Inject lateinit var budgetRepository: MonthlyBudgetRepository
 
     private val auth = FirebaseAuth.getInstance()
@@ -72,8 +72,10 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
     private fun getExistingDataFromServer(isLogin: Boolean = false) {
         applicationScope.launch {
             categoryAndEmojiRepository.checkServerAndUpdateCategory()
-            if (isLogin)
-                groupRepository.getAllGroupsFromFirebase()
+            if (isLogin) {
+                firebaseBackgroundRepository.getAllPersonalExpenses()
+                firebaseBackgroundRepository.getAllGroupsFromFirebase()
+            }
         }
     }
 

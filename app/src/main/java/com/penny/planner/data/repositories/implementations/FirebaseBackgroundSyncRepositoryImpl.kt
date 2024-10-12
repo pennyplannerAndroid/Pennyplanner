@@ -63,6 +63,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
         val budgets = budgetDetails.documents.mapNotNull { document ->
             val budgetEntity = document.toObject(BudgetEntity::class.java)
             if (budgetEntity != null) {
+                budgetEntity.uploadedOnServer = true
                 categoryDao.insert(
                     CategoryEntity(
                         name = budgetEntity.category,
@@ -83,6 +84,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 .await()
             val allExpenses = expensesQuery.documents.mapNotNull { document ->
                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
+                expenseEntity?.uploadedOnServer = true
                 if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() &&
                     (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
                     if (subcategories.containsKey(expenseEntity.category)) {
@@ -245,6 +247,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                             val setOfExistingBudgets = budgetMap[groupId]
                             for (budget in budgets) {
                                 val budgetEntity = budget.toObject(BudgetEntity::class.java)
+                                budgetEntity.uploadedOnServer = true
                                 if (!setOfExistingBudgets!!.contains(budget.id)) {
                                     budgetEntity.uploadedOnServer = true
                                     budgetMap[groupId]!!.add(budgetEntity.category)
@@ -276,6 +279,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 .await()
             val newExpenses = expensesQuery.documents.mapNotNull { document ->
                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
+                expenseEntity?.uploadedOnServer = true
                 if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() &&
                     (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
                     if (subcategories.containsKey(expenseEntity.category)) {

@@ -22,7 +22,7 @@ interface ExpenseDao {
     @Update
     suspend fun update(entity: ExpenseEntity)
 
-    @Query("Select * From expense_table WHERE groupId = :groupId Order by time DESC")
+    @Query("Select * From expense_table WHERE groupId = :groupId Order by time ASC")
     fun getAllExpenses(groupId: String) : LiveData<List<ExpenseEntity>>
 
     @Query("SELECT COUNT(*) FROM expense_table WHERE groupId = :groupId")

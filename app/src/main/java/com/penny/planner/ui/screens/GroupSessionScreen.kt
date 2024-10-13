@@ -2,17 +2,20 @@ package com.penny.planner.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -115,7 +119,7 @@ fun GroupSessionScreen(
                             message = it
                         },
                         label = {
-                            androidx.compose.material3.Text(text = "Type a message...")
+                            Text(text = "Type a message...")
                         },
                         trailingIcon = {
                             if (message.isNotEmpty()) {
@@ -137,8 +141,9 @@ fun GroupSessionScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 items(transitionList) { item ->
+                    val isSent = viewModel.isSentTransaction(item.expensorId)
                     if (item.entityType == 0) {
-                        Text(text = item.content)
+                        TextTransaction(content = item.content, isSent = isSent)
                     } else {
                         ExpenseListItem(item = item)
                     }
@@ -147,6 +152,27 @@ fun GroupSessionScreen(
         }
     }
 
+}
+
+@Composable
+fun TextTransaction(content: String, isSent: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (isSent) Arrangement.End else Arrangement.Start
+    ) {
+        Card(
+            modifier = Modifier
+                .padding(4.dp)
+                .wrapContentWidth()
+        ) {
+            Text(
+                modifier = Modifier
+                    .align(if (isSent) Alignment.End else Alignment.Start)
+                    .padding(12.dp),
+                text = content
+            )
+        }
+    }
 }
 
 @Preview

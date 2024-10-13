@@ -34,6 +34,8 @@ class ExpenseRepositoryImpl @Inject constructor(
        return expenseDao.getAllExpenses(groupId)
     }
 
+    override fun isSentTransaction(entityId: String) = entityId == auth.currentUser?.uid
+
     override suspend fun addExpense(entity: ExpenseEntity) {
         entity.expensorId = auth.currentUser?.uid ?: ""
         expenseDao.insert(entity)

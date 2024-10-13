@@ -11,7 +11,6 @@ data class GroupEntity(
     var members: List<String> = listOf(),
     var profileUrl: String = "",
     var creatorId: String = "",
-    var expenseVersion: Long = 0,
     var lastUpdate: Long = 0,
     var totalSpendLimit: Double = 0.0
 ) {

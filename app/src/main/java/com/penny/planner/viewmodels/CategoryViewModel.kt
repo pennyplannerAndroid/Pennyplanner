@@ -6,6 +6,7 @@ import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.models.NameIconPairWithKeyModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoryViewModel @Inject constructor(
     private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
-    private val budgetRepository: BudgetRepository
+    private val budgetRepository: BudgetRepository,
+    private val backgroundSyncRepository: FirebaseBackgroundSyncRepository
 ): ViewModel() {
 
     private var selectedCategory: CategoryEntity? = null
@@ -75,6 +77,7 @@ class CategoryViewModel @Inject constructor(
 
     private fun addSubCategory(entity: SubCategoryEntity) {
         viewModelScope.launch {
+            backgroundSyncRepository.newSubCategoryAdded(entity)
             categoryAndEmojiRepository.addSubCategory(entity)
         }
     }

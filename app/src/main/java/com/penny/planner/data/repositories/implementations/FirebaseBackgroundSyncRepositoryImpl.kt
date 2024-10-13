@@ -86,6 +86,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             val allExpenses = expensesQuery.documents.mapNotNull { document ->
                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
                 expenseEntity?.uploadedOnServer = true
+                expenseEntity?.isSentTransaction = auth.currentUser?.uid == expenseEntity?.expensorId
                 if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() &&
                     (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
                     var needAddSubcategoryToDb = true
@@ -294,6 +295,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                     val newExpenses = documents.mapNotNull { document ->
                         val expenseEntity = document.toObject(ExpenseEntity::class.java)
                         expenseEntity.uploadedOnServer = true
+                        expenseEntity.isSentTransaction = auth.currentUser?.uid == expenseEntity.expensorId
                         if (expenseEntity.subCategory.isNotEmpty() &&
                             (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
                             var needAddSubcategoryToDb = true

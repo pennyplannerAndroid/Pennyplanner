@@ -141,9 +141,8 @@ fun GroupSessionScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 items(transitionList) { item ->
-                    val isSent = viewModel.isSentTransaction(item.expensorId)
                     if (item.entityType == 0) {
-                        TextTransaction(content = item.content, isSent = isSent)
+                        TextTransaction(content = item.content, isSent = item.isSentTransaction)
                     } else {
                         ExpenseListItem(item = item)
                     }

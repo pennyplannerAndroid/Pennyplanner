@@ -43,7 +43,4 @@ class GroupSessionViewModel @Inject constructor(
             expenseRepository.addExpense(expense)
         }
     }
-
-    fun isSentTransaction(entityId: String) = expenseRepository.isSentTransaction(entityId)
-
 }

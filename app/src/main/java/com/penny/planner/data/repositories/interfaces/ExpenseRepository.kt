@@ -7,5 +7,4 @@ interface ExpenseRepository {
     suspend fun addExpense(entity: ExpenseEntity)
     suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>>
     suspend fun getAllExpenses(groupId: String): LiveData<List<ExpenseEntity>>
-    fun isSentTransaction(entityId: String): Boolean
 }

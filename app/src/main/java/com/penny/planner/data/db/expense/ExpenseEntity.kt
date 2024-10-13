@@ -17,7 +17,8 @@ data class ExpenseEntity(
     val price: Double = 0.0,
     val subCategory: String = "",
     val time: Long = System.currentTimeMillis(),
-    var uploadedOnServer: Boolean = false
+    var uploadedOnServer: Boolean = false,
+    var isSentTransaction: Boolean = true
 ) {
 
     fun toFireBaseEntity() =

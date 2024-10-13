@@ -10,7 +10,7 @@ import androidx.room.Update
 @Dao
 interface ExpenseDao {
 
-    @Query("Select * From expense_table Order by time DESC")
+    @Query("Select * From expense_table Where entityType = 1 Order by time DESC")
     fun getAllExpenses() : LiveData<List<ExpenseEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

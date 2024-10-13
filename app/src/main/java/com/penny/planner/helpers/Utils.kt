@@ -84,6 +84,7 @@ class Utils {
         const val EXPENSE_TABLE = "expense_table"
         const val BUDGET_TABLE = "budget_table"
         const val GROUP_TABLE = "group_table"
+        const val FRIEND_TABLE = "friend_table"
 
         fun formatEmailForFirebase(email: String): String {
             return email.replace('.', ',')

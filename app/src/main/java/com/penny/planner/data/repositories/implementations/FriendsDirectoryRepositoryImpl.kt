@@ -5,19 +5,22 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.penny.planner.data.db.friends.UsersDao
+import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.UserModel
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class FriendsDirectoryRepositoryImpl @Inject constructor(): FriendsDirectoryRepository {
+class FriendsDirectoryRepositoryImpl @Inject constructor(
+    private val usersDao: UsersDao
+): FriendsDirectoryRepository {
 
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val auth = FirebaseAuth.getInstance()
 
-    override suspend fun findUser(email: String): Result<UserModel> {
+    override suspend fun findUser(email: String): Result<UsersEntity> {
         if (email == auth.currentUser?.email)
             return Result.failure(Exception(Utils.SAME_EMAIL_ERROR))
         return suspendCoroutine { continuation ->
@@ -25,7 +28,7 @@ class FriendsDirectoryRepositoryImpl @Inject constructor(): FriendsDirectoryRepo
                 userDirectory.child(Utils.formatEmailForFirebase(email)).child(Utils.USER_INFO).addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
-                            val model = snapshot.getValue(UserModel::class.java) as UserModel
+                            val model = snapshot.getValue(UsersEntity::class.java) as UsersEntity
                             continuation.resume(Result.success(model))
                         } else
                             continuation.resume(Result.failure(Exception(Utils.USER_NOT_FOUND)))
@@ -39,5 +42,20 @@ class FriendsDirectoryRepositoryImpl @Inject constructor(): FriendsDirectoryRepo
             }
         }
     }
+
+    override suspend fun addFriend(entity: UsersEntity) {
+        usersDao.insert(entity)
+    }
+
+    override suspend fun addFriend(list: List<UsersEntity>) {
+        usersDao.insertList(list)
+    }
+
+    override suspend fun updateFriend(entity: UsersEntity) {
+       usersDao.update(entity)
+    }
+
+    override suspend fun getFriends(list: List<String>) =
+        usersDao.getUsersByEmailList(list.filter { it != auth.currentUser?.email })
 
 }

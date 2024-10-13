@@ -8,13 +8,13 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.LoginResultModel
-import com.penny.planner.models.UserModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -112,10 +112,11 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                 .build()
             auth.currentUser?.updateProfile(profileUpdate)?.await()
             directoryReference.child(Utils.formatEmailForFirebase(email)).child(Utils.USER_INFO).setValue(
-                UserModel(
-                    email,
-                    name,
-                    downloadPath?.toString() ?: "", id
+                UsersEntity(
+                    id = id,
+                    email = email,
+                    name = name,
+                    profileImageURL = downloadPath?.toString() ?: ""
                 )
             ).await()
             getExistingDataFromServer()

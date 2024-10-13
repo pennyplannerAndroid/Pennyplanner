@@ -19,6 +19,7 @@ import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.helpers.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +32,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
     private val budgetDao: BudgetDao,
     private val expenseDao: ExpenseDao,
-    private val categoryAndEmojiRepository: CategoryAndEmojiRepository
+    private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
+    private val usersRepository: FriendsDirectoryRepository
 ): FirebaseBackgroundSyncRepository {
 
     private val tag = "FirebaseBackgroundSyncRepositoryImpl"
@@ -185,6 +187,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                         if (entity != null) {
                             scope.launch {
                                 groupDao.addGroup(entity)
+                                updateFriendsDb(entity.members)
                                 fetchDataAndUpdate(entity.groupId)
                                 if (needUpdatePendingList)
                                     updatePendingNode(entity)
@@ -196,6 +199,17 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                     Log.d("$tag :: ", error.message)
                 }
             })
+    }
+
+    private fun updateFriendsDb(list: List<String>) {
+        scope.launch {
+            for (email in list) {
+                val userResult = usersRepository.findUser(email)
+                if (userResult.isSuccess) {
+                    usersRepository.addFriend(userResult.getOrNull()!!)
+                }
+            }
+        }
     }
 
     private fun updatePendingNode(entity: GroupEntity) {

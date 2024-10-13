@@ -27,13 +27,13 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
-import com.penny.planner.models.UserModel
+import com.penny.planner.data.db.friends.UsersEntity
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun FriendInfoCard(
     modifier: Modifier,
-    model: UserModel,
+    model: UsersEntity,
     onCLick: () -> Unit,
     deleteClick: () -> Unit
 ) {
@@ -95,5 +95,5 @@ fun FriendInfoCard(
 @Preview
 @Composable
 fun PreviewFriendCard() {
-    FriendInfoCard(Modifier, UserModel(name = "Priyanka", email = "Priyanka@dummy.com", id = "SS", profileImageURL = ""), {}) {}
+    FriendInfoCard(Modifier, UsersEntity(name = "Priyanka", email = "Priyanka@dummy.com", id = "SS", profileImageURL = ""), {}) {}
 }

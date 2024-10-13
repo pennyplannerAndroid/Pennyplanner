@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.penny.planner.R
+import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.ui.components.FriendInfoCard
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.OutLinedTextFieldForEmail
@@ -49,7 +50,7 @@ fun AddNewGroupScreen(
         mutableStateOf(false)
     }
     var friends by remember {
-        mutableStateOf(listOf<String>())
+        mutableStateOf(listOf<UsersEntity>())
     }
     val context = LocalContext.current
 
@@ -95,7 +96,7 @@ fun AddNewGroupScreen(
                 if (friendResult != null && friendResult.isSuccess) {
                     val friend = friendResult.getOrNull()
                     if (friend != null) {
-                        friends = listOf(friend.email!!)
+                        friends = listOf(friend)
                         FriendInfoCard(
                             modifier = Modifier,
                             model = friend,

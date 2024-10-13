@@ -5,9 +5,11 @@ import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +20,8 @@ import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
-    private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository
+    private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository,
+    private val usersRepository: FriendsDirectoryRepository
 ): GroupRepository {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
@@ -34,13 +37,13 @@ class GroupRepositoryImpl @Inject constructor(
         return groupDao.getGroupByGroupId(groupId = groupId)
     }
 
-    override suspend fun newGroup(name: String, path: String?, members: List<String>, byteArray: ByteArray?): Result<Boolean> {
+    override suspend fun newGroup(name: String, path: String?, members: List<UsersEntity>, byteArray: ByteArray?): Result<Boolean> {
         if (auth.currentUser != null) {
             val groupId = "${auth.currentUser!!.uid}${System.currentTimeMillis()}"
             val groupEntity = GroupEntity(
                 groupId = groupId,
                 name = name,
-                members = members.plus(auth.currentUser!!.email!!),
+                members = members.map { it.email!! }.plus(auth.currentUser!!.email!!),
                 profileUrl = "",
                 creatorId = auth.currentUser!!.email!!
             )
@@ -48,6 +51,7 @@ class GroupRepositoryImpl @Inject constructor(
                 .getReference(Utils.GROUPS)
                 .child(groupId)
                 .setValue(groupEntity.toFireBaseModel()).await()
+            usersRepository.addFriend(members)
             firebaseBackgroundSyncRepository.addGroupForFirebaseListener(groupId)
             var downloadPath: Uri? = null
             if (byteArray != null) {

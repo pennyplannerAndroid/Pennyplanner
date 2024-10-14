@@ -6,8 +6,8 @@ import com.penny.planner.helpers.Utils
 
 @Entity(tableName = Utils.FRIEND_TABLE)
 data class UsersEntity(
-    @PrimaryKey val id: String? = "",
-    val email: String? = "",
-    val name: String? = "",
-    val profileImageURL: String? = ""
+    @PrimaryKey val id: String = "",
+    val email: String = "",
+    val name: String = "",
+    val profileImageURL: String = ""
 )

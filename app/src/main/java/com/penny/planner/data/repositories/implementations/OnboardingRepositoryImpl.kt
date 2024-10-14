@@ -11,6 +11,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
@@ -28,6 +29,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
     @Inject lateinit var categoryAndEmojiRepository: CategoryAndEmojiRepository
     @Inject lateinit var firebaseBackgroundRepository: FirebaseBackgroundSyncRepository
     @Inject lateinit var budgetRepository: MonthlyBudgetRepository
+    @Inject lateinit var usersRepository: FriendsDirectoryRepository
 
     private val auth = FirebaseAuth.getInstance()
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
@@ -37,7 +39,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
-            getExistingDataFromServer(true)
+            getAllFirebaseDataAndUpdateLocal(true)
             return suspendCoroutine { continuation ->
                 directoryReference.child(Utils.formatEmailForFirebase(email))
                     .child(Utils.BUDGET_INFO).child(Utils.MONTHLY_BUDGET)
@@ -69,8 +71,18 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         }
     }
 
-    private fun getExistingDataFromServer(isLogin: Boolean = false) {
+    private fun getAllFirebaseDataAndUpdateLocal(isLogin: Boolean = false) {
         applicationScope.launch {
+            auth.currentUser?.let {
+                usersRepository.addFriend(
+                    UsersEntity(
+                        id = auth.currentUser!!.uid,
+                        name = auth.currentUser!!.displayName!!,
+                        profileImageURL = auth.currentUser!!.photoUrl?.toString() ?: "",
+                        email = auth.currentUser!!.email!!
+                    )
+                )
+            }
             categoryAndEmojiRepository.checkServerAndUpdateCategory()
             if (isLogin) {
                 firebaseBackgroundRepository.getAllPersonalExpenses()
@@ -119,7 +131,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                     profileImageURL = downloadPath?.toString() ?: ""
                 )
             ).await()
-            getExistingDataFromServer()
+            getAllFirebaseDataAndUpdateLocal()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

@@ -6,6 +6,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.penny.planner.data.db.friends.UsersEntity
+import com.penny.planner.helpers.Utils
+import com.penny.planner.models.GroupDisplayModel
 
 @Dao
 interface ExpenseDao {
@@ -27,5 +30,20 @@ interface ExpenseDao {
 
     @Query("SELECT COUNT(*) FROM expense_table WHERE groupId = :groupId")
     suspend fun isExpenseAvailable(groupId: String): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(entity: UsersEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertList(entity: List<UsersEntity>)
+
+    @Update
+    suspend fun update(entity: UsersEntity)
+
+    @Query("SELECT * FROM ${Utils.FRIEND_TABLE} WHERE email In (:emails)")
+    suspend fun getUsersByEmailList(emails: List<String>): List<UsersEntity>
+
+    @Query("SELECT * FROM groupDisplayModel WHERE groupId = :groupId")
+    fun getExpenseListForDisplay(groupId: String):  LiveData<List<GroupDisplayModel>>
 
 }

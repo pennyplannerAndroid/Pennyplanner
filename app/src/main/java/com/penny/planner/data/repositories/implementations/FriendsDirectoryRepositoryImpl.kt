@@ -5,7 +5,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.penny.planner.data.db.friends.UsersDao
+import com.penny.planner.data.db.expense.ExpenseDao
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.helpers.Utils
@@ -14,7 +14,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class FriendsDirectoryRepositoryImpl @Inject constructor(
-    private val usersDao: UsersDao
+    private val expenseDao: ExpenseDao
 ): FriendsDirectoryRepository {
 
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
@@ -44,18 +44,18 @@ class FriendsDirectoryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addFriend(entity: UsersEntity) {
-        usersDao.insert(entity)
+        expenseDao.insert(entity)
     }
 
     override suspend fun addFriend(list: List<UsersEntity>) {
-        usersDao.insertList(list)
+        expenseDao.insertList(list)
     }
 
     override suspend fun updateFriend(entity: UsersEntity) {
-       usersDao.update(entity)
+        expenseDao.update(entity)
     }
 
     override suspend fun getFriends(list: List<String>) =
-        usersDao.getUsersByEmailList(list.filter { it != auth.currentUser?.email })
+        expenseDao.getUsersByEmailList(list.filter { it != auth.currentUser?.email })
 
 }

@@ -7,6 +7,7 @@ import com.penny.planner.data.db.expense.ExpenseDao
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.GroupDisplayModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,8 +31,8 @@ class ExpenseRepositoryImpl @Inject constructor(
     override suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>> =
         expenseDao.getAllExpenses()
 
-    override suspend fun getAllExpenses(groupId: String): LiveData<List<ExpenseEntity>> {
-       return expenseDao.getAllExpenses(groupId)
+    override suspend fun getAllExpenses(groupId: String): LiveData<List<GroupDisplayModel>> {
+       return expenseDao.getExpenseListForDisplay(groupId)
     }
 
     override suspend fun addExpense(entity: ExpenseEntity) {

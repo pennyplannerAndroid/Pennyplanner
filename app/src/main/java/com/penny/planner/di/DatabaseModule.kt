@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.penny.planner.data.db.budget.BudgetDatabase
 import com.penny.planner.data.db.category.CategoryDatabase
 import com.penny.planner.data.db.expense.ExpenseDatabase
-import com.penny.planner.data.db.friends.UsersDatabase
 import com.penny.planner.data.db.groups.GroupDatabase
 import com.penny.planner.data.db.subcategory.SubCategoryDatabase
 import com.penny.planner.helpers.Utils
@@ -64,13 +63,4 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun bindGroupDao(db: GroupDatabase) = db.getGroupDao()
-
-    @Singleton
-    @Provides
-    fun bindFriendDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, UsersDatabase::class.java, Utils.FRIEND_TABLE).build()
-
-    @Singleton
-    @Provides
-    fun bindFriendDao(db: UsersDatabase) = db.getFriendDao()
 }

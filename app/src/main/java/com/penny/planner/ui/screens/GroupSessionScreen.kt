@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
-import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.models.GroupDisplayModel
 import com.penny.planner.ui.components.ExpenseListItem
 import com.penny.planner.ui.components.GroupSessionTopBar
 import com.penny.planner.viewmodels.GroupSessionViewModel
@@ -52,7 +52,7 @@ fun GroupSessionScreen(
     }
 
     var transitionList by remember {
-        mutableStateOf(listOf<ExpenseEntity>())
+        mutableStateOf(listOf<GroupDisplayModel>())
     }
 
     var message by remember {

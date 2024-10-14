@@ -23,6 +23,83 @@ import androidx.compose.ui.unit.sp
 import com.penny.planner.R
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.GroupDisplayModel
+
+@Composable
+fun ExpenseListItem(
+    item: GroupDisplayModel
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .size(48.dp)
+                .background(
+                    color = colorResource(id = R.color.transparent_60),
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = item.icon,
+                fontSize = 24.sp
+            )
+        }
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .weight(1f),
+                    text = item.category,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    fontSize = 16.sp,
+                    color = colorResource(id = R.color.expense_text_color)
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(4.dp),
+                    text = "${Utils.RUPEE}${item.price}",
+                    maxLines = 1,
+                    fontSize = 16.sp,
+                    color = Color.Red,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.End),
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .weight(1f),
+                    text = item.subCategory.ifEmpty { item.content },
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    fontSize = 13.sp,
+                    color = colorResource(id = R.color.or_with_color)
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(4.dp),
+                    text = Utils.convertMillisToTime(item.time),
+                    maxLines = 1,
+                    fontSize = 13.sp,
+                    color = colorResource(id = R.color.or_with_color)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ExpenseListItem(
@@ -104,7 +181,7 @@ fun ExpenseListItem(
 @Composable
 fun PreviewExpenseItem() {
     ExpenseListItem(
-        item = ExpenseEntity(
+        item = GroupDisplayModel(
             content = "Date Night",
             category = "Food",
             subCategory = "Restaurant",

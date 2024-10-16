@@ -81,6 +81,9 @@ class Utils {
         const val GROUP_EXPENSES = "GroupExpenses"
         const val EXPENSES = "Expenses"
 
+        //db name
+        const val PENNY_DATABASE = "penny_database"
+
         //tables
         const val CATEGORY_TABLE = "category_table"
         const val SUB_CATEGORY_TABLE = "subcategory_table"

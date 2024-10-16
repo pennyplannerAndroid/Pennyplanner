@@ -2,11 +2,7 @@ package com.penny.planner.di
 
 import android.content.Context
 import androidx.room.Room
-import com.penny.planner.data.db.budget.BudgetDatabase
-import com.penny.planner.data.db.category.CategoryDatabase
-import com.penny.planner.data.db.expense.ExpenseDatabase
-import com.penny.planner.data.db.groups.GroupDatabase
-import com.penny.planner.data.db.subcategory.SubCategoryDatabase
+import com.penny.planner.data.db.PennyPlannerDatabase
 import com.penny.planner.helpers.Utils
 import dagger.Module
 import dagger.Provides
@@ -21,46 +17,31 @@ object DatabaseModule {
 
     @Singleton
     @Provides
-    fun bindCategoryDatabase(@ApplicationContext application: Context) =
-        Room.databaseBuilder(application, CategoryDatabase::class.java, Utils.CATEGORY_TABLE).build()
+    fun bindPennyPlannerDatabase(@ApplicationContext application: Context) =
+        Room.databaseBuilder(application, PennyPlannerDatabase::class.java, Utils.PENNY_DATABASE).build()
 
     @Singleton
     @Provides
-    fun bindCategoryDao(db: CategoryDatabase) = db.categoryDao()
+    fun bindBudgetDao(db: PennyPlannerDatabase) = db.getBudgetDao()
 
     @Singleton
     @Provides
-    fun bindSubCategoryDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, SubCategoryDatabase::class.java, Utils.SUB_CATEGORY_TABLE).build()
+    fun bindCategoryDao(db: PennyPlannerDatabase) = db.categoryDao()
 
     @Singleton
     @Provides
-    fun bindSubCategoryDao(db: SubCategoryDatabase) = db.getSubCategoryDao()
+    fun bindUsersDao(db: PennyPlannerDatabase) = db.usersDao()
 
     @Singleton
     @Provides
-    fun bindExpenseDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, ExpenseDatabase::class.java, Utils.EXPENSE_TABLE).build()
+    fun bindExpenseDao(db: PennyPlannerDatabase) = db.expenseDao()
 
     @Singleton
     @Provides
-    fun bindExpenseDao(db: ExpenseDatabase) = db.expenseDao()
+    fun bindGroupDao(db: PennyPlannerDatabase) = db.getGroupDao()
 
     @Singleton
     @Provides
-    fun bindBudgetDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, BudgetDatabase::class.java, Utils.BUDGET_TABLE).build()
+    fun bindSubCategoryDao(db: PennyPlannerDatabase) = db.getSubCategoryDao()
 
-    @Singleton
-    @Provides
-    fun bindBudgetDao(db: BudgetDatabase) = db.getBudgetDao()
-
-    @Singleton
-    @Provides
-    fun bindGroupDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, GroupDatabase::class.java, Utils.GROUP_TABLE).build()
-
-    @Singleton
-    @Provides
-    fun bindGroupDao(db: GroupDatabase) = db.getGroupDao()
 }

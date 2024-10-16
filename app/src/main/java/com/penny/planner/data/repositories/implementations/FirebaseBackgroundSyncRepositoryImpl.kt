@@ -91,7 +91,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                     getAndAddSubCategoryFromFirebaseExpense(expenseEntity)
                 expenseEntity
             }
-            expenseDao.insert(allExpenses)
+            expenseDao.insertList(allExpenses)
         } catch (e: Exception) {
             Log.d("$tag ::", "personalExpense :: $e")
         }
@@ -292,7 +292,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                 "groupExpenseList :: ${newExpenses.size} && ${group.lastUpdate}"
                             )
                             if (newExpenses.isNotEmpty()) { // if list is not empty, at the end we will remove the listener and start it with the updated last time stamp
-                                expenseDao.insert(newExpenses)
+                                expenseDao.insertList(newExpenses)
                                 group.lastUpdate = newExpenses.last().time
                                 groupDao.updateEntity(group)
                                 listenerRegistration?.remove()

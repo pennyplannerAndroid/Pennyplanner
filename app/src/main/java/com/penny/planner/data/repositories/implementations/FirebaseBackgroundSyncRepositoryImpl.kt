@@ -6,9 +6,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.penny.planner.data.db.budget.BudgetDao
 import com.penny.planner.data.db.budget.BudgetEntity
 import com.penny.planner.data.db.category.CategoryEntity
@@ -34,7 +34,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
     private val usersRepository: FriendsDirectoryRepository
-): FirebaseBackgroundSyncRepository {
+) : FirebaseBackgroundSyncRepository {
 
     private val tag = "FirebaseBackgroundSyncRepositoryImpl"
 
@@ -87,25 +87,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
                 expenseEntity?.uploadedOnServer = true
                 expenseEntity?.isSentTransaction = auth.currentUser?.uid == expenseEntity?.expensorId
-                if (expenseEntity != null && expenseEntity.subCategory.isNotEmpty() &&
-                    (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
-                    var needAddSubcategoryToDb = true
-                    if (subcategories.containsKey(expenseEntity.category)) {
-                        if (subcategories[expenseEntity.category]!!.add(expenseEntity.subCategory))
-                            needAddSubcategoryToDb = false
-                    } else {
-                        subcategories[expenseEntity.category] = mutableSetOf(expenseEntity.subCategory)
-                    }
-                    if (needAddSubcategoryToDb) {
-                        categoryAndEmojiRepository.addSubCategory(
-                            SubCategoryEntity(
-                                name = expenseEntity.subCategory,
-                                icon = expenseEntity.icon,
-                                category = expenseEntity.category
-                            )
-                        )
-                    }
-                }
+                if (expenseEntity != null)
+                    getAndAddSubCategoryFromFirebaseExpense(expenseEntity)
                 expenseEntity
             }
             expenseDao.insert(allExpenses)
@@ -161,7 +144,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
             .child(Utils.GROUP_INFO)
-            .child(source).addValueEventListener(object: ValueEventListener {
+            .child(source).addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val pendingGroups = snapshot.value as Map<*, *>
@@ -172,6 +155,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                         }
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     Log.d("GroupRepository:: ", error.message)
                 }
@@ -181,7 +165,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private fun updateLocalWithPendingGroups(groupId: String, needUpdatePendingList: Boolean) {
         FirebaseDatabase.getInstance()
             .getReference(Utils.GROUPS)
-            .child(groupId).addValueEventListener(object: ValueEventListener {
+            .child(groupId).addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val entity = snapshot.getValue(GroupEntity::class.java)
@@ -196,6 +180,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                         }
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     Log.d("$tag :: ", error.message)
                 }
@@ -246,7 +231,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
         val groupId = group.groupId
         groupExpenseCollectionRef.document(groupId)
             .collection(Utils.BUDGET_DETAILS)
-            .addSnapshotListener{ budgets, e ->
+            .addSnapshotListener { budgets, e ->
                 if (e != null) {
                     Log.d("$tag ::", "groupBudget :: $e")
                 }
@@ -284,65 +269,67 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
 
     private suspend fun fetchExpenseAndUpdate(group: GroupEntity) {
         var listenerRegistration: ListenerRegistration? = null
-        listenerRegistration = groupExpenseCollectionRef.document(group.groupId) // register a listener to read expenses from the last timestamp
-            .collection(Utils.EXPENSES)
-            .whereGreaterThan(FieldPath.documentId(), group.lastUpdate.toString())
-            .addSnapshotListener { documents, e ->
-                if (e != null) {
-                    Log.d("$tag ::", "groupExpenseError :: $e")
-                }
-                if (documents != null) {
-                    val newExpenses = documents.mapNotNull { document ->
-                        val expenseEntity = document.toObject(ExpenseEntity::class.java)
-                        expenseEntity.uploadedOnServer = true
-                        expenseEntity.isSentTransaction = auth.currentUser?.uid == expenseEntity.expensorId
-                        if (expenseEntity.subCategory.isNotEmpty() &&
-                            (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(expenseEntity.subCategory))) {
-                            var needAddSubcategoryToDb = true
-                            if (subcategories.containsKey(expenseEntity.category)) {
-                                if (subcategories[expenseEntity.category]!!.add(expenseEntity.subCategory))
-                                    needAddSubcategoryToDb = false
-                            } else {
-                                subcategories[expenseEntity.category] = mutableSetOf(expenseEntity.subCategory)
-                            }
-                            if (needAddSubcategoryToDb) {
-                                scope.launch {
-                                    categoryAndEmojiRepository.addSubCategory(
-                                        SubCategoryEntity(
-                                            name = expenseEntity.subCategory,
-                                            icon = expenseEntity.icon,
-                                            category = expenseEntity.category
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                        expenseEntity
+        listenerRegistration =
+            groupExpenseCollectionRef.document(group.groupId) // register a listener to read expenses from the last timestamp
+                .collection(Utils.EXPENSES)
+                .whereGreaterThan(Utils.TIME, group.lastUpdate)
+                .orderBy(Utils.TIME, Query.Direction.ASCENDING)
+                .addSnapshotListener { documents, e ->
+                    if (e != null) {
+                        Log.d("$tag ::", "groupExpenseError :: $e")
                     }
-                    Log.d("$tag ::", "groupExpenseList :: ${newExpenses.size} && ${group.lastUpdate}")
-                    scope.launch {
-                        if (expenseDao.isExpenseAvailable(group.groupId) > 0) { // not a fresh login so we will only add those expenses which are not local
-                            val filteredList =
-                                newExpenses.filter { it.expensorId != auth.currentUser!!.uid }
-                            if (filteredList.isNotEmpty()) { // if list is not empty, we will remove the listener and start it with the updated last time stamp
-                                group.lastUpdate = filteredList.maxOfOrNull { it.time } ?: group.lastUpdate
-                                groupDao.updateEntity(group)
-                                listenerRegistration?.remove()
-                                fetchExpenseAndUpdate(group)
+                    if (documents != null) {
+                        scope.launch {
+                            val newExpenses = documents.mapNotNull { document ->
+                                val expenseEntity = document.toObject(ExpenseEntity::class.java)
+                                expenseEntity.uploadedOnServer = true
+                                expenseEntity.isSentTransaction = auth.currentUser?.uid == expenseEntity.expensorId
+                                getAndAddSubCategoryFromFirebaseExpense(expenseEntity)
+                                expenseEntity
                             }
-                            expenseDao.insert(filteredList)
-                        } else { // fresh install - we will add all expenses and update the timestamp
-                            if (newExpenses.isNotEmpty()) {
-                                group.lastUpdate = newExpenses.maxOfOrNull { it.time } ?: group.lastUpdate
-                                groupDao.updateEntity(group)
+                            Log.d(
+                                "$tag ::",
+                                "groupExpenseList :: ${newExpenses.size} && ${group.lastUpdate}"
+                            )
+                            if (newExpenses.isNotEmpty()) { // if list is not empty, at the end we will remove the listener and start it with the updated last time stamp
                                 expenseDao.insert(newExpenses)
+                                group.lastUpdate = newExpenses.last().time
+                                groupDao.updateEntity(group)
                                 listenerRegistration?.remove()
                                 fetchExpenseAndUpdate(group)
                             }
                         }
                     }
                 }
+    }
+
+    private suspend fun getAndAddSubCategoryFromFirebaseExpense(expenseEntity: ExpenseEntity) {
+        if (expenseEntity.subCategory.isNotEmpty() &&
+            (!subcategories.containsKey(expenseEntity.category) || !subcategories[expenseEntity.category]!!.contains(
+                expenseEntity.subCategory
+            ))
+        ) {
+            var needAddSubcategoryToDb = true
+            if (subcategories.containsKey(expenseEntity.category)) {
+                if (subcategories[expenseEntity.category]!!.add(
+                        expenseEntity.subCategory
+                    )
+                )
+                    needAddSubcategoryToDb = false
+            } else {
+                subcategories[expenseEntity.category] =
+                    mutableSetOf(expenseEntity.subCategory)
             }
+            if (needAddSubcategoryToDb) {
+                categoryAndEmojiRepository.addSubCategory(
+                    SubCategoryEntity(
+                        name = expenseEntity.subCategory,
+                        icon = expenseEntity.icon,
+                        category = expenseEntity.category
+                    )
+                )
+            }
+        }
     }
 
 }

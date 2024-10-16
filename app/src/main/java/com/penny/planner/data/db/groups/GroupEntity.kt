@@ -2,6 +2,7 @@ package com.penny.planner.data.db.groups
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.firebase.Timestamp
 import com.penny.planner.helpers.Utils
 
 @Entity(tableName = Utils.GROUP_TABLE)
@@ -11,7 +12,7 @@ data class GroupEntity(
     var members: List<String> = listOf(),
     var profileUrl: String = "",
     var creatorId: String = "",
-    var lastUpdate: Long = 0,
+    var lastUpdate: Timestamp = Utils.getDefaultTimestamp(),
     var totalSpendLimit: Double = 0.0
 ) {
     fun toFireBaseModel() =

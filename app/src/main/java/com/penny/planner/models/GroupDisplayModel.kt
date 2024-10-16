@@ -1,6 +1,8 @@
 package com.penny.planner.models
 
 import androidx.room.DatabaseView
+import com.google.firebase.Timestamp
+import com.penny.planner.helpers.Utils
 
 @DatabaseView("""
         SELECT t.category AS category, t.content AS content, t.entityType AS entityType,
@@ -21,7 +23,7 @@ data class GroupDisplayModel(
     val price: Double = 0.0,
     val subCategory: String = "",
     val groupId: String = "",
-    val time: Long = System.currentTimeMillis(),
+    val time: Timestamp = Utils.getDefaultTimestamp(),
     var isSentTransaction: Boolean = true,
     var senderName: String = "",
     var senderEmail: String = "",

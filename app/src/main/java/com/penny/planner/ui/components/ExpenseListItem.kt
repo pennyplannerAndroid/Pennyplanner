@@ -91,7 +91,7 @@ fun ExpenseListItem(
                 Text(
                     modifier = Modifier
                         .padding(4.dp),
-                    text = Utils.convertMillisToTime(item.time),
+                    text = Utils.convertMillisToTime(item.time.toDate()),
                     maxLines = 1,
                     fontSize = 13.sp,
                     color = colorResource(id = R.color.or_with_color)
@@ -167,7 +167,7 @@ fun ExpenseListItem(
                 Text(
                     modifier = Modifier
                         .padding(4.dp),
-                    text = Utils.convertMillisToTime(item.time),
+                    text = Utils.convertMillisToTime(item.time.toDate()),
                     maxLines = 1,
                     fontSize = 13.sp,
                     color = colorResource(id = R.color.or_with_color)

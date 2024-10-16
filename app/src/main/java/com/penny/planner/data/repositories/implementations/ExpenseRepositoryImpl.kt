@@ -37,7 +37,6 @@ class ExpenseRepositoryImpl @Inject constructor(
 
     override suspend fun addExpense(entity: ExpenseEntity) {
         entity.expensorId = auth.currentUser?.uid ?: ""
-        expenseDao.insert(entity)
         if (entity.groupId.isNotEmpty())
             addExpenseForGroup(entity)
         else
@@ -45,8 +44,10 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addExpenseForSelf(entity: ExpenseEntity) {
+        entity.id = expenseCollectionRef.document().id
+        addToExpenseDb(entity)
         expenseCollectionRef
-            .document(entity.time.toString())
+            .document(entity.id)
             .set(entity.toFireBaseEntity())
             .addOnSuccessListener {
                 applicationScope.launch(Dispatchers.IO) {
@@ -57,10 +58,15 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addExpenseForGroup(entity: ExpenseEntity) {
+        entity.id = groupExpenseCollectionRef
+            .document(entity.groupId)
+            .collection(Utils.EXPENSES)
+            .document().id
+        addToExpenseDb(entity)
         groupExpenseCollectionRef
             .document(entity.groupId)
             .collection(Utils.EXPENSES)
-            .document(entity.time.toString())
+            .document(entity.id)
             .set(entity.toFireBaseEntity())
             .addOnSuccessListener {
                 entity.uploadedOnServer = true
@@ -68,6 +74,10 @@ class ExpenseRepositoryImpl @Inject constructor(
                     expenseDao.update(entity)
                 }
             }
+    }
+
+    private suspend fun addToExpenseDb(entity: ExpenseEntity) {
+        expenseDao.insert(entity)
     }
 
 }

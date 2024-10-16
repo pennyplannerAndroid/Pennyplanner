@@ -3,8 +3,10 @@ package com.penny.planner.helpers
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Picture
+import com.google.firebase.Timestamp
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 
 class Utils {
@@ -54,6 +56,7 @@ class Utils {
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"
         const val GROUP_ID = "group_id"
+        const val TIME = "time"
 
         //values
         const val PRICE_LIMIT = 7
@@ -105,12 +108,18 @@ class Utils {
         }
 
         @SuppressLint("SimpleDateFormat")
-        fun convertMillisToTime(millis: Long): String {
-            val date = Date(millis)
+        fun convertMillisToTime(date: Date): String {
             return SimpleDateFormat("HH:mm").format(date)
         }
 
         fun getPaymentTypes() = mapOf(Pair("Cash", "💵"), Pair("UPI", "🆙"), Pair("Card", "💳"))
+
+        fun getDefaultTimestamp(): Timestamp {
+            val calendar = Calendar.getInstance()
+            calendar.set(2024, Calendar.JANUARY, 23, 5, 30, 0)
+            val savedDate = calendar.time
+            return Timestamp(savedDate)
+        }
 
     }
 }

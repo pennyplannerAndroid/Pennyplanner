@@ -16,10 +16,10 @@ interface ExpenseDao {
     @Query("Select * From expense_table Where entityType = 1 Order by time DESC")
     fun getAllExpenses() : LiveData<List<ExpenseEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ExpenseEntity)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(list: List<ExpenseEntity>)
 
     @Update

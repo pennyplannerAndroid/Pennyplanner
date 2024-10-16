@@ -84,7 +84,7 @@ class CategoryViewModel @Inject constructor(
 
     private fun addBudget(entity: CategoryEntity, groupId: String) {
         viewModelScope.launch {
-            budgetRepository.addBudget(
+            budgetRepository.createBudgetLocally(
                 category = entity.name,
                 icon = entity.icon,
                 spendLimit = limit.toDouble(),

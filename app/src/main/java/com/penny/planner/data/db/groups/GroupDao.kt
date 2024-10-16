@@ -11,7 +11,7 @@ import com.penny.planner.helpers.Utils
 @Dao
 interface GroupDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGroup(entity: GroupEntity)
 
     @Query("SELECT * FROM ${Utils.GROUP_TABLE}")

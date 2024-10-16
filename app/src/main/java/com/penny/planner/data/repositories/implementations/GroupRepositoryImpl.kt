@@ -43,7 +43,7 @@ class GroupRepositoryImpl @Inject constructor(
             val groupEntity = GroupEntity(
                 groupId = groupId,
                 name = name,
-                members = members.map { it.email!! }.plus(auth.currentUser!!.email!!),
+                members = members.map { it.email }.plus(auth.currentUser!!.email!!),
                 profileUrl = "",
                 creatorId = auth.currentUser!!.email!!
             )
@@ -82,12 +82,22 @@ class GroupRepositoryImpl @Inject constructor(
                 }
             }
             groupEntity.profileUrl = path ?: ""
-            groupDao.addGroup(entity = groupEntity)
+            addGroup(groupEntity)
             return Result.success(true)
         } else {
             auth.signOut()
             return Result.failure(Exception(Utils.SESSION_EXPIRED_ERROR))
         }
+    }
+
+    override suspend fun addGroup(groupEntity: GroupEntity) {
+        groupDao.addGroup(entity = groupEntity)
+    }
+
+    override suspend fun getAllExistingGroupsFromDb() = groupDao.getAllExistingGroupsFromDb()
+
+    override suspend fun updateEntity(entity: GroupEntity) {
+        groupDao.updateEntity(entity)
     }
 
 }

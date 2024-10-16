@@ -9,15 +9,15 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
-import com.penny.planner.data.db.budget.BudgetDao
 import com.penny.planner.data.db.budget.BudgetEntity
 import com.penny.planner.data.db.category.CategoryEntity
-import com.penny.planner.data.db.expense.ExpenseDao
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
+import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
+import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.helpers.Utils
@@ -30,8 +30,8 @@ import javax.inject.Inject
 
 class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
-    private val budgetDao: BudgetDao,
-    private val expenseDao: ExpenseDao,
+    private val budgetRepository: BudgetRepository,
+    private val expenseRepository: ExpenseRepository,
     private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
     private val usersRepository: FriendsDirectoryRepository
 ) : FirebaseBackgroundSyncRepository {
@@ -74,7 +74,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             }
             budgetEntity
         }
-        budgetDao.addBudgetList(budgets)
+        budgetRepository.insertBudgetListFromServer(budgets)
     }
 
     private suspend fun fetchPersonalExpenseAndUpdate() {
@@ -91,7 +91,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                     getAndAddSubCategoryFromFirebaseExpense(expenseEntity)
                 expenseEntity
             }
-            expenseDao.insertList(allExpenses)
+            expenseRepository.insertBulkExpenseFromServer(allExpenses)
         } catch (e: Exception) {
             Log.d("$tag ::", "personalExpense :: $e")
         }
@@ -210,7 +210,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun generateLocalMap() {
-        val budgets = budgetDao.getAllBudgets()
+        val budgets = budgetRepository.getAllBudgets()
         for (budget in budgets) {
             if (budgetMap.containsKey(budget.entityId)) {
                 budgetMap[budget.entityId]!!.add(budget.category)
@@ -248,7 +248,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                 if (!setOfExistingBudgets!!.contains(budget.id)) {
                                     budgetEntity.uploadedOnServer = true
                                     budgetMap[groupId]!!.add(budgetEntity.category)
-                                    budgetDao.addBudgetItem(budgetEntity)
+                                    budgetRepository.addBudgetFromServer(budgetEntity)
                                     categoryAndEmojiRepository.addCategory(
                                         CategoryEntity(
                                             name = budgetEntity.category,
@@ -256,7 +256,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                         )
                                     )
                                 } else {
-                                    budgetDao.updateEntity(entity = budgetEntity)
+                                    budgetRepository.updateBudget(entity = budgetEntity)
                                 }
                             }
                         } catch (e: Exception) {
@@ -292,7 +292,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                 "groupExpenseList :: ${newExpenses.size} && ${group.lastUpdate}"
                             )
                             if (newExpenses.isNotEmpty()) { // if list is not empty, at the end we will remove the listener and start it with the updated last time stamp
-                                expenseDao.insertList(newExpenses)
+                                expenseRepository.insertBulkExpenseFromServer(newExpenses)
                                 group.lastUpdate = newExpenses.last().time
                                 groupDao.updateEntity(group)
                                 listenerRegistration?.remove()

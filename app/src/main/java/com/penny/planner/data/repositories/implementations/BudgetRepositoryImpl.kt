@@ -23,7 +23,7 @@ class BudgetRepositoryImpl @Inject constructor(
 
     private val groupExpenseCollectionRef = db.collection(Utils.GROUP_EXPENSES)
 
-    override suspend fun addBudget(
+    override suspend fun createBudgetLocally(
         category: String,
         icon: String,
         spendLimit: Double,
@@ -70,4 +70,18 @@ class BudgetRepositoryImpl @Inject constructor(
         val id = if (entityId == "") FirebaseAuth.getInstance().currentUser!!.uid else entityId
         return budgetDao.isBudgetAvailable(entityId = id, category = category)
     }
+
+    override suspend fun addBudgetFromServer(entity: BudgetEntity) {
+        budgetDao.addBudgetItem(entity)
+    }
+
+    override suspend fun insertBudgetListFromServer(list: List<BudgetEntity>) {
+        budgetDao.addBudgetList(list)
+    }
+
+    override suspend fun updateBudget(entity: BudgetEntity) {
+        budgetDao.updateEntity(entity)
+    }
+
+    override suspend fun getAllBudgets(): List<BudgetEntity> = budgetDao.getAllBudgets()
 }

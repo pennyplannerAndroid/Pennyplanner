@@ -35,6 +35,10 @@ class ExpenseRepositoryImpl @Inject constructor(
        return expenseDao.getExpenseListForDisplay(groupId)
     }
 
+    override suspend fun insertBulkExpenseFromServer(list: List<ExpenseEntity>) {
+        expenseDao.insertList(list)
+    }
+
     override suspend fun addExpense(entity: ExpenseEntity) {
         entity.expensorId = auth.currentUser?.uid ?: ""
         if (entity.groupId.isNotEmpty())

@@ -22,11 +22,8 @@ class ExpenseRepositoryImpl @Inject constructor(
     lateinit var applicationScope: CoroutineScope
     private val auth = FirebaseAuth.getInstance()
 
-    private val expenseCollectionRef = db.collection(Utils.USER_EXPENSES)
-        .document(FirebaseAuth.getInstance().currentUser!!.uid)
-        .collection(Utils.EXPENSES)
-
-    private val groupExpenseCollectionRef = db.collection(Utils.GROUP_EXPENSES)
+    private val userCollectionRef = db.collection(Utils.USER_EXPENSES)
+    private val groupCollectionRef = db.collection(Utils.GROUP_EXPENSES)
 
     override suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>> =
         expenseDao.getAllExpenses()
@@ -48,10 +45,12 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addExpenseForSelf(entity: ExpenseEntity) {
-        entity.id = expenseCollectionRef.document().id
+        val reference = userCollectionRef
+            .document(FirebaseAuth.getInstance().currentUser!!.uid)
+            .collection(Utils.EXPENSES)
+        entity.id = reference.document().id
         addToExpenseDb(entity)
-        expenseCollectionRef
-            .document(entity.id)
+        reference.document(entity.id)
             .set(entity.toFireBaseEntity())
             .addOnSuccessListener {
                 applicationScope.launch(Dispatchers.IO) {
@@ -62,15 +61,12 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addExpenseForGroup(entity: ExpenseEntity) {
-        entity.id = groupExpenseCollectionRef
+        val reference = groupCollectionRef
             .document(entity.groupId)
             .collection(Utils.EXPENSES)
-            .document().id
+        entity.id = reference.document().id
         addToExpenseDb(entity)
-        groupExpenseCollectionRef
-            .document(entity.groupId)
-            .collection(Utils.EXPENSES)
-            .document(entity.id)
+        reference.document(entity.id)
             .set(entity.toFireBaseEntity())
             .addOnSuccessListener {
                 entity.uploadedOnServer = true

@@ -17,11 +17,8 @@ class BudgetRepositoryImpl @Inject constructor(
     val db = FirebaseFirestore.getInstance()
     @Inject lateinit var applicationScope: CoroutineScope
 
-    private val budgetCollectionRef = db.collection(Utils.USER_EXPENSES)
-        .document(FirebaseAuth.getInstance().currentUser!!.uid)
-        .collection(Utils.BUDGET_DETAILS)
-
-    private val groupExpenseCollectionRef = db.collection(Utils.GROUP_EXPENSES)
+    private val userCollectionRef = db.collection(Utils.USER_EXPENSES)
+    private val groupCollectionRef = db.collection(Utils.GROUP_EXPENSES)
 
     override suspend fun createBudgetLocally(
         category: String,
@@ -43,7 +40,10 @@ class BudgetRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addBudgetForSelf(entity: BudgetEntity) {
-        budgetCollectionRef.document(entity.category).set(entity.toFireBaseEntity())
+        userCollectionRef
+            .document(FirebaseAuth.getInstance().currentUser!!.uid)
+            .collection(Utils.BUDGET_DETAILS)
+            .document(entity.category).set(entity.toFireBaseEntity())
             .addOnSuccessListener {
                 entity.uploadedOnServer = true
                 applicationScope.launch(Dispatchers.IO) {
@@ -53,7 +53,7 @@ class BudgetRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addBudgetForGroup(entity: BudgetEntity) {
-        groupExpenseCollectionRef
+        groupCollectionRef
             .document(entity.entityId)
             .collection(Utils.BUDGET_DETAILS)
             .document(entity.category)

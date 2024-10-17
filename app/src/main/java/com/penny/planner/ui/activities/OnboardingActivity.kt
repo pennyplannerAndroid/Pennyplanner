@@ -65,9 +65,11 @@ class OnboardingActivity : ComponentActivity() {
                         controller.navigate(Utils.SIGNUP)
                     },
                     navToLogin = {
+                        controller.popBackStack()
                         controller.navigate(Utils.LOGIN)
                     },
                     navToVerification = {
+                        controller.popBackStack()
                         controller.navigate(
                             route = "${Utils.EMAIL_VERIFICATION}/${it}"
                         )
@@ -80,39 +82,36 @@ class OnboardingActivity : ComponentActivity() {
                     viewModel = viewModel,
                     onBackPressed = { controller.navigate(Utils.TUTORIAL) },
                     forgotPassword = { controller.navigate(Utils.FORGOT_PASSWORD) },
-                    navToSignup = { controller.navigate(Utils.SIGNUP) },
+                    navToSignup = {
+                        controller.popBackStack()
+                        controller.navigate(Utils.SIGNUP)
+                    },
                     loginSuccess = {
                         startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
                         finish()
                     },
                     goToProfile = { controller.navigate(Utils.UPDATE_PROFILE) },
                     navToVerification = {
+                        controller.popBackStack()
                         controller.navigate(
                             route = "${Utils.EMAIL_VERIFICATION}/${it}"
                         )
                     },
                     navToSetBudget = {
+                        controller.popBackStack()
                         controller.navigate(Utils.SET_MONTHLY_BUDGET)
                     }
                 )
             }
-            composable(
-                route = "${Utils.EMAIL_VERIFICATION}/{${Utils.EMAIL}}",
-                arguments = listOf(
-                    navArgument(Utils.EMAIL) {
-                        type = NavType.StringType
-                        defaultValue = Utils.DEFAULT_EMAIL_STRING
-                    }
-                )
-            ) {
+            composable(route = Utils.EMAIL_VERIFICATION) {
                 EmailVerificationScreen(
                     modifier = Modifier,
                     viewModel = viewModel,
-                    email = it.arguments?.getString(Utils.EMAIL) ?: Utils.DEFAULT_EMAIL_STRING,
                     onBackPressed = {
                         controller.popBackStack()
                     }
                 ) {
+                    controller.popBackStack()
                     controller.navigate(Utils.UPDATE_PROFILE)
                 }
             }
@@ -142,6 +141,7 @@ class OnboardingActivity : ComponentActivity() {
                 PasswordResetEmailScreen(
                     modifier = Modifier,
                     onLoginClick = {
+                        controller.popBackStack()
                         controller.navigate(Utils.LOGIN)
                     },
                     email = it.arguments?.getString(Utils.EMAIL) ?: viewModel.getEmail()
@@ -151,6 +151,7 @@ class OnboardingActivity : ComponentActivity() {
                 UpdateProfileScreen(
                     viewModel = viewModel,
                     buttonClicked = {
+                        controller.popBackStack()
                         controller.navigate(Utils.SET_MONTHLY_BUDGET)
                     }
                 )

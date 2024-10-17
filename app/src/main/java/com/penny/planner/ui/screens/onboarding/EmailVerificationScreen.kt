@@ -32,7 +32,6 @@ import com.penny.planner.viewmodels.OnboardingViewModel
 fun EmailVerificationScreen (
     modifier: Modifier,
     viewModel: OnboardingViewModel,
-    email: String,
     onBackPressed: () -> Unit,
     emailVerified: () -> Unit
 ){
@@ -89,7 +88,7 @@ fun EmailVerificationScreen (
                         .padding(20.dp)
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
-                    text = textWithPartialColored(email = email),
+                    text = textWithPartialColored(email = viewModel.getEmail()),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )

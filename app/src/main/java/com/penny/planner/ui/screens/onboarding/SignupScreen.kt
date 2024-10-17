@@ -38,8 +38,8 @@ fun SignupScreen(
                 isLoggedIn.exceptionOrNull()?.message ?: stringResource(id = R.string.retry_verification),
                 Toast.LENGTH_LONG
             ).show()
+        isLoadingShown = false
     }
-    FullScreenProgressIndicator(isLoadingShown)
 
     SignupAndLoginComposable(
         modifier = modifier,
@@ -65,4 +65,5 @@ fun SignupScreen(
         },
         navigationButtonClicked = navToLogin
     )
+    FullScreenProgressIndicator(isLoadingShown)
 }

@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +28,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
+import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.TopBar
 import com.penny.planner.viewmodels.OnboardingViewModel
@@ -35,9 +40,13 @@ fun EmailVerificationScreen (
     onBackPressed: () -> Unit,
     emailVerified: () -> Unit
 ){
+    var isLoadingShown by remember {
+        mutableStateOf(false)
+    }
     val emailSentStatus = viewModel.emailSent.observeAsState().value
     val isVerified = viewModel.isVerified.observeAsState().value
-    if (emailSentStatus != null) {
+    if (emailSentStatus != null && isLoadingShown) {
+        isLoadingShown = false
         if (emailSentStatus.isSuccess) {
             Toast.makeText(
                 LocalContext.current,
@@ -53,6 +62,7 @@ fun EmailVerificationScreen (
         }
     }
     if (isVerified != null) {
+        isLoadingShown = false
         if (isVerified.isSuccess) {
             emailVerified.invoke()
         } else {
@@ -97,6 +107,7 @@ fun EmailVerificationScreen (
                         .padding(start = 16.dp)
                         .clickable(
                             onClick = {
+                                isLoadingShown = true
                                 viewModel.sendVerificationEmail()
                             }
                         ),
@@ -111,12 +122,16 @@ fun EmailVerificationScreen (
                         .padding(top = 32.dp, start = 20.dp, end = 20.dp)
                         .size(48.dp),
                     textRes = R.string.verify_email_button,
-                    onClick = {  viewModel.checkVerificationStatus() },
+                    onClick = {
+                        isLoadingShown = true
+                        viewModel.checkVerificationStatus()
+                    },
                     enabled = true
                 )
             }
         }
     )
+    FullScreenProgressIndicator(isLoadingShown)
 }
 
 @Composable

@@ -70,9 +70,7 @@ class OnboardingActivity : ComponentActivity() {
                     },
                     navToVerification = {
                         controller.popBackStack()
-                        controller.navigate(
-                            route = "${Utils.EMAIL_VERIFICATION}/${it}"
-                        )
+                        controller.navigate(route = Utils.EMAIL_VERIFICATION)
                     }
                 )
             }
@@ -93,9 +91,7 @@ class OnboardingActivity : ComponentActivity() {
                     goToProfile = { controller.navigate(Utils.UPDATE_PROFILE) },
                     navToVerification = {
                         controller.popBackStack()
-                        controller.navigate(
-                            route = "${Utils.EMAIL_VERIFICATION}/${it}"
-                        )
+                        controller.navigate(route = Utils.EMAIL_VERIFICATION)
                     },
                     navToSetBudget = {
                         controller.popBackStack()

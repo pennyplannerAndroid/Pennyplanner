@@ -107,10 +107,10 @@ fun CategorySelectionScreen (
                         viewModel.addCategoryToDb = false
                         val savedItem = CategoryEntity(name = name, icon = icon)
                         scope.launch {
-                            viewModel.setSelectedCategory(savedItem)
                             if (viewModel.doesBudgetExists(entityId = groupId, category = name)) {
                                 viewModel.addBudget = false
                                 viewModel.setCategoryEditable(false)
+                                viewModel.setSelectedCategory(savedItem)
                                 onDismiss.invoke()
                             } else {
                                 viewModel.addBudget = true

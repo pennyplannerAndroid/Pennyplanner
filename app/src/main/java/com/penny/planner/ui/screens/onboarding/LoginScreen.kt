@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.penny.planner.R
+import com.penny.planner.helpers.enums.LoginResult
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.SignupAndLoginComposable
 import com.penny.planner.ui.components.buildText
@@ -23,10 +24,7 @@ fun LoginScreen(
     onBackPressed : () -> Unit,
     forgotPassword : () -> Unit,
     navToSignup : () -> Unit,
-    loginSuccess: () -> Unit,
-    goToProfile: () -> Unit,
-    navToVerification: (String) -> Unit,
-    navToSetBudget: () -> Unit
+    loginResult: (LoginResult) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     val result = viewModel.loginResult.observeAsState().value
@@ -36,21 +34,10 @@ fun LoginScreen(
     val context = LocalContext.current
     if (result != null && isLoadingShown) {
         isLoadingShown = false
-        if (result.isSuccess) {
-            if (result.getOrNull()!!.isEmailVerified) {
-                if (result.getOrNull()!!.isProfileUpdated) {
-                    if (result.getOrNull()!!.isBudgetSet)
-                        loginSuccess.invoke()
-                    else
-                        navToSetBudget.invoke()
-                }
-                else
-                    goToProfile.invoke()
-            } else
-                navToVerification.invoke(email)
-        } else {
+        if (result.isSuccess)
+            loginResult.invoke(result.getOrNull()!!)
+        else
             Toast.makeText(context, result.exceptionOrNull()?.message ?: stringResource(id = R.string.invalid_user), Toast.LENGTH_LONG).show()
-        }
     }
     SignupAndLoginComposable(
         modifier = modifier,

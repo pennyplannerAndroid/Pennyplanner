@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.penny.planner.helpers.Utils
+import com.penny.planner.helpers.enums.LoginResult
 import com.penny.planner.ui.screens.onboarding.EmailVerificationScreen
 import com.penny.planner.ui.screens.onboarding.ForgotPasswordScreen
 import com.penny.planner.ui.screens.onboarding.LoginScreen
@@ -84,18 +85,17 @@ class OnboardingActivity : ComponentActivity() {
                         controller.popBackStack()
                         controller.navigate(Utils.SIGNUP)
                     },
-                    loginSuccess = {
-                        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
-                        finish()
-                    },
-                    goToProfile = { controller.navigate(Utils.UPDATE_PROFILE) },
-                    navToVerification = {
+                    loginResult = {
                         controller.popBackStack()
-                        controller.navigate(route = Utils.EMAIL_VERIFICATION)
-                    },
-                    navToSetBudget = {
-                        controller.popBackStack()
-                        controller.navigate(Utils.SET_MONTHLY_BUDGET)
+                        when (it) {
+                            LoginResult.VERIFY_EMAIL -> controller.navigate(Utils.EMAIL_VERIFICATION)
+                            LoginResult.ADD_NAME -> controller.navigate(Utils.UPDATE_PROFILE)
+                            LoginResult.ADD_BUDGET -> controller.navigate(Utils.SET_MONTHLY_BUDGET)
+                            LoginResult.VERIFY_SUCCESS -> {
+                                startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                                finish()
+                            }
+                        }
                     }
                 )
             }

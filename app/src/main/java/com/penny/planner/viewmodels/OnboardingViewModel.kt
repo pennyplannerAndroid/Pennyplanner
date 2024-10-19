@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
-import com.penny.planner.models.LoginResultModel
+import com.penny.planner.helpers.enums.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,8 +19,8 @@ class OnboardingViewModel @Inject constructor(
     private val budgetRepository: MonthlyBudgetRepository
 ): ViewModel() {
     //login
-    private val _loginResult = MutableLiveData<Result<LoginResultModel>>()
-    val loginResult : LiveData<Result<LoginResultModel>> = _loginResult
+    private val _loginResult = MutableLiveData<Result<LoginResult>>()
+    val loginResult : LiveData<Result<LoginResult>> = _loginResult
     //signup
     private val _signupResult = MutableLiveData<Result<Boolean>>()
     val signUpResult: LiveData<Result<Boolean>> = _signupResult

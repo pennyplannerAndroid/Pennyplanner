@@ -15,7 +15,7 @@ import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.LoginResultModel
+import com.penny.planner.helpers.enums.LoginResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -35,36 +35,37 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
     private val storage = FirebaseStorage.getInstance()
 
-    override suspend fun login(email: String, password: String): Result<LoginResultModel> {
+    override suspend fun login(email: String, password: String): Result<LoginResult> {
         try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(Utils.FAILED)
-            getAllFirebaseDataAndUpdateLocal(true)
+            if (!user.isEmailVerified)
+                return Result.success(LoginResult.VERIFY_EMAIL)
+            else if (user.displayName.isNullOrBlank()) {
+                Result.success(LoginResult.ADD_NAME)
+            }
             return suspendCoroutine { continuation ->
                 directoryReference.child(Utils.formatEmailForFirebase(email))
                     .child(Utils.BUDGET_INFO).child(Utils.MONTHLY_BUDGET)
                     .addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            applicationScope.launch {
-                                budgetRepository.updateLocalWithMonthlyBudget(snapshot.value.toString())
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                applicationScope.launch {
+                                    budgetRepository.updateLocalWithMonthlyBudget(snapshot.value.toString())
+                                    getAllFirebaseDataAndUpdateLocal(true)
+                                }
                             }
-                        }
-                        continuation.resume(
-                            Result.success(
-                                LoginResultModel(
-                                    user.isEmailVerified,
-                                    !user.displayName.isNullOrBlank(),
-                                    snapshot.exists()
+                            continuation.resume(
+                                Result.success(
+                                    if (snapshot.exists()) LoginResult.VERIFY_SUCCESS else LoginResult.ADD_BUDGET
                                 )
                             )
-                        )
-                    }
+                        }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        throw Exception(Utils.FAILED)
-                    }
-                })
+                        override fun onCancelled(error: DatabaseError) {
+                            throw Exception(Utils.FAILED)
+                        }
+                    })
             }
         } catch (e: Exception) {
             return Result.failure(e)

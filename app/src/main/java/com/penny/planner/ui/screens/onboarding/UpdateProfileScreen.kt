@@ -63,7 +63,7 @@ import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
 import com.penny.planner.helpers.createImageFile
-import com.penny.planner.ui.components.BottomDrawer
+import com.penny.planner.ui.components.BottomDrawerForImageUpload
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.viewmodels.OnboardingViewModel
@@ -265,7 +265,7 @@ fun UpdateProfileScreen (
     else
         listOf(R.drawable.gallery_icon, R.drawable.camera_icon)
 
-    BottomDrawer(modifier = Modifier, texts = texts, icons = icons, showSheet = showBottomSheet, onCLose = { showBottomSheet = false }) {
+    BottomDrawerForImageUpload(modifier = Modifier, texts = texts, icons = icons, showSheet = showBottomSheet, onCLose = { showBottomSheet = false }) {
         when(it) {
             0 -> galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             1 -> {

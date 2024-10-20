@@ -75,7 +75,6 @@ class Utils {
         const val GENERAL_DATA = "GeneralData"
         const val EMOJI_FILE_ID = "emojiFileID"
         const val PROFILE_URL = "profileUrl"
-        const val MONTHLY_BUDGET = "monthlyBudget"
         const val BUDGET_DETAILS = "BudgetDetails"
         const val USER_EXPENSES = "UserExpenses"
         const val GROUP_EXPENSES = "GroupExpenses"
@@ -124,5 +123,6 @@ class Utils {
             return Timestamp(savedDate)
         }
 
+        fun lengthHint(value: Int, limit: Int) = limit - value
     }
 }

@@ -153,10 +153,7 @@ class OnboardingActivity : ComponentActivity() {
                 )
             }
             composable(route = Utils.SET_MONTHLY_BUDGET) {
-                SetBudgetScreen(
-                    viewModel = viewModel,
-                    name = viewModel.getName()
-                ) {
+                SetBudgetScreen(viewModel = viewModel) {
                     startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
                     finish()
                 }

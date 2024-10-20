@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.enums.LoginResult
+import com.penny.planner.models.MonthlyBudgetInfoModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,9 +79,9 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun setMonthlyLimit(amount: String) {
+    fun setMonthlyLimit(monthlyBudgetInfo: MonthlyBudgetInfoModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = budgetRepository.updateMonthlyBudget(amount)
+            val result = budgetRepository.updateMonthlyBudget(monthlyBudgetInfo)
             withContext(Dispatchers.Main) {
                 _monthlyBudgetStatus.value = result
             }

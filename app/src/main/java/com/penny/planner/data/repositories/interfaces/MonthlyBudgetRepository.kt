@@ -1,7 +1,9 @@
 package com.penny.planner.data.repositories.interfaces
 
+import com.penny.planner.models.MonthlyBudgetInfoModel
+
 interface MonthlyBudgetRepository {
-    suspend fun updateMonthlyBudget(amount: String): Result<Boolean>
-    suspend fun updateLocalWithMonthlyBudget(amount: String)
-    suspend fun getMonthlyBudget(): String?
+    suspend fun updateMonthlyBudget(monthlyBudgetInfo: MonthlyBudgetInfoModel): Result<Boolean>
+    suspend fun updateLocalWithMonthlyBudget(monthlyBudgetInfo: MonthlyBudgetInfoModel)
+    suspend fun getMonthlyBudget(): MonthlyBudgetInfoModel?
 }

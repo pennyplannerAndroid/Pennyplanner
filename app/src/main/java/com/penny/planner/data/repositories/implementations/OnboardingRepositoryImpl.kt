@@ -16,6 +16,7 @@ import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.enums.LoginResult
+import com.penny.planner.models.MonthlyBudgetInfoModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -46,13 +47,16 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             }
             return suspendCoroutine { continuation ->
                 directoryReference.child(Utils.formatEmailForFirebase(email))
-                    .child(Utils.BUDGET_INFO).child(Utils.MONTHLY_BUDGET)
+                    .child(Utils.BUDGET_INFO)
                     .addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (snapshot.exists()) {
-                                applicationScope.launch {
-                                    budgetRepository.updateLocalWithMonthlyBudget(snapshot.value.toString())
-                                    getAllFirebaseDataAndUpdateLocal(true)
+                                val entity = snapshot.getValue(MonthlyBudgetInfoModel::class.java)
+                                if (entity != null) {
+                                    applicationScope.launch {
+                                        budgetRepository.updateLocalWithMonthlyBudget(entity)
+                                        getAllFirebaseDataAndUpdateLocal(true)
+                                    }
                                 }
                             }
                             continuation.resume(

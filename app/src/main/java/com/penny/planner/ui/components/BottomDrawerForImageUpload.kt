@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.penny.planner.R
@@ -24,7 +25,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomDrawer(
+fun BottomDrawerForImageUpload(
     modifier: Modifier,
     texts: List<String>,
     icons: List<Int>,
@@ -106,11 +107,62 @@ fun BottomDrawer(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomDrawerForInfo(
+    texts: String,
+    showSheet: Boolean,
+    onCLose: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    if (sheetState.isVisible && !showSheet) {
+        LaunchedEffect(key1 = "") {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    onCLose.invoke()
+                }
+            }
+        }
+    } else if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = onCLose,
+            sheetState = sheetState
+        ) {
+            Column{
+                Image(
+                    modifier = Modifier
+                        .padding(bottom = 24.dp)
+                        .align(Alignment.CenterHorizontally),
+                    painter = painterResource(id = R.drawable.tip_bulb_icon),
+                    contentDescription = stringResource(id = R.string.info)
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
+                        .align(Alignment.CenterHorizontally),
+                    text = texts
+                )
+                PrimaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                    textRes = R.string.ok,
+                    onClick = {
+                        onCLose.invoke()
+                    },
+                    enabled = true
+                )
+            }
+        }
+    }
+}
+
 
 @Preview
 @Composable
 fun PreviewBottomDrawer() {
-    BottomDrawer(Modifier, listOf("Gallery", "Camera", "Delete"), listOf(R.drawable.gallery_icon, R.drawable.camera_icon, R.drawable.delete_icon), true, {}) {
+    BottomDrawerForImageUpload(Modifier, listOf("Gallery", "Camera", "Delete"), listOf(R.drawable.gallery_icon, R.drawable.camera_icon, R.drawable.delete_icon), true, {}) {
 
     }
 }

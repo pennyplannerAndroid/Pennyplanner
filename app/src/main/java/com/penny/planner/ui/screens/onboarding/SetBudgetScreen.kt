@@ -127,7 +127,7 @@ fun SetBudgetScreen(
             ),
             shape = RoundedCornerShape(12.dp),
             value = budget,
-            onValueChange = { budget = if(Utils.lengthHint(it.length, Utils.PRICE_LIMIT) > 0) it else budget },
+            onValueChange = { budget = if(Utils.lengthHint(it.length, Utils.PRICE_LIMIT) >= 0) it else budget },
             label = {
                 Text(stringResource(id = R.string.enter_budget))
             },

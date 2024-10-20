@@ -13,6 +13,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,9 +43,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -63,6 +66,7 @@ import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
 import com.penny.planner.helpers.createImageFile
+import com.penny.planner.helpers.keyboardAsState
 import com.penny.planner.helpers.pxToDp
 import com.penny.planner.ui.components.BottomDrawerForImageUpload
 import com.penny.planner.ui.components.FullScreenProgressIndicator
@@ -76,6 +80,7 @@ fun UpdateProfileScreen (
     viewModel: OnboardingViewModel,
     buttonClicked : () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     var name by remember {
         mutableStateOf("")
     }
@@ -89,6 +94,7 @@ fun UpdateProfileScreen (
     var showLoader by remember {
         mutableStateOf(false)
     }
+    val isKeyboardOpen by keyboardAsState()
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val context = LocalContext.current
     val view = LocalView.current
@@ -123,6 +129,8 @@ fun UpdateProfileScreen (
         imageUri = result
         showBottomSheet = false
     }
+    if (!isKeyboardOpen)
+        focusManager.clearFocus()
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -141,7 +149,14 @@ fun UpdateProfileScreen (
             Toast.makeText(context, context.resources.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
-    Column {
+    Column(
+        modifier = Modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { focusManager.clearFocus() }
+                )
+            }
+    ) {
         Box(
             Modifier
                 .fillMaxWidth()
@@ -241,7 +256,7 @@ fun UpdateProfileScreen (
                 )
             ),
             trailingIcon = {
-                if (name.isNotEmpty())
+                if (name.isNotEmpty() && isKeyboardOpen)
                     Text(text = Utils.lengthHint(name.length, Utils.NAME_LIMIT).toString())
             },
             shape = RoundedCornerShape(12.dp),

@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.enums.LoginResult
+import com.penny.planner.ui.screens.onboarding.AllSetScreen
 import com.penny.planner.ui.screens.onboarding.EmailVerificationScreen
 import com.penny.planner.ui.screens.onboarding.ForgotPasswordScreen
 import com.penny.planner.ui.screens.onboarding.LoginScreen
@@ -28,6 +30,7 @@ import com.penny.planner.ui.screens.onboarding.UpdateProfileScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.OnboardingViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class OnboardingActivity : ComponentActivity() {
@@ -154,6 +157,13 @@ class OnboardingActivity : ComponentActivity() {
             }
             composable(route = Utils.SET_MONTHLY_BUDGET) {
                 SetBudgetScreen(viewModel = viewModel) {
+                    controller.navigate(Utils.ALL_SET_SCREEN)
+                }
+            }
+            composable(route = Utils.ALL_SET_SCREEN) {
+                AllSetScreen()
+                LaunchedEffect(key1 = Unit){
+                    delay(3000)
                     startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
                     finish()
                 }

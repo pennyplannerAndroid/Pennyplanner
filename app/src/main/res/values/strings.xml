@@ -88,4 +88,5 @@
     <string name="budget_editable_info">"Note: You can edit this later."</string>
     <string name="safe_to_spend_info">"Let's suppose your safe-to-spend limit is 80% of your budget. This helps you spend responsibly while keeping 20% for savings or unexpected expenses. Spending over the limit will use your savings, helping you stay disciplined."</string>
     <string name="add_profile_picture">"Add profile photo"</string>
+    <string name="you_are_set">"You are set!"</string>
 </resources>

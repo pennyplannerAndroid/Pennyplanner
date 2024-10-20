@@ -21,6 +21,7 @@ class Utils {
         const val UPDATE_PROFILE = "update_Profile"
         const val EMAIL_SENT = "email_sent"
         const val SET_MONTHLY_BUDGET = "set_monthly_budget"
+        const val ALL_SET_SCREEN = "all_set_screen"
 
         // Home Navigation
         const val HOME = "Home"

@@ -60,6 +60,7 @@ class Utils {
 
         //values
         const val PRICE_LIMIT = 7
+        const val NAME_LIMIT = 20
         const val ADMIN_VALUE = 1
         const val NON_ADMIN_VALUE = 0
 

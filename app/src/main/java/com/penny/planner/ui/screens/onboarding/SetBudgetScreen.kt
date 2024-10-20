@@ -209,7 +209,7 @@ fun SetBudgetScreen(
         )
     }
     BottomDrawerForInfo(
-        texts = stringResource(id = R.string.safe_to_spend_info),
+        text = stringResource(id = R.string.safe_to_spend_info),
         showSheet = showInfo
     ) {
             showInfo = false

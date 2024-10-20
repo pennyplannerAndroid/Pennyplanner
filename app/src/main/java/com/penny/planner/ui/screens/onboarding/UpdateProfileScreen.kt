@@ -63,6 +63,7 @@ import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
 import com.penny.planner.helpers.createImageFile
+import com.penny.planner.helpers.pxToDp
 import com.penny.planner.ui.components.BottomDrawerForImageUpload
 import com.penny.planner.ui.components.FullScreenProgressIndicator
 import com.penny.planner.ui.components.PrimaryButton
@@ -88,7 +89,7 @@ fun UpdateProfileScreen (
     var showLoader by remember {
         mutableStateOf(false)
     }
-    val headerBoxHeight = LocalConfiguration.current.screenHeightDp / 3
+    val screenHeight = LocalConfiguration.current.screenHeightDp
     val context = LocalContext.current
     val view = LocalView.current
 
@@ -126,15 +127,15 @@ fun UpdateProfileScreen (
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) {
-        imageUri = uri
         showBottomSheet = false
+        if (it)
+            imageUri = uri
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
         if (it) {
-            Toast.makeText(context, context.resources.getString(R.string.permission_granted), Toast.LENGTH_SHORT).show()
             cameraLauncher.launch(uri)
         } else {
             Toast.makeText(context, context.resources.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
@@ -144,7 +145,7 @@ fun UpdateProfileScreen (
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(headerBoxHeight.dp)
+                .height(screenHeight.dp / 3)
                 .clip(CustomShape())
                 .background(
                     colorResource(id = R.color.loginText)
@@ -153,12 +154,17 @@ fun UpdateProfileScreen (
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 64.dp, start = 16.dp, end = 16.dp),
+                    .align(Alignment.BottomEnd)
+                    .padding(
+                        bottom = (screenHeight / 4).pxToDp(),
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
                 text = stringResource(id = R.string.profile_update_header),
-                fontSize = 42.sp,
+                fontSize = 36.sp,
                 color = Color.White,
-                lineHeight = 42.sp,
-                fontWeight = FontWeight.SemiBold
+                lineHeight = 36.sp,
+                fontWeight = FontWeight.Normal
             )
         }
         Box(modifier = Modifier
@@ -204,19 +210,23 @@ fun UpdateProfileScreen (
                     .placeholder(R.drawable.default_user_display)
                     .error(R.drawable.default_user_display)
             }
-            Image(
-                modifier = Modifier
-                    .padding(start = 68.dp, top = 36.dp)
-                    .size(24.dp)
-                    .background(color = colorResource(id = R.color.loginText), shape = CircleShape)
-                    .size(18.dp)
-                    .align(Alignment.Center)
-                    .clickable {
-                        showBottomSheet = true
-                    },
-                painter = painterResource(id = R.drawable.edit_icon),
-                contentDescription = ""
-            )
+            Box(modifier = Modifier
+                .padding(start = 68.dp, top = 36.dp)
+                .size(18.dp)
+                .background(color = colorResource(id = R.color.loginText), shape = CircleShape)
+                .align(Alignment.Center)
+                .clickable {
+                    showBottomSheet = true
+                }
+            ) {
+                Image(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .align(Alignment.Center),
+                    painter = painterResource(id = R.drawable.edit_icon),
+                    contentDescription = ""
+                )
+            }
         }
         OutlinedTextField(
             modifier = Modifier
@@ -230,9 +240,13 @@ fun UpdateProfileScreen (
                         R.color.red
                 )
             ),
+            trailingIcon = {
+                if (name.isNotEmpty())
+                    Text(text = Utils.lengthHint(name.length, Utils.NAME_LIMIT).toString())
+            },
             shape = RoundedCornerShape(12.dp),
             value = name,
-            onValueChange = { name = it },
+            onValueChange = { name = if(Utils.lengthHint(it.length, Utils.NAME_LIMIT) >= 0) it else name },
             label = {
                 Text(stringResource(id = R.string.name))
             }
@@ -242,33 +256,32 @@ fun UpdateProfileScreen (
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                 .size(48.dp),
-            textRes = R.string.get_started,
+            textRes = R.string.lets_go,
             onClick = {
                 showLoader = true
                 val byteArray = if (imageUri != null) createBitmapFromPicture(picture) else null
                 viewModel.updateProfile(name, byteArray)
             },
-            enabled = true
+            enabled = name.isNotEmpty()
         )
     }
     FullScreenProgressIndicator(show = showLoader)
-    val texts = if (imageUri != null)
+    val texts = if (imageUri != null && !imageUri!!.path.isNullOrBlank())
         listOf(
-            stringResource(id = R.string.gallery),
             stringResource(id = R.string.camera),
+            stringResource(id = R.string.gallery),
             stringResource(id = R.string.delete)
         )
     else
-        listOf(stringResource(id = R.string.gallery), stringResource(id = R.string.camera))
+        listOf(stringResource(id = R.string.camera), stringResource(id = R.string.gallery))
     val icons = if (imageUri != null)
-        listOf(R.drawable.gallery_icon, R.drawable.camera_icon, R.drawable.delete_icon)
+        listOf( R.drawable.camera_icon, R.drawable.gallery_icon, R.drawable.delete_icon)
     else
-        listOf(R.drawable.gallery_icon, R.drawable.camera_icon)
+        listOf( R.drawable.camera_icon, R.drawable.gallery_icon)
 
     BottomDrawerForImageUpload(modifier = Modifier, texts = texts, icons = icons, showSheet = showBottomSheet, onCLose = { showBottomSheet = false }) {
         when(it) {
-            0 -> galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            1 -> {
+            0 -> {
                 val permissionCheckResult =
                     ContextCompat.checkSelfPermission(
                         context,
@@ -280,7 +293,11 @@ fun UpdateProfileScreen (
                     permissionLauncher.launch(Manifest.permission.CAMERA)
                 }
             }
-            2 -> imageUri = null
+            1 -> galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            2 -> {
+                imageUri = null
+                showBottomSheet = false
+            }
         }
     }
 }

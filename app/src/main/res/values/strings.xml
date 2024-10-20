@@ -51,7 +51,7 @@
     <string name="permission_granted">"Permission Granted!"</string>
     <string name="permission_denied">"Permission Denied!"</string>
     <string name="name">"Name"</string>
-    <string name="get_started">"Get started"</string>
+    <string name="lets_go">"Let's go"</string>
     <string name="new_group">"New Group"</string>
     <string name="notification">"Notification"</string>
     <string name="add_expense">"Expense"</string>
@@ -87,4 +87,5 @@
     <string name="ok">"OK"</string>
     <string name="budget_editable_info">"Note: You can edit this later."</string>
     <string name="safe_to_spend_info">"Let's suppose your safe-to-spend limit is 80% of your budget. This helps you spend responsibly while keeping 20% for savings or unexpected expenses. Spending over the limit will use your savings, helping you stay disciplined."</string>
+    <string name="add_profile_picture">"Add profile photo"</string>
 </resources>

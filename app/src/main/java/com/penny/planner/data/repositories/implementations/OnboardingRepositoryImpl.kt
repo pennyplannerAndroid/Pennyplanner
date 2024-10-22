@@ -45,31 +45,21 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             else if (user.displayName.isNullOrBlank()) {
                 Result.success(LoginResult.ADD_NAME)
             }
-            return suspendCoroutine { continuation ->
-                directoryReference.child(Utils.formatEmailForFirebase(email))
-                    .child(Utils.BUDGET_INFO)
-                    .addValueEventListener(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
-                                val entity = snapshot.getValue(MonthlyBudgetInfoModel::class.java)
-                                if (entity != null) {
-                                    applicationScope.launch {
-                                        budgetRepository.updateLocalWithMonthlyBudget(entity)
-                                        getAllFirebaseDataAndUpdateLocal(true)
-                                    }
-                                }
-                            }
-                            continuation.resume(
-                                Result.success(
-                                    if (snapshot.exists()) LoginResult.VERIFY_SUCCESS else LoginResult.ADD_BUDGET
-                                )
-                            )
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            throw Exception(Utils.FAILED)
-                        }
-                    })
+            val snapshot = directoryReference.child(Utils.formatEmailForFirebase(email))
+                .child(Utils.BUDGET_INFO).get().await()
+            if (snapshot.exists()) {
+                val entity = snapshot.getValue(MonthlyBudgetInfoModel::class.java)
+                if (entity != null) {
+                    applicationScope.launch {
+                        budgetRepository.updateLocalWithMonthlyBudget(entity)
+                        getAllFirebaseDataAndUpdateLocal(true)
+                    }
+                    return Result.success(LoginResult.VERIFY_SUCCESS)
+                } else {
+                    return Result.success(LoginResult.ADD_BUDGET)
+                }
+            } else {
+                return Result.success(LoginResult.ADD_BUDGET)
             }
         } catch (e: Exception) {
             return Result.failure(e)

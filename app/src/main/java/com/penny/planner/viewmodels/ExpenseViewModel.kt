@@ -6,6 +6,7 @@ import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.UserRepository
+import com.penny.planner.helpers.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +26,9 @@ class ExpenseViewModel @Inject constructor(
             expenseRepository.addExpense(entity)
         }
     }
+
+    suspend fun getMonthlyExpenseEntity(entityId: String = userRepository.getSelfId(), time: String = Utils.getCurrentMonthYear()) =
+        expenseRepository.getMonthlyExpenseEntity(entityId, time)
 
     suspend fun getMonthlyBudget() = budgetRepository.getMonthlyBudget()
 

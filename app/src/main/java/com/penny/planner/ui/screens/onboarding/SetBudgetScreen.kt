@@ -215,7 +215,7 @@ fun SetBudgetScreen(
                 showLoader = true
                 viewModel.setMonthlyLimit(
                     MonthlyBudgetInfoModel(
-                        monthlyBudget = budget,
+                        monthlyBudget = budget.toDouble(),
                         safeToSpendLimit = sliderPosition.toInt()
                     )
                 )

@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 class Utils {
     companion object Const {
@@ -92,6 +93,7 @@ class Utils {
         const val BUDGET_TABLE = "budget_table"
         const val GROUP_TABLE = "group_table"
         const val FRIEND_TABLE = "friend_table"
+        const val MONTHLY_EXPENSE_TABLE = "monthly_expense_table"
 
         fun formatEmailForFirebase(email: String): String {
             return email.replace('.', ',')
@@ -123,6 +125,22 @@ class Utils {
             calendar.set(2024, Calendar.JANUARY, 23, 5, 30, 0)
             val savedDate = calendar.time
             return Timestamp(savedDate)
+        }
+
+        fun getCurrentTimeStamp(): Timestamp {
+            val calendar = Calendar.getInstance()
+            val savedDate = calendar.time
+            return Timestamp(savedDate)
+        }
+
+        fun getCurrentMonthYear(): String {
+            val dateFormatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            return dateFormatter.format(Calendar.getInstance().time)
+        }
+
+        fun getProgress(budget: Double, expense: Double) : Double  {
+            if (expense == 0.0) return 0.0
+            return expense / budget
         }
 
         fun lengthHint(value: Int, limit: Int) = limit - value

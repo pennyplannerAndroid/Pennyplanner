@@ -6,4 +6,5 @@ interface UserRepository {
     fun getUserName() : String
     fun getEmail() : String
     fun getImagePath() : String
+    fun getSelfId() : String
 }

@@ -13,6 +13,8 @@ import com.penny.planner.data.db.friends.UsersDao
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseDao
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.data.db.subcategory.SubCategoryDao
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.ArrayListConverter
@@ -23,7 +25,8 @@ import com.penny.planner.models.GroupDisplayModel
 @Database(
     entities = [BudgetEntity::class, CategoryEntity::class,
         ExpenseEntity::class, UsersEntity::class,
-        GroupEntity::class, SubCategoryEntity::class],
+        GroupEntity::class, SubCategoryEntity::class,
+        MonthlyExpenseEntity::class],
     views = [GroupDisplayModel::class],
     version = 1
 )
@@ -34,4 +37,5 @@ abstract class PennyPlannerDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
     abstract fun getGroupDao(): GroupDao
     abstract fun getSubCategoryDao(): SubCategoryDao
+    abstract fun getMonthlyExpenseDao(): MonthlyExpenseDao
 }

@@ -38,4 +38,6 @@ class UserRepositoryImpl @Inject constructor(): UserRepository {
         return FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
     }
 
+    override fun getSelfId() = FirebaseAuth.getInstance().currentUser!!.uid
+
 }

@@ -18,7 +18,7 @@ data class ExpenseEntity(
     val paymentType: String = "",
     val price: Double = 0.0,
     val subCategory: String = "",
-    var time: Timestamp = Utils.getDefaultTimestamp(),
+    var time: Timestamp = Utils.getCurrentTimeStamp(),
     var uploadedOnServer: Boolean = false,
     var isSentTransaction: Boolean = true
 ) {

@@ -2,6 +2,7 @@ package com.penny.planner.data.repositories.interfaces
 
 import androidx.lifecycle.LiveData
 import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.models.GroupDisplayModel
 
 interface ExpenseRepository {
@@ -9,4 +10,5 @@ interface ExpenseRepository {
     suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>>
     suspend fun getAllExpenses(groupId: String): LiveData<List<GroupDisplayModel>>
     suspend fun insertBulkExpenseFromServer(list: List<ExpenseEntity>)
+    suspend fun getMonthlyExpenseEntity(id: String, month: String): MonthlyExpenseEntity?
 }

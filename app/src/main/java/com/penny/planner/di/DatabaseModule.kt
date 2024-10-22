@@ -44,4 +44,8 @@ object DatabaseModule {
     @Provides
     fun bindSubCategoryDao(db: PennyPlannerDatabase) = db.getSubCategoryDao()
 
+    @Singleton
+    @Provides
+    fun bindMonthlyExpenseDao(db: PennyPlannerDatabase) = db.getMonthlyExpenseDao()
+
 }

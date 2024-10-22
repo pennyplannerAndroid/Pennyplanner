@@ -5,17 +5,24 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.penny.planner.data.db.expense.ExpenseDao
 import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
+import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupDisplayModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 class ExpenseRepositoryImpl @Inject constructor(
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val monthlyExpenseRepository: MonthlyExpenseRepository
 ) : ExpenseRepository {
+
+    private val dateFormatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
 
     val db = FirebaseFirestore.getInstance()
     @Inject
@@ -33,8 +40,12 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertBulkExpenseFromServer(list: List<ExpenseEntity>) {
+        updateMonthlyExpenseTable(list)
         expenseDao.insertList(list)
     }
+
+    override suspend fun getMonthlyExpenseEntity(id: String, month: String) =
+        monthlyExpenseRepository.getMonthlyExpenseEntity(entityId = id, month = month)
 
     override suspend fun addExpense(entity: ExpenseEntity) {
         entity.expensorId = auth.currentUser?.uid ?: ""
@@ -77,7 +88,44 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addToExpenseDb(entity: ExpenseEntity) {
+        updateMonthlyExpenseTable(entity)
         expenseDao.insert(entity)
+    }
+
+    private suspend fun updateMonthlyExpenseTable(list: List<ExpenseEntity>) {
+        val expensesByMonth = mutableMapOf<String, Double>()
+        var id = list[0].groupId
+        if (id.isEmpty()) {
+            id = auth.currentUser!!.uid
+        }
+        for (expense in list) {
+            val monthYear = dateFormatter.format(expense.time.toDate())
+            expensesByMonth[monthYear] = expensesByMonth.getOrDefault(monthYear, 0.0) + expense.price
+        }
+        for (item in expensesByMonth) {
+            updateExpenseItem(id, item.key, item.value)
+        }
+    }
+
+    private suspend fun updateMonthlyExpenseTable(entity: ExpenseEntity) {
+        val monthYear = dateFormatter.format(entity.time.toDate())
+        var id = entity.groupId
+        if (id.isEmpty()) {
+            id = auth.currentUser!!.uid
+        }
+        updateExpenseItem(id, monthYear, entity.price)
+    }
+
+    private suspend fun updateExpenseItem(id: String, monthYear: String, price: Double) {
+        val monthlyExpense = getMonthlyExpenseEntity(id, monthYear)
+        if (monthlyExpense != null) {
+            val updatedTotal = monthlyExpense.expense + price
+            monthlyExpenseRepository.updateExpenseEntity(monthlyExpense.copy(expense = updatedTotal))
+        } else {
+            monthlyExpenseRepository.addMonthlyExpenseEntity(
+                MonthlyExpenseEntity(entityID = id, month = monthYear, expense = price)
+            )
+        }
     }
 
 }

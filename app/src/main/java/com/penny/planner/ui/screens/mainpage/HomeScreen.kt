@@ -40,6 +40,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
 import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.models.MonthlyBudgetInfoModel
 import com.penny.planner.ui.components.CircularBudgetItem
 import com.penny.planner.ui.components.ExpenseListItem
@@ -61,10 +62,16 @@ fun HomeScreen(
     var monthlyBudget by remember {
         mutableStateOf(MonthlyBudgetInfoModel())
     }
+    var monthlyExpenseEntity by remember {
+        mutableStateOf(MonthlyExpenseEntity())
+    }
     val lifeCycle = LocalLifecycleOwner.current
     LaunchedEffect(keys = emptyArray()) {
         scope.launch {
-            val budget= viewModel.getMonthlyBudget()
+            val monthlyExpense = viewModel.getMonthlyExpenseEntity()
+            if (monthlyExpense != null)
+                monthlyExpenseEntity = monthlyExpense
+            val budget = viewModel.getMonthlyBudget()
             if (budget != null) {
                 monthlyBudget = budget
             }
@@ -122,7 +129,8 @@ fun HomeScreen(
                     modifier = Modifier
                         .padding(16.dp)
                         .align(Alignment.CenterHorizontally),
-                    progress = 0.5
+                    monthlyBudgetInfoModel = monthlyBudget,
+                    monthlyExpenseEntity = monthlyExpenseEntity
                 ) {
 
                 }

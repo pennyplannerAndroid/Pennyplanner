@@ -23,12 +23,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.MonthlyBudgetInfoModel
 
 @Composable
 fun CircularBudgetItem(
     modifier: Modifier,
-    progress: Double,
+    monthlyBudgetInfoModel: MonthlyBudgetInfoModel,
+    monthlyExpenseEntity: MonthlyExpenseEntity,
     navigationClicked: () -> Unit
 ) {
     val size = LocalConfiguration.current.screenWidthDp/2
@@ -40,7 +43,7 @@ fun CircularBudgetItem(
         CircularProgressIndicator(
             modifier = modifier
                 .size(size.dp),
-            progress = { progress.toFloat() },
+            progress = { Utils.getProgress(monthlyBudgetInfoModel.monthlyBudget, monthlyExpenseEntity.expense).toFloat() },
             strokeWidth = 12.dp,
             trackColor = colorResource(id = R.color.textField_border),
             color = Color.Magenta
@@ -55,7 +58,7 @@ fun CircularBudgetItem(
                     contentDescription = ""
                 )
                 Text(
-                    text = "${Utils.RUPEE}500",
+                    text = "${Utils.RUPEE}${monthlyExpenseEntity.expense.toInt()}",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
 
@@ -66,7 +69,7 @@ fun CircularBudgetItem(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 28.dp),
-            text = "${progress * 100}%",
+            text = "${(Utils.getProgress(monthlyBudgetInfoModel.monthlyBudget, monthlyExpenseEntity.expense)* 100).toInt()}%",
             fontWeight = FontWeight.Bold
         )
     }
@@ -76,5 +79,10 @@ fun CircularBudgetItem(
 @Preview
 @Composable
 fun PreviewCircularItem() {
-    CircularBudgetItem(Modifier,0.3) {}
+    CircularBudgetItem(
+        Modifier,
+        MonthlyBudgetInfoModel(monthlyBudget = 50000.0),
+        MonthlyExpenseEntity(expense = 20000.0)
+    )
+    {}
 }

@@ -50,7 +50,7 @@ fun CircularBudgetItem(
         Column(
             modifier = Modifier.align(Alignment.Center)
         ) {
-            Column() {
+            Column {
                 Image(
                     modifier = modifier.align(Alignment.CenterHorizontally),
                     painter = painterResource(id = R.drawable.navigate_icon),

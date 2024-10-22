@@ -68,15 +68,17 @@ fun HomeScreen(
     val lifeCycle = LocalLifecycleOwner.current
     LaunchedEffect(keys = emptyArray()) {
         scope.launch {
-            val monthlyExpense = viewModel.getMonthlyExpenseEntity()
-            if (monthlyExpense != null)
-                monthlyExpenseEntity = monthlyExpense
             val budget = viewModel.getMonthlyBudget()
             if (budget != null) {
                 monthlyBudget = budget
             }
             viewModel.getAllExpense().observe(lifeCycle) {
                 expenseList = it
+                scope.launch {
+                    val monthlyExpense = viewModel.getMonthlyExpenseEntity()
+                    if (monthlyExpense != null)
+                        monthlyExpenseEntity = monthlyExpense
+                }
             }
         }
     }

@@ -3,10 +3,7 @@ package com.penny.planner.data.repositories.implementations
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository

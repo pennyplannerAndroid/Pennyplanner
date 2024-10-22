@@ -131,8 +131,8 @@ fun HomeScreen(
                     modifier = Modifier
                         .padding(16.dp)
                         .align(Alignment.CenterHorizontally),
-                    monthlyBudgetInfoModel = monthlyBudget,
-                    monthlyExpenseEntity = monthlyExpenseEntity
+                    monthlyBudgetInfoModel = monthlyBudget.monthlyBudget,
+                    expenseSoFar = monthlyExpenseEntity.expense
                 ) {
 
                 }

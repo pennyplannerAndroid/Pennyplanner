@@ -22,17 +22,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.penny.planner.R
-import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.MonthlyBudgetInfoModel
 
 @Composable
 fun CircularBudgetItem(
     modifier: Modifier,
-    monthlyBudgetInfoModel: MonthlyBudgetInfoModel,
-    monthlyExpenseEntity: MonthlyExpenseEntity,
+    monthlyBudgetInfoModel: Double,
+    expenseSoFar: Double,
     navigationClicked: () -> Unit
 ) {
+    val progress =  Utils.getProgress(monthlyBudgetInfoModel, expenseSoFar)
     val size = LocalConfiguration.current.screenWidthDp/2
     Box(
         modifier = modifier
@@ -42,10 +41,10 @@ fun CircularBudgetItem(
         CircularProgressIndicator(
             modifier = modifier
                 .size(size.dp),
-            progress = { Utils.getProgress(monthlyBudgetInfoModel.monthlyBudget, monthlyExpenseEntity.expense).toFloat() },
+            progress = { progress.toFloat() },
             strokeWidth = 12.dp,
-            trackColor = colorResource(id = R.color.textField_border),
-            color = Color.Magenta
+            trackColor = colorResource(id = R.color.light_gray),
+            color = getColorForCircularExpenseBar((progress * 100).toInt())
         )
         Column(
             modifier = Modifier.align(Alignment.Center)
@@ -57,7 +56,7 @@ fun CircularBudgetItem(
                     contentDescription = ""
                 )
                 Text(
-                    text = "${Utils.RUPEE}${monthlyExpenseEntity.expense.toInt()}",
+                    text = "${Utils.RUPEE}${expenseSoFar.toInt()}",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
 
@@ -68,11 +67,23 @@ fun CircularBudgetItem(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 28.dp),
-            text = "${(Utils.getProgress(monthlyBudgetInfoModel.monthlyBudget, monthlyExpenseEntity.expense)* 100).toInt()}%",
+            text = "${(progress * 100).toInt()}%",
             fontWeight = FontWeight.Bold
         )
     }
 
+}
+
+@Composable
+fun getColorForCircularExpenseBar(progress: Int): Color {
+    return when(progress) {
+        in 0 until 20 -> colorResource(id = R.color.light_gray)
+        in 20 until 50 -> colorResource(id = R.color.light_green)
+        in 50 until 70 -> colorResource(id = R.color.green)
+        in 70 until 90 -> colorResource(id = R.color.yellow)
+        in 90 until 110 -> colorResource(id = R.color.orange)
+        else -> colorResource(id = R.color.red)
+    }
 }
 
 @Preview
@@ -80,8 +91,8 @@ fun CircularBudgetItem(
 fun PreviewCircularItem() {
     CircularBudgetItem(
         Modifier,
-        MonthlyBudgetInfoModel(monthlyBudget = 50000.0),
-        MonthlyExpenseEntity(expense = 20000.0)
+        50000.0,
+        20000.0
     )
     {}
 }

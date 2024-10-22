@@ -15,5 +15,9 @@
     <color name="or_with_color">#91919F</color>
     <color name="text_header_color">#FCFCFC</color>
     <color name="expense_text_color">#292B2D</color>
-
+    <color name="light_gray">#D3D3D3</color>
+    <color name="light_green">#A5D6A7</color>
+    <color name="green">#4CAF50</color>
+    <color name="yellow">#FFEB3B</color>
+    <color name="orange">#FF9800</color>
 </resources>

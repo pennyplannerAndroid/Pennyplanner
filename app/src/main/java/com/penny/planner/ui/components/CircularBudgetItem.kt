@@ -49,24 +49,21 @@ fun CircularBudgetItem(
         Column(
             modifier = Modifier.align(Alignment.Center)
         ) {
-            Column {
-                Image(
-                    modifier = modifier.align(Alignment.CenterHorizontally),
-                    painter = painterResource(id = R.drawable.navigate_icon),
-                    contentDescription = ""
-                )
-                Text(
-                    text = "${Utils.RUPEE}${expenseSoFar.toInt()}",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-
-                )
-            }
+            Image(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                painter = painterResource(id = R.drawable.navigate_icon),
+                contentDescription = ""
+            )
+            Text(
+                text = "${Utils.RUPEE}${expenseSoFar.toInt()}",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
         Text(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 28.dp),
+                .padding(bottom = 32.dp),
             text = "${(progress * 100).toInt()}%",
             fontWeight = FontWeight.Bold
         )

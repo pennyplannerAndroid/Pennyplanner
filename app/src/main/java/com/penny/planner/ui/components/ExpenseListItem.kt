@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -106,14 +107,16 @@ fun ExpenseListItem(
     item: ExpenseEntity
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .padding(4.dp)
                 .size(48.dp)
                 .background(
-                    color = colorResource(id = R.color.transparent_60),
+                    color = colorResource(id = R.color.or_with_color),
                     shape = RoundedCornerShape(12.dp)
                 )
         ) {
@@ -123,56 +126,49 @@ fun ExpenseListItem(
                 fontSize = 24.sp
             )
         }
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .weight(1f),
-                    text = item.category,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    fontSize = 16.sp,
-                    color = colorResource(id = R.color.expense_text_color)
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(4.dp),
-                    text = "${Utils.RUPEE}${item.price}",
-                    maxLines = 1,
-                    fontSize = 16.sp,
-                    color = Color.Red,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.End),
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .weight(1f),
-                    text = item.subCategory.ifEmpty { item.content },
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    fontSize = 13.sp,
-                    color = colorResource(id = R.color.or_with_color)
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(4.dp),
-                    text = Utils.convertMillisToTime(item.time.toDate()),
-                    maxLines = 1,
-                    fontSize = 13.sp,
-                    color = colorResource(id = R.color.or_with_color)
-                )
-            }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
+                .padding(4.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = item.category,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                fontSize = 16.sp,
+                color = colorResource(id = R.color.expense_text_color)
+            )
+            Text(
+                text = item.subCategory.ifEmpty { item.content },
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                fontSize = 13.sp,
+                color = colorResource(id = R.color.or_with_color)
+            )
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
+                .padding(4.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "${Utils.RUPEE}${item.price}",
+                maxLines = 1,
+                fontSize = 16.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = Utils.convertMillisToTime(item.time.toDate()),
+                maxLines = 1,
+                fontSize = 13.sp,
+                color = colorResource(id = R.color.or_with_color)
+            )
         }
     }
 }
@@ -181,7 +177,7 @@ fun ExpenseListItem(
 @Composable
 fun PreviewExpenseItem() {
     ExpenseListItem(
-        item = GroupDisplayModel(
+        item = ExpenseEntity(
             content = "Date Night",
             category = "Food",
             subCategory = "Restaurant",

@@ -35,6 +35,9 @@ class ExpenseRepositoryImpl @Inject constructor(
     override suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>> =
         expenseDao.getAllExpenses()
 
+    override suspend fun getExpensesForDisplayAtHomePage(): LiveData<List<ExpenseEntity>> =
+        expenseDao.getExpensesForDisplayAtHomePage(auth.currentUser!!.uid)
+
     override suspend fun getAllExpenses(groupId: String): LiveData<List<GroupDisplayModel>> {
        return expenseDao.getExpenseListForDisplay(groupId)
     }

@@ -8,6 +8,7 @@ import com.penny.planner.models.GroupDisplayModel
 interface ExpenseRepository {
     suspend fun addExpense(entity: ExpenseEntity)
     suspend fun getAllExpenses(): LiveData<List<ExpenseEntity>>
+    suspend fun getExpensesForDisplayAtHomePage(): LiveData<List<ExpenseEntity>>
     suspend fun getAllExpenses(groupId: String): LiveData<List<GroupDisplayModel>>
     suspend fun insertBulkExpenseFromServer(list: List<ExpenseEntity>)
     suspend fun getMonthlyExpenseEntity(id: String, month: String): MonthlyExpenseEntity?

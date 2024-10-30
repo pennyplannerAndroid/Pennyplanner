@@ -65,6 +65,7 @@ class Utils {
         const val NAME_LIMIT = 20
         const val ADMIN_VALUE = 1
         const val NON_ADMIN_VALUE = 0
+        const val HOME_PAGE_EXPENSE_DISPLAY_COUNT = 10
 
         // firebase paths
         const val USERS = "Users"
@@ -144,5 +145,9 @@ class Utils {
         }
 
         fun lengthHint(value: Int, limit: Int) = limit - value
+
+        fun getSafeToSpendValue(budgetValue: Double, safeToSpendLimit: Int, expenseSoFar: Double) =
+            (((budgetValue * safeToSpendLimit) / 100) - expenseSoFar).coerceAtLeast(0.0)
+
     }
 }

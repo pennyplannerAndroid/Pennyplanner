@@ -80,7 +80,7 @@
     <string name="enter_budget">"Enter your budget (₹)"</string>
     <string name="set_monthly_budget">"Lets setup your monthly budget!"</string>
     <string name="save">"Save"</string>
-    <string name="safe_to_spend">"Safe to spend limit"</string>
+    <string name="safe_to_spend_limit">"Safe to spend limit"</string>
     <string name="safe_to_spend_recommended">"Recommended: 80% of budget"</string>
     <string name="trailing_text_spend_limit">"% of budget"</string>
     <string name="info">"Info"</string>
@@ -89,4 +89,7 @@
     <string name="safe_to_spend_info">"Let's suppose your safe-to-spend limit is 80% of your budget. This helps you spend responsibly while keeping 20% for savings or unexpected expenses. Spending over the limit will use your savings, helping you stay disciplined."</string>
     <string name="add_profile_picture">"Add profile photo"</string>
     <string name="you_are_set">"You are set!"</string>
+    <string name="budget">"Budget"</string>
+    <string name="safe_to_spend">"Safe to spend"</string>
+
 </resources>

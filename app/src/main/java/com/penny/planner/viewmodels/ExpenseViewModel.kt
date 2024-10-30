@@ -33,4 +33,6 @@ class ExpenseViewModel @Inject constructor(
     suspend fun getMonthlyBudget() = budgetRepository.getMonthlyBudget()
 
     suspend fun getAllExpense() = expenseRepository.getAllExpenses()
+
+    suspend fun getHomePageExpense() = expenseRepository.getExpensesForDisplayAtHomePage()
 }

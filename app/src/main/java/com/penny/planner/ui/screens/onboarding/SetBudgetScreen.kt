@@ -168,7 +168,7 @@ fun SetBudgetScreen(
         ){
             Row {
                 Text(
-                    text = stringResource(id = R.string.safe_to_spend),
+                    text = stringResource(id = R.string.safe_to_spend_limit),
                     fontSize = 13.sp
                 )
                 Image(

@@ -1,6 +1,7 @@
 package com.penny.planner.ui.screens.mainpage
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,7 +61,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun HomeScreen(
     modifier: Modifier,
@@ -137,107 +140,120 @@ fun HomeScreen(
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-                .verticalScroll(rememberScrollState())
-
-            ) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = "Expense in ${getCalculatedMonths()}",
-                    color = Color.Black,
-                    fontWeight = FontWeight.SemiBold
-                )
-                CircularBudgetItem(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .align(Alignment.CenterHorizontally),
-                    monthlyBudgetInfoModel = monthlyBudget.monthlyBudget,
-                    expenseSoFar = monthlyExpenseEntity.expense
-                ) {
-
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Column(modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            text = stringResource(id = R.string.budget),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.Gray
-                        )
-                        Text(
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            text = "${Utils.RUPEE}${monthlyBudget.monthlyBudget.toInt()}",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                    }
-                    Spacer(
-                        modifier = Modifier
-                            .size(width = 1.dp, height = 40.dp)
-                            .background(color = Color.LightGray)
-                            .align(Alignment.CenterVertically)
-                    )
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) {
+                LazyColumn {
+                    stickyHeader {
+                        Column{
                             Text(
-                                text = stringResource(id = R.string.safe_to_spend),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.Gray
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                text = "Expense in ${getCalculatedMonths()}",
+                                color = Color.Black,
+                                fontWeight = FontWeight.SemiBold
                             )
-                            Image(
+                            CircularBudgetItem(
                                 modifier = Modifier
-                                    .padding(start = 4.dp)
-                                    .align(Alignment.CenterVertically)
-                                    .clickable {
-                                    },
-                                painter = painterResource(id = R.drawable.info_image),
-                                contentDescription = stringResource(id = R.string.info)
+                                    .padding(8.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                monthlyBudgetInfoModel = monthlyBudget.monthlyBudget,
+                                expenseSoFar = monthlyExpenseEntity.expense
+                            ) {
+
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceAround
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                                        text = stringResource(id = R.string.budget),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color.Gray
+                                    )
+                                    Text(
+                                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                                        text = "${Utils.RUPEE}${monthlyBudget.monthlyBudget.toInt()}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                                Spacer(
+                                    modifier = Modifier
+                                        .size(width = 1.dp, height = 40.dp)
+                                        .background(color = Color.LightGray)
+                                        .align(Alignment.CenterVertically)
+                                )
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    ) {
+                                        Text(
+                                            text = stringResource(id = R.string.safe_to_spend),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = Color.Gray
+                                        )
+                                        Image(
+                                            modifier = Modifier
+                                                .padding(start = 4.dp)
+                                                .align(Alignment.CenterVertically)
+                                                .clickable {
+                                                },
+                                            painter = painterResource(id = R.drawable.info_image),
+                                            contentDescription = stringResource(id = R.string.info)
+                                        )
+                                    }
+                                    Text(
+                                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                                        text = "${Utils.RUPEE}${
+                                            Utils.getSafeToSpendValue(
+                                                monthlyBudget.monthlyBudget,
+                                                monthlyBudget.safeToSpendLimit,
+                                                monthlyExpenseEntity.expense
+                                            ).toInt()
+                                        }",
+                                        color = Color.Black,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp)
+                                    .height(1.dp)
+                                    .background(color = Color.LightGray)
                             )
                         }
+                    }
+                    stickyHeader {
                         Text(
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            text = "${Utils.RUPEE}${Utils.getSafeToSpendValue(monthlyBudget.monthlyBudget, monthlyBudget.safeToSpendLimit, monthlyExpenseEntity.expense).toInt()}",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(color = Color.White)
+                                .padding(start = 24.dp, top = 16.dp),
+                            text = "Recent Transactions",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Black
                         )
                     }
-                }
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 16.dp)
-                        .height(1.dp)
-                        .background(color = Color.LightGray)
-                )
-                Text(
-                    modifier = Modifier.padding(start = 24.dp),
-                    text = "Recent Transactions",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Black
-                )
-                LazyColumn {
                     items(expenseList) {
-                        Column(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top= 8.dp, bottom = 8.dp)) {
+                        Column(modifier = Modifier
+                            .background(color = Color.White)
+                            .padding(start = 24.dp, end = 24.dp, top= 8.dp, bottom = 8.dp)
+                        ) {
                             ExpenseListItem(it)
                         }
                     }
                 }
-            }
             FloatingActionButton(
                 modifier = modifier
                     .align(Alignment.BottomEnd)

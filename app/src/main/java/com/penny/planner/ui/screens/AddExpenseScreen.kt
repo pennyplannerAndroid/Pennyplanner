@@ -50,7 +50,7 @@ import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.keyboardAsState
 import com.penny.planner.ui.components.PaymentSelectionPage
 import com.penny.planner.ui.components.PrimaryButton
-import com.penny.planner.ui.components.RedTopBar
+import com.penny.planner.ui.components.ColoredTopBar
 import com.penny.planner.ui.components.TextFieldWithTrailingIcon
 import com.penny.planner.viewmodels.CategoryViewModel
 
@@ -111,9 +111,10 @@ fun AddExpenseScreen(
 
     Scaffold(
         topBar = {
-            RedTopBar(
+            ColoredTopBar(
                 modifier = Modifier,
                 title = stringResource(id = R.string.add_expense),
+                color = Color.Red,
                 onBackPressed = onDismiss
             )
         }

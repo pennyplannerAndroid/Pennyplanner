@@ -10,10 +10,11 @@ data class GroupEntity(
     @PrimaryKey val groupId: String = "",
     val name: String = "",
     var members: List<String> = listOf(),
-    var profileUrl: String = "",
+    var profileImage: String = "",
     var creatorId: String = "",
     var lastUpdate: Timestamp = Utils.getDefaultTimestamp(),
-    var totalSpendLimit: Double = 0.0
+    var monthlyBudget: Double = 0.0,
+    var safeToSpendLimit: Int = 80
 ) {
     fun toFireBaseModel() =
         mapOf(
@@ -21,7 +22,8 @@ data class GroupEntity(
             Pair("name", name),
             Pair("members", members),
             Pair("creatorId", creatorId),
-            Pair("totalSpendLimit", totalSpendLimit),
-            Pair("profileUrl", profileUrl)
+            Pair("monthlyBudget", monthlyBudget),
+            Pair("profileImage", profileImage),
+            Pair("safeToSpendLimit", safeToSpendLimit)
         )
 }

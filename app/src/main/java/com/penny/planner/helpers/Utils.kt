@@ -73,6 +73,7 @@ class Utils {
         const val GROUP_INFO = "GroupInfo"
         const val BUDGET_INFO = "BudgetInfo"
         const val USER_IMAGE = "UserImage"
+        const val GROUP_IMAGE = "GroupImage"
         const val GROUPS = "Groups"
         const val PENDING = "Pending"
         const val JOINED = "JOINED"

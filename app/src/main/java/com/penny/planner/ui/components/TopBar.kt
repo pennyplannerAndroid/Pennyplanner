@@ -58,14 +58,15 @@ fun TopBar (
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RedTopBar(
+fun ColoredTopBar(
     modifier: Modifier,
     title: String,
+    color: Color,
     onBackPressed: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarColors(
-            containerColor = Color.Red,
+            containerColor = color,
             actionIconContentColor = Color.Black,
             navigationIconContentColor = Color.Black,
             titleContentColor = Color.White,
@@ -84,7 +85,8 @@ fun RedTopBar(
                 contentDescription = null,
                 modifier = modifier
                     .clickable(onClick = onBackPressed)
-                    .padding(start = 16.dp)
+                    .padding(start = 16.dp),
+                tint = Color.White
             )
         }
     )
@@ -108,11 +110,11 @@ fun GroupSessionTopBar(
                         shape = CircleShape
                     )
                     .clip(CircleShape),
-                model = entity.profileUrl,
+                model = entity.profileImage,
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             ) {
-                it.load(entity.profileUrl)
+                it.load(entity.profileImage)
                     .placeholder(R.drawable.default_user_display)
                     .error(R.drawable.default_user_display)
             }

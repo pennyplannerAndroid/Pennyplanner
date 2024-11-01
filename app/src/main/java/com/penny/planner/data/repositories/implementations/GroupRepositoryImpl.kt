@@ -5,11 +5,9 @@ import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
-import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
 import kotlinx.coroutines.CoroutineScope
@@ -20,8 +18,7 @@ import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
-    private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository,
-    private val usersRepository: FriendsDirectoryRepository
+    private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository
 ): GroupRepository {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
@@ -37,25 +34,25 @@ class GroupRepositoryImpl @Inject constructor(
         return groupDao.getGroupByGroupId(groupId = groupId)
     }
 
-    override suspend fun newGroup(name: String, path: String?, members: List<UsersEntity>, byteArray: ByteArray?): Result<Boolean> {
+    override suspend fun newGroup(name: String, path: String?, monthlyBudget: Double, safeToSpendLimit: Int, byteArray: ByteArray?): Result<Boolean> {
         if (auth.currentUser != null) {
-            val groupId = "${auth.currentUser!!.uid}${System.currentTimeMillis()}"
+            val groupId = "${auth.currentUser!!.uid}_${System.currentTimeMillis()}"
             val groupEntity = GroupEntity(
                 groupId = groupId,
                 name = name,
-                members = members.map { it.email }.plus(auth.currentUser!!.email!!),
-                profileUrl = "",
-                creatorId = auth.currentUser!!.email!!
+                members = listOf(auth.currentUser!!.email!!),
+                profileImage = "",
+                creatorId = auth.currentUser!!.email!!,
+                monthlyBudget = monthlyBudget,
+                safeToSpendLimit = safeToSpendLimit
             )
             FirebaseDatabase.getInstance()
                 .getReference(Utils.GROUPS)
                 .child(groupId)
                 .setValue(groupEntity.toFireBaseModel()).await()
-            usersRepository.addFriend(members)
-            firebaseBackgroundSyncRepository.addGroupForFirebaseListener(groupId)
             var downloadPath: Uri? = null
             if (byteArray != null) {
-                val storageRef = storage.getReference(Utils.USER_IMAGE).child(groupId)
+                val storageRef = storage.getReference(Utils.GROUP_IMAGE).child(groupId)
                 downloadPath = storageRef
                     .putBytes(byteArray)
                     .await()
@@ -73,16 +70,9 @@ class GroupRepositoryImpl @Inject constructor(
                 .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
                 .child(Utils.GROUP_INFO)
                 .child(Utils.JOINED).child(groupId).setValue(Utils.ADMIN_VALUE)
-            for (user in groupEntity.members) {
-                if (user.isNotEmpty() && user != auth.currentUser!!.email) {
-                    userDirectory
-                        .child(Utils.formatEmailForFirebase(user))
-                        .child(Utils.GROUP_INFO)
-                        .child(Utils.PENDING).child(groupId).setValue(Utils.NON_ADMIN_VALUE)
-                }
-            }
-            groupEntity.profileUrl = path ?: ""
+            groupEntity.profileImage = path ?: ""
             addGroup(groupEntity)
+            firebaseBackgroundSyncRepository.addGroupForFirebaseListener(groupId)
             return Result.success(true)
         } else {
             auth.signOut()
@@ -92,12 +82,6 @@ class GroupRepositoryImpl @Inject constructor(
 
     override suspend fun addGroup(groupEntity: GroupEntity) {
         groupDao.addGroup(entity = groupEntity)
-    }
-
-    override suspend fun getAllExistingGroupsFromDb() = groupDao.getAllExistingGroupsFromDb()
-
-    override suspend fun updateEntity(entity: GroupEntity) {
-        groupDao.updateEntity(entity)
     }
 
 }

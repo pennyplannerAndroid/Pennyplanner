@@ -53,11 +53,11 @@ fun GroupItem(
                         shape = CircleShape
                     )
                     .clip(CircleShape),
-                model = entity.profileUrl,
+                model = entity.profileImage,
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             ) {
-                it.load(entity.profileUrl)
+                it.load(entity.profileImage)
                     .placeholder(R.drawable.default_user_display)
                     .error(R.drawable.default_user_display)
             }

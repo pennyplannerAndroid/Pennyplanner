@@ -3,8 +3,9 @@ package com.penny.planner.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -23,18 +24,20 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.models.GroupListDisplayModel
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun GroupItem(
     modifier: Modifier,
-    entity: GroupEntity,
+    entity: GroupListDisplayModel,
+    isAdmin: Boolean,
     onClick: () -> Unit
 ) {
     OutlinedCard(
         modifier = modifier
-                .padding(12.dp)
-            .wrapContentSize()
+                .padding(6.dp)
+            .fillMaxWidth()
             .background(color = colorResource(id = R.color.white)),
         onClick = {
             onClick.invoke()
@@ -43,16 +46,18 @@ fun GroupItem(
         Column(
             modifier = modifier
                 .padding(12.dp)
+                .fillMaxWidth()
         ) {
             GlideImage(
                 modifier = Modifier
-                    .padding(12.dp)
                     .border(
                         color = colorResource(id = R.color.black),
                         width = 2.dp,
                         shape = CircleShape
                     )
-                    .clip(CircleShape),
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.CenterHorizontally),
                 model = entity.profileImage,
                 contentDescription = "",
                 contentScale = ContentScale.Crop
@@ -78,6 +83,7 @@ fun GroupItem(
 fun PreviewGroup() {
     GroupItem(
         modifier = Modifier,
-        GroupEntity(name = "Family")
+        GroupListDisplayModel(name = "Family"),
+        true
     ) {}
 }

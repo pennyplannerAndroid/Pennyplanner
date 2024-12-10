@@ -20,6 +20,7 @@ import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.helpers.ArrayListConverter
 import com.penny.planner.helpers.FirebaseTimestampConverter
 import com.penny.planner.models.GroupDisplayModel
+import com.penny.planner.models.GroupListDisplayModel
 
 @TypeConverters(ArrayListConverter::class, FirebaseTimestampConverter::class)
 @Database(
@@ -27,7 +28,7 @@ import com.penny.planner.models.GroupDisplayModel
         ExpenseEntity::class, UsersEntity::class,
         GroupEntity::class, SubCategoryEntity::class,
         MonthlyExpenseEntity::class],
-    views = [GroupDisplayModel::class],
+    views = [GroupDisplayModel::class, GroupListDisplayModel::class],
     version = 1
 )
 abstract class PennyPlannerDatabase : RoomDatabase() {

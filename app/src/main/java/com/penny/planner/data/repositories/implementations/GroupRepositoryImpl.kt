@@ -10,6 +10,7 @@ import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.GroupListDisplayModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,8 +27,8 @@ class GroupRepositoryImpl @Inject constructor(
     private val storage = FirebaseStorage.getInstance()
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
 
-    override suspend fun getAllGroups(): LiveData<List<GroupEntity>> {
-        return groupDao.getAllGroups()
+    override suspend fun getAllGroupLists(): LiveData<List<GroupListDisplayModel>> {
+        return groupDao.getAllGroupListForDisplay(Utils.getCurrentMonthYear())
     }
 
     override suspend fun getGroupById(groupId: String): GroupEntity {
@@ -83,5 +84,7 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun addGroup(groupEntity: GroupEntity) {
         groupDao.addGroup(entity = groupEntity)
     }
+
+    override fun isAdmin(creatorId: String) = auth.currentUser?.uid == creatorId
 
 }

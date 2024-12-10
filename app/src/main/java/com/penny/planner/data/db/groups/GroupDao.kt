@@ -7,6 +7,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.penny.planner.helpers.Utils
+import com.penny.planner.models.GroupDisplayModel
+import com.penny.planner.models.GroupListDisplayModel
 
 @Dao
 interface GroupDao {
@@ -25,4 +27,7 @@ interface GroupDao {
 
     @Update
     suspend fun updateEntity(entity: GroupEntity)
+
+    @Query("SELECT * FROM groupListDisplayModel WHERE month = :month")
+    fun getAllGroupListForDisplay(month: String):  LiveData<List<GroupListDisplayModel>>
 }

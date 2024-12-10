@@ -17,7 +17,7 @@ class GroupViewModel @Inject constructor(
     private val _newGroupResult = MutableLiveData<Result<Boolean>>()
     val newGroupResult: LiveData<Result<Boolean>> = _newGroupResult
 
-    suspend fun getAllGroups() = groupRepository.getAllGroups()
+    suspend fun getAllGroups() = groupRepository.getAllGroupLists()
 
     fun newGroup(name: String,
                  path: String?,
@@ -29,4 +29,6 @@ class GroupViewModel @Inject constructor(
             _newGroupResult.value = groupRepository.newGroup(name, path, monthlyBudget, safeToSpendLimit, byteArray)
         }
     }
+
+    fun isAdmin(creatorId: String) = groupRepository.isAdmin(creatorId)
 }

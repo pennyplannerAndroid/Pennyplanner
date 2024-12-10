@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.models.GroupListDisplayModel
 import com.penny.planner.ui.components.GroupItem
 import com.penny.planner.viewmodels.GroupViewModel
 import kotlinx.coroutines.launch
@@ -48,7 +49,7 @@ fun GroupScreen(
     val lifeCycle = LocalLifecycleOwner.current
 
     var groups by remember {
-        mutableStateOf(listOf<GroupEntity>())
+        mutableStateOf(listOf<GroupListDisplayModel>())
     }
     LaunchedEffect(keys = emptyArray()) {
         scope.launch {
@@ -79,7 +80,7 @@ fun GroupScreen(
                     columns = GridCells.Fixed(count = 2)
                 ) {
                     items(groups) {
-                        GroupItem(modifier = Modifier, entity = it) {
+                        GroupItem(modifier = Modifier, entity = it, viewModel.isAdmin(it.creatorId)) {
                             groupSession.invoke(it.groupId)
                         }
                     }

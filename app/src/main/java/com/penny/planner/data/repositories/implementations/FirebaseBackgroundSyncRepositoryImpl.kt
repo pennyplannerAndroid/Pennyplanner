@@ -14,12 +14,14 @@ import com.penny.planner.data.db.category.CategoryEntity
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
+import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.helpers.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +35,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val budgetRepository: BudgetRepository,
     private val expenseRepository: ExpenseRepository,
     private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
-    private val usersRepository: FriendsDirectoryRepository
+    private val usersRepository: FriendsDirectoryRepository,
+    private val monthlyExpenseRepository: MonthlyExpenseRepository
 ) : FirebaseBackgroundSyncRepository {
 
     private val tag = "FirebaseBackgroundSyncRepositoryImpl"
@@ -165,13 +168,16 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private fun updateLocalWithPendingGroups(groupId: String, needUpdatePendingList: Boolean) {
         FirebaseDatabase.getInstance()
             .getReference(Utils.GROUPS)
-            .child(groupId).addValueEventListener(object : ValueEventListener {
+            .child(groupId).child(Utils.GROUP_INFO).addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val entity = snapshot.getValue(GroupEntity::class.java)
-                        if (entity != null) {
+                        if (entity != null && entity.members.isNotEmpty()) {
                             scope.launch {
                                 groupDao.addGroup(entity)
+                                monthlyExpenseRepository.addMonthlyExpenseEntity(
+                                    MonthlyExpenseEntity(entityID = groupId, month = Utils.getCurrentMonthYear(), expense = 0.0)
+                                )
                                 updateFriendsDb(entity.members)
                                 fetchDataAndUpdate(entity.groupId)
                                 if (needUpdatePendingList)
@@ -199,14 +205,14 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     }
 
     private fun updatePendingNode(entity: GroupEntity) {
-        userDirectory
-            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-            .child(Utils.GROUP_INFO)
-            .child(Utils.JOINED).child(entity.groupId).setValue(Utils.NON_ADMIN_VALUE)
-        userDirectory
-            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-            .child(Utils.GROUP_INFO)
-            .child(Utils.PENDING).child(entity.groupId).removeValue()
+//        userDirectory
+//            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+//            .child(Utils.GROUP_INFO)
+//            .child(Utils.JOINED).child(entity.groupId).setValue(Utils.NON_ADMIN_VALUE)
+//        userDirectory
+//            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+//            .child(Utils.GROUP_INFO)
+//            .child(Utils.PENDING).child(entity.groupId).removeValue()
     }
 
     private suspend fun generateLocalMap() {
@@ -229,42 +235,45 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
 
     private suspend fun fetchBudgetAndUpdate(group: GroupEntity) {
         val groupId = group.groupId
-        groupExpenseCollectionRef.document(groupId)
-            .collection(Utils.BUDGET_DETAILS)
-            .addSnapshotListener { budgets, e ->
-                if (e != null) {
-                    Log.d("$tag ::", "groupBudget :: $e")
-                }
-                if (budgets != null) {
-                    scope.launch(Dispatchers.IO) {
-                        try {
-                            if (!budgetMap.containsKey(groupId)) {
-                                budgetMap[groupId] = mutableSetOf()
-                            }
-                            val setOfExistingBudgets = budgetMap[groupId]
-                            for (budget in budgets) {
-                                val budgetEntity = budget.toObject(BudgetEntity::class.java)
-                                budgetEntity.uploadedOnServer = true
-                                if (!setOfExistingBudgets!!.contains(budget.id)) {
-                                    budgetEntity.uploadedOnServer = true
-                                    budgetMap[groupId]!!.add(budgetEntity.category)
-                                    budgetRepository.addBudgetFromServer(budgetEntity)
-                                    categoryAndEmojiRepository.addCategory(
-                                        CategoryEntity(
-                                            name = budgetEntity.category,
-                                            icon = budgetEntity.icon
-                                        )
-                                    )
-                                } else {
-                                    budgetRepository.updateBudget(entity = budgetEntity)
+        Log.d("$tag ::", "group :: ${group.toFireBaseModel()}")
+        if (group.members.isNotEmpty()) {
+            groupExpenseCollectionRef.document(groupId)
+                .collection(Utils.BUDGET_DETAILS)
+                .addSnapshotListener { budgets, e ->
+                    if (e != null) {
+                        Log.d("$tag ::", "groupBudget :: $e")
+                    }
+                    if (budgets != null) {
+                        scope.launch(Dispatchers.IO) {
+                            try {
+                                if (!budgetMap.containsKey(groupId)) {
+                                    budgetMap[groupId] = mutableSetOf()
                                 }
+                                val setOfExistingBudgets = budgetMap[groupId]
+                                for (budget in budgets) {
+                                    val budgetEntity = budget.toObject(BudgetEntity::class.java)
+                                    budgetEntity.uploadedOnServer = true
+                                    if (!setOfExistingBudgets!!.contains(budget.id)) {
+                                        budgetEntity.uploadedOnServer = true
+                                        budgetMap[groupId]!!.add(budgetEntity.category)
+                                        budgetRepository.addBudgetFromServer(budgetEntity)
+                                        categoryAndEmojiRepository.addCategory(
+                                            CategoryEntity(
+                                                name = budgetEntity.category,
+                                                icon = budgetEntity.icon
+                                            )
+                                        )
+                                    } else {
+                                        budgetRepository.updateBudget(entity = budgetEntity)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.d("$tag ::", e.toString())
                             }
-                        } catch (e: Exception) {
-                            Log.d("$tag ::", e.toString())
                         }
                     }
                 }
-            }
+        }
     }
 
     private suspend fun fetchExpenseAndUpdate(group: GroupEntity) {

@@ -7,8 +7,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
+import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +21,8 @@ import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
-    private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository
+    private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository,
+    private val monthlyExpenseRepository: MonthlyExpenseRepository
 ): GroupRepository {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
@@ -73,6 +76,9 @@ class GroupRepositoryImpl @Inject constructor(
                 .child(Utils.JOINED).child(groupId).setValue(Utils.ADMIN_VALUE)
             groupEntity.profileImage = path ?: ""
             addGroup(groupEntity)
+            monthlyExpenseRepository.addMonthlyExpenseEntity(
+                MonthlyExpenseEntity(entityID = groupId, month = Utils.getCurrentMonthYear(), expense = 0.0)
+            )
             firebaseBackgroundSyncRepository.addGroupForFirebaseListener(groupId)
             return Result.success(true)
         } else {

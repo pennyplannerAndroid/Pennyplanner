@@ -76,7 +76,7 @@ class Utils {
         const val GROUP_IMAGE = "GroupImage"
         const val GROUPS = "Groups"
         const val PENDING = "Pending"
-        const val JOINED = "JOINED"
+        const val JOINED = "Joined"
         const val GENERAL_DATA = "GeneralData"
         const val EMOJI_FILE_ID = "emojiFileID"
         const val PROFILE_URL = "profileUrl"

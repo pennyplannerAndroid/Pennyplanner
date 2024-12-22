@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.GroupDisplayModel
 import com.penny.planner.models.GroupListDisplayModel
 
 @Dao
@@ -30,4 +29,7 @@ interface GroupDao {
 
     @Query("SELECT * FROM groupListDisplayModel WHERE month = :month")
     fun getAllGroupListForDisplay(month: String):  LiveData<List<GroupListDisplayModel>>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM ${Utils.GROUP_TABLE} WHERE groupId = :groupId)")
+    suspend fun doesGroupExists(groupId: String): Boolean
 }

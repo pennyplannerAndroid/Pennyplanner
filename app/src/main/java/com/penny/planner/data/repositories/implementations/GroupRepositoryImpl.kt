@@ -1,5 +1,6 @@
 package com.penny.planner.data.repositories.implementations
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
@@ -9,20 +10,27 @@ import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
+
 class GroupRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val groupDao: GroupDao,
     private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository,
-    private val monthlyExpenseRepository: MonthlyExpenseRepository
+    private val monthlyExpenseRepository: MonthlyExpenseRepository,
+    private val friendsDirectoryRepository: FriendsDirectoryRepository
 ): GroupRepository {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
@@ -75,6 +83,8 @@ class GroupRepositoryImpl @Inject constructor(
                 .child(Utils.GROUP_INFO)
                 .child(Utils.JOINED).child(groupId).setValue(Utils.ADMIN_VALUE)
             groupEntity.profileImage = path ?: ""
+            if (byteArray != null)
+                groupEntity.localImagePath = saveGroupImageLocally(groupEntity, byteArray)
             addGroup(groupEntity)
             monthlyExpenseRepository.addMonthlyExpenseEntity(
                 MonthlyExpenseEntity(entityID = groupId, month = Utils.getCurrentMonthYear(), expense = 0.0)
@@ -91,6 +101,38 @@ class GroupRepositoryImpl @Inject constructor(
         groupDao.addGroup(entity = groupEntity)
     }
 
+    override suspend fun updateGroupMembers(group: GroupEntity) {
+        val members = friendsDirectoryRepository.getFriends(group.members)
+        for (member in members) {
+            if (Utils.moreThanADay(member.lastUpdate)) {
+                val result = friendsDirectoryRepository.findUser(member.email)
+                if (result.isSuccess && result.getOrNull() != null) {
+                    member.lastUpdate = System.currentTimeMillis()
+                    val friend = result.getOrNull()!!
+                    if (friend.name != member.name) {
+                        member.name = friend.name
+                    }
+                    if (friend.profileImageURL != member.profileImageURL) {
+                        member.profileImageURL = friend.profileImageURL
+                        friendsDirectoryRepository.downloadProfilePicture(friend)
+                    }
+                    friendsDirectoryRepository.updateFriend(member)
+                }
+            }
+        }
+    }
+
     override fun isAdmin(creatorId: String) = auth.currentUser?.uid == creatorId
 
+    private fun saveGroupImageLocally(group: GroupEntity, byteArray: ByteArray): String {
+        val localFile = File(context.filesDir, "${group.groupId}.jpeg")
+        try {
+            val fos = FileOutputStream(localFile.path)
+            fos.write(byteArray)
+            fos.close()
+        } catch (e: java.lang.Exception) {
+            return ""
+        }
+        return localFile.absolutePath
+    }
 }

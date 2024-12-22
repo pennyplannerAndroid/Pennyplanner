@@ -8,6 +8,8 @@ import com.penny.planner.helpers.Utils
 data class UsersEntity(
     @PrimaryKey val id: String = "",
     val email: String = "",
-    val name: String = "",
-    val profileImageURL: String = ""
+    var name: String = "",
+    var profileImageURL: String = "",
+    var localImagePath: String = "",
+    var lastUpdate: Long = System.currentTimeMillis()
 )

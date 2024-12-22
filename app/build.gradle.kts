@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.penny.planner"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.penny.planner"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.hilt.common)
     kapt("com.google.dagger:hilt-compiler:2.51.1")
     implementation(libs.play.services.auth)
 
@@ -132,4 +133,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //workManager
+    implementation(libs.androidx.work.runtime.ktx)
 }

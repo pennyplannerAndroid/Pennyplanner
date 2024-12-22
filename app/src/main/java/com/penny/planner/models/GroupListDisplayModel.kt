@@ -7,11 +7,11 @@ import com.penny.planner.helpers.Utils
 @DatabaseView(
     """
         SELECT u.groupId AS groupId, u.name AS name, u.creatorId AS creatorId,
-        u.members AS members, u.profileImage AS profileImage, u.lastUpdate AS lastUpdate, 
+        u.members AS members, u.localImagePath AS profileImage, u.lastUpdate AS lastUpdate, 
         u.monthlyBudget AS monthlyBudget, u.safeToSpendLimit AS safeToSpendLimit,
         t.month AS month, t.expense AS expense
         FROM group_table u
-        INNER JOIN monthly_expense_table t ON u.groupId = t.entityID
+        INNER JOIN monthly_expense_table t ON u.groupId = t.entityID Order by lastUpdate DESC
     """,
     viewName = "groupListDisplayModel"
 )

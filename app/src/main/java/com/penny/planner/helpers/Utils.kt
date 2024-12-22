@@ -150,5 +150,8 @@ class Utils {
         fun getSafeToSpendValue(budgetValue: Double, safeToSpendLimit: Int, expenseSoFar: Double) =
             (((budgetValue * safeToSpendLimit) / 100) - expenseSoFar).coerceAtLeast(0.0)
 
+        fun moreThanADay(lastUpdate: Long): Boolean {
+            return System.currentTimeMillis() - lastUpdate > java.util.concurrent.TimeUnit.DAYS.toMillis(1)
+        }
     }
 }

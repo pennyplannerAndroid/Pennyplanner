@@ -22,4 +22,7 @@ interface UsersDao {
     @Query("SELECT * FROM ${Utils.FRIEND_TABLE} WHERE email In (:emails)")
     suspend fun getUsersByEmailList(emails: List<String>): List<UsersEntity>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM ${Utils.FRIEND_TABLE} WHERE email = :email)")
+    suspend fun doesFriendExists(email: String): Boolean
+
 }

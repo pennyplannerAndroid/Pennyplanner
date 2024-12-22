@@ -1,6 +1,10 @@
 package com.penny.planner.data.repositories.implementations
 
+import android.content.Context
 import android.util.Log
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -22,15 +26,19 @@ import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
+import com.penny.planner.data.workmanager.ImageDownloadWorker
 import com.penny.planner.helpers.Utils
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val groupDao: GroupDao,
     private val budgetRepository: BudgetRepository,
     private val expenseRepository: ExpenseRepository,
@@ -174,10 +182,17 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                         val entity = snapshot.getValue(GroupEntity::class.java)
                         if (entity != null && entity.members.isNotEmpty()) {
                             scope.launch {
+                                downloadGroupImage(entity)
                                 groupDao.addGroup(entity)
-                                monthlyExpenseRepository.addMonthlyExpenseEntity(
-                                    MonthlyExpenseEntity(entityID = groupId, month = Utils.getCurrentMonthYear(), expense = 0.0)
-                                )
+                                if (monthlyExpenseRepository.getMonthlyExpenseEntity(entityId = groupId, month = Utils.getCurrentMonthYear()) == null) {
+                                    monthlyExpenseRepository.addMonthlyExpenseEntity(
+                                        MonthlyExpenseEntity(
+                                            entityID = groupId,
+                                            month = Utils.getCurrentMonthYear(),
+                                            expense = 0.0
+                                        )
+                                    )
+                                }
                                 updateFriendsDb(entity.members)
                                 fetchDataAndUpdate(entity.groupId)
                                 if (needUpdatePendingList)
@@ -196,9 +211,13 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private fun updateFriendsDb(list: List<String>) {
         scope.launch {
             for (email in list) {
-                val userResult = usersRepository.findUser(email)
-                if (userResult.isSuccess) {
-                    usersRepository.addFriend(userResult.getOrNull()!!)
+                if (!usersRepository.doesFriendExists(email)) {
+                    val userResult = usersRepository.findUser(email)
+                    if (userResult.isSuccess) {
+                        val friend = userResult.getOrNull()!!
+                        usersRepository.addFriend(friend)
+                        usersRepository.downloadProfilePicture(friend)
+                    }
                 }
             }
         }
@@ -337,6 +356,37 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                         category = expenseEntity.category
                     )
                 )
+            }
+        }
+    }
+
+    private suspend fun downloadGroupImage(group: GroupEntity) {
+        Log.d("downloadGroupImage", group.groupId)
+        if (!groupDao.doesGroupExists(groupId = group.groupId)) {
+            Log.d("downloadGroupImage", "group not present")
+            val inputData = Data.Builder()
+                .putString("firebaseImagePath", Utils.GROUP_IMAGE)
+                .putString("imageId", group.groupId)
+                .build()
+
+            // Create a WorkRequest
+            val workRequest = OneTimeWorkRequestBuilder<ImageDownloadWorker>()
+                .setInputData(inputData)
+                .build()
+
+            // Enqueue the WorkRequest
+            val workManager = WorkManager.getInstance(context)
+            workManager.enqueue(workRequest)
+            withContext(Dispatchers.Main) {
+                workManager.getWorkInfoByIdLiveData(workRequest.id).observeForever { workInfo ->
+                    if (workInfo != null && workInfo.state.isFinished) {
+                        val result = workInfo.outputData.getString("resultKey")
+                        group.localImagePath = result ?: ""
+                        scope.launch {
+                            groupDao.updateEntity(group)
+                        }
+                    }
+                }
             }
         }
     }

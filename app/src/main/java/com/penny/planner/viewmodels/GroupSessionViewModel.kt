@@ -3,6 +3,7 @@ package com.penny.planner.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,6 +42,12 @@ class GroupSessionViewModel @Inject constructor(
                 groupId = groupId
             )
             expenseRepository.addExpense(expense)
+        }
+    }
+
+    fun updateMembers(group: GroupEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            groupRepository.updateGroupMembers(group)
         }
     }
 }

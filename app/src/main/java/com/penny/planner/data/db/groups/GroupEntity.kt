@@ -14,7 +14,8 @@ data class GroupEntity(
     var creatorId: String = "",
     var lastUpdate: Timestamp = Utils.getDefaultTimestamp(),
     var monthlyBudget: Double = 0.0,
-    var safeToSpendLimit: Int = 80
+    var safeToSpendLimit: Int = 80,
+    var localImagePath: String = ""
 ) {
     fun toFireBaseModel() =
         mapOf(

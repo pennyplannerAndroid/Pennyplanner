@@ -1,5 +1,6 @@
 package com.penny.planner.data.repositories.implementations
 
+import android.app.Application
 import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -17,6 +18,8 @@ import com.penny.planner.models.MonthlyBudgetInfoModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -28,6 +31,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
     @Inject lateinit var firebaseBackgroundRepository: FirebaseBackgroundSyncRepository
     @Inject lateinit var budgetRepository: MonthlyBudgetRepository
     @Inject lateinit var usersRepository: FriendsDirectoryRepository
+    @Inject lateinit var applicationContext: Application
 
     private val auth = FirebaseAuth.getInstance()
     private val directoryReference = FirebaseDatabase.getInstance().getReference(Utils.USERS)
@@ -49,7 +53,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                 if (entity != null) {
                     applicationScope.launch {
                         budgetRepository.updateLocalWithMonthlyBudget(entity)
-                        getAllFirebaseDataAndUpdateLocal(true)
+                        getAllFirebaseDataAndUpdateLocal(isLogin = true)
                     }
                     return Result.success(LoginResult.VERIFY_SUCCESS)
                 } else {
@@ -63,17 +67,19 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         }
     }
 
-    private fun getAllFirebaseDataAndUpdateLocal(isLogin: Boolean = false) {
+    private fun getAllFirebaseDataAndUpdateLocal(isLogin: Boolean = false, localImagePath: String = "") {
         applicationScope.launch {
             auth.currentUser?.let {
-                usersRepository.addFriend(
-                    UsersEntity(
-                        id = auth.currentUser!!.uid,
-                        name = auth.currentUser!!.displayName!!,
-                        profileImageURL = auth.currentUser!!.photoUrl?.toString() ?: "",
-                        email = auth.currentUser!!.email!!
-                    )
+                val self = UsersEntity(
+                    id = auth.currentUser!!.uid,
+                    name = auth.currentUser!!.displayName!!,
+                    profileImageURL = auth.currentUser!!.photoUrl?.toString() ?: "",
+                    email = auth.currentUser!!.email!!,
+                    localImagePath = localImagePath
                 )
+                usersRepository.addFriend(self) // adding self to the friend table
+                if (isLogin)
+                    usersRepository.downloadProfilePicture(self)
             }
             categoryAndEmojiRepository.checkServerAndUpdateCategory()
             if (isLogin) {
@@ -101,7 +107,10 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             val email = auth.currentUser?.email ?: ""
             val id = auth.currentUser?.uid ?: ""
             var downloadPath: Uri? = null
+            var localImagePath = ""
             if (byteArray != null) {
+                localImagePath = saveImageLocally(byteArray, id)
+                usersRepository.updateFriend(UsersEntity(id, email, name))
                 val storageRef = storage.getReference(Utils.USER_IMAGE).child(id)
                 downloadPath = storageRef
                     .putBytes(byteArray)
@@ -123,7 +132,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                     profileImageURL = downloadPath?.toString() ?: ""
                 )
             ).await()
-            getAllFirebaseDataAndUpdateLocal()
+            getAllFirebaseDataAndUpdateLocal(localImagePath = localImagePath)
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -173,4 +182,15 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         return auth.currentUser?.displayName ?: ""
     }
 
+    private fun saveImageLocally(byteArray: ByteArray, id: String) : String {
+        return try {
+            val file = File(applicationContext.filesDir, "${id}.jpeg")
+            FileOutputStream(file).use { fos ->
+                fos.write(byteArray)
+            }
+            file.absolutePath
+        } catch (e: Exception) {
+            ""
+        }
+    }
 }

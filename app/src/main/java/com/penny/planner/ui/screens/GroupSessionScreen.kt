@@ -67,6 +67,7 @@ fun GroupSessionScreen(
         viewModel.setGroupId(groupId)
         scope.launch {
             group = viewModel.getGroup()
+            viewModel.updateMembers(group)
             viewModel.getAllExpenses().observe(lifeCycle) {
                 transitionList = it
             }

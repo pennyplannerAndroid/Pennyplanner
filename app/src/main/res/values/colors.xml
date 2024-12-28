@@ -20,4 +20,5 @@
     <color name="green">#4CAF50</color>
     <color name="yellow">#FFEB3B</color>
     <color name="orange">#FF9800</color>
+    <color name="group_list_item_top">#FFF6E5</color>
 </resources>

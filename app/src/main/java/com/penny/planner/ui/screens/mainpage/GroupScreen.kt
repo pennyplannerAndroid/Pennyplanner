@@ -3,6 +3,7 @@ package com.penny.planner.ui.screens.mainpage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -76,12 +77,23 @@ fun GroupScreen(
                 .fillMaxSize()
                 .padding(paddingValues)) {
                 LazyVerticalGrid(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .navigationBarsPadding(),
                     columns = GridCells.Fixed(count = 2)
                 ) {
                     items(groups) {
-                        GroupItem(modifier = Modifier, entity = it, viewModel.isAdmin(it.creatorId)) {
-                            groupSession.invoke(it.groupId)
+                        val friends = viewModel.getTwoFriends(it.members)
+                        GroupItem(
+                            modifier = Modifier,
+                            entity = it,
+                            isAdmin = viewModel.isAdmin(it.creatorId),
+                            friendsForDisplayPicture = friends,
+                            onClick = {
+                                groupSession.invoke(it.groupId)
+                            }
+                        ) {
+                            // invite link logic likhna hai
                         }
                     }
                 }

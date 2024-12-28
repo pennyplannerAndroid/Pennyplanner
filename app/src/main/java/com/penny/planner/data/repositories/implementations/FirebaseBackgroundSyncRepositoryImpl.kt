@@ -26,6 +26,7 @@ import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
+import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
 import com.penny.planner.data.workmanager.ImageDownloadWorker
 import com.penny.planner.helpers.Utils
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,7 +45,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
     private val usersRepository: FriendsDirectoryRepository,
-    private val monthlyExpenseRepository: MonthlyExpenseRepository
+    private val monthlyExpenseRepository: MonthlyExpenseRepository,
+    private val profilePictureRepository: ProfilePictureRepository
 ) : FirebaseBackgroundSyncRepository {
 
     private val tag = "FirebaseBackgroundSyncRepositoryImpl"
@@ -212,11 +214,11 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
         scope.launch {
             for (email in list) {
                 if (!usersRepository.doesFriendExists(email)) {
-                    val userResult = usersRepository.findUser(email)
+                    val userResult = usersRepository.findUserFromServer(email)
                     if (userResult.isSuccess) {
                         val friend = userResult.getOrNull()!!
                         usersRepository.addFriend(friend)
-                        usersRepository.downloadProfilePicture(friend)
+                        profilePictureRepository.downloadProfilePicture(friend)
                     }
                 }
             }

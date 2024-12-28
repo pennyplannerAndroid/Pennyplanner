@@ -13,6 +13,7 @@ import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepo
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
+import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,7 +31,8 @@ class GroupRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
     private val firebaseBackgroundSyncRepository: FirebaseBackgroundSyncRepository,
     private val monthlyExpenseRepository: MonthlyExpenseRepository,
-    private val friendsDirectoryRepository: FriendsDirectoryRepository
+    private val friendsDirectoryRepository: FriendsDirectoryRepository,
+    private val profilePictureRepository: ProfilePictureRepository
 ): GroupRepository {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
@@ -105,7 +107,7 @@ class GroupRepositoryImpl @Inject constructor(
         val members = friendsDirectoryRepository.getFriends(group.members)
         for (member in members) {
             if (Utils.moreThanADay(member.lastUpdate)) {
-                val result = friendsDirectoryRepository.findUser(member.email)
+                val result = friendsDirectoryRepository.findUserFromServer(member.email)
                 if (result.isSuccess && result.getOrNull() != null) {
                     member.lastUpdate = System.currentTimeMillis()
                     val friend = result.getOrNull()!!
@@ -114,7 +116,7 @@ class GroupRepositoryImpl @Inject constructor(
                     }
                     if (friend.profileImageURL != member.profileImageURL) {
                         member.profileImageURL = friend.profileImageURL
-                        friendsDirectoryRepository.downloadProfilePicture(friend)
+                        profilePictureRepository.downloadProfilePicture(friend)
                     }
                     friendsDirectoryRepository.updateFriend(member)
                 }

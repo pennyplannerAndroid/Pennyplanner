@@ -1,5 +1,6 @@
 package com.penny.planner.data.db.friends
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -25,4 +26,9 @@ interface UsersDao {
     @Query("SELECT EXISTS(SELECT 1 FROM ${Utils.FRIEND_TABLE} WHERE email = :email)")
     suspend fun doesFriendExists(email: String): Boolean
 
+    @Query("SELECT * FROM ${Utils.FRIEND_TABLE}")
+    suspend fun getAllFriends(): List<UsersEntity>
+
+    @Query("SELECT * FROM ${Utils.FRIEND_TABLE} where email = :email")
+    suspend fun findFriend(email: String): UsersEntity
 }

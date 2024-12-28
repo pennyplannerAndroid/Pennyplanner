@@ -12,6 +12,7 @@ import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepo
 import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.OnboardingRepository
+import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.enums.LoginResult
 import com.penny.planner.models.MonthlyBudgetInfoModel
@@ -31,6 +32,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
     @Inject lateinit var firebaseBackgroundRepository: FirebaseBackgroundSyncRepository
     @Inject lateinit var budgetRepository: MonthlyBudgetRepository
     @Inject lateinit var usersRepository: FriendsDirectoryRepository
+    @Inject lateinit var profilePictureRepository: ProfilePictureRepository
     @Inject lateinit var applicationContext: Application
 
     private val auth = FirebaseAuth.getInstance()
@@ -79,7 +81,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                 )
                 usersRepository.addFriend(self) // adding self to the friend table
                 if (isLogin)
-                    usersRepository.downloadProfilePicture(self)
+                    profilePictureRepository.downloadProfilePicture(self)
             }
             categoryAndEmojiRepository.checkServerAndUpdateCategory()
             if (isLogin) {

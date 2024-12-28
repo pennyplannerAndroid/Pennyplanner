@@ -14,6 +14,7 @@ import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.implementations.FriendsDirectoryRepositoryImpl
 import com.penny.planner.data.repositories.implementations.FirebaseBackgroundSyncRepositoryImpl
 import com.penny.planner.data.repositories.implementations.MonthlyExpenseRepositoryImpl
+import com.penny.planner.data.repositories.implementations.ProfilePictureRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.data.repositories.implementations.UserRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
@@ -22,6 +23,7 @@ import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
+import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -75,4 +77,8 @@ abstract class AbstractModule {
     @Singleton
     @Binds
     abstract fun bindMonthlyExpenseRepository(repository: MonthlyExpenseRepositoryImpl): MonthlyExpenseRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindProfilePictureRepository(repository: ProfilePictureRepositoryImpl): ProfilePictureRepository
 }

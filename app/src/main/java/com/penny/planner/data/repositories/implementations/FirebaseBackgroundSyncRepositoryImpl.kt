@@ -62,10 +62,39 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
 
     override fun getAllPersonalExpenses() {
         if (auth.currentUser != null) {
-            scope.launch {
+            scope.launch(Dispatchers.IO) {
                 fetchPersonalBudgetAndUpdate()
                 fetchPersonalExpenseAndUpdate()
             }
+        }
+    }
+
+    override fun getAllJoinedGroupsFromFirebaseAtLogin() {
+        if (auth.currentUser != null) {
+            scope.launch(Dispatchers.IO) {
+                fetchAllJoinedGroupsFromFirebase()
+                addListenerToPendingGroupNode()
+            }
+        }
+    }
+
+    override fun init() {
+        addListenerToAllAddedGroups()
+        getAllPendingGroups()
+        updateGroupsTransactions()
+    }
+
+    override fun addGroupForFirebaseListener(groupId: String) {
+        scope.launch(Dispatchers.IO) {
+            addListenerToJoinedGroupInfo(groupId)
+        }
+    }
+
+    override suspend fun newSubCategoryAdded(entity: SubCategoryEntity) {
+        if (subcategories.containsKey(entity.category)) {
+            subcategories[entity.category]!!.add(entity.name)
+        } else {
+            subcategories[entity.category] = mutableSetOf(entity.name)
         }
     }
 
@@ -99,7 +128,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             val allExpenses = expensesQuery.documents.mapNotNull { document ->
                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
                 expenseEntity?.uploadedOnServer = true
-                expenseEntity?.isSentTransaction = auth.currentUser?.uid == expenseEntity?.expensorId
+                expenseEntity?.isSentTransaction =
+                    auth.currentUser?.uid == expenseEntity?.expensorId
                 if (expenseEntity != null)
                     getAndAddSubCategoryFromFirebaseExpense(expenseEntity)
                 expenseEntity
@@ -110,60 +140,95 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getAllGroupsFromFirebase() {
-        if (auth.currentUser != null) {
-            scope.launch {
-                fetchAllGroupsFromFirebase(Utils.JOINED)
-                fetchAllGroupsFromFirebase(Utils.PENDING)
+    private suspend fun fetchAllJoinedGroupsFromFirebase() {
+        val joinedGroups: Map<*, *> = userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUP_INFO)
+            .child(Utils.JOINED).get().await().value as Map<*, *>
+        for (groupId in joinedGroups.keys) {
+            addListenerToJoinedGroupInfo(groupId = groupId.toString())
+        }
+    }
+
+    private fun addListenerToAllAddedGroups() {
+        scope.launch {
+            val groups = groupDao.getAllExistingGroupsFromDb()
+            if (groups.isNotEmpty())
+            for (group in groups) {
+                if (!group.isPending)
+                    addListenerToJoinedGroupInfo(groupId = group.groupId)
             }
         }
     }
 
-    override fun getAllPendingGroups() {
-        if (auth.currentUser != null) {
-            scope.launch {
-                fetchAllGroupsFromFirebase(Utils.PENDING)
-            }
-        }
-    }
-
-    override fun updateGroupsTransactions() {
-        if (auth.currentUser != null) {
-            scope.launch(Dispatchers.IO) {
-                generateLocalMap()
-                val list = groupDao.getAllExistingGroupsFromDb()
-                for (group in list) {
-                    fetchDataAndUpdate(group.groupId)
+    private suspend fun addListenerToJoinedGroupInfo(groupId: String) {
+        FirebaseDatabase.getInstance()
+            .getReference(Utils.GROUPS)
+            .child(groupId).child(Utils.GROUP_INFO)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val entity = snapshot.getValue(GroupEntity::class.java)
+                        if (entity != null && entity.members.isNotEmpty()) {
+                            scope.launch {
+                                entity.isPending = false
+                                if (groupDao.doesGroupExists(groupId)) {
+                                    if (groupDao.getGroupByGroupId(groupId).profileImage != entity.profileImage) {
+                                        downloadGroupImage(entity)
+                                    }
+                                    groupDao.updateEntity(entity = entity)
+                                } else {
+                                    downloadGroupImage(entity)
+                                    groupDao.addGroup(entity)
+                                    fetchDataAndUpdate(entity.groupId)
+                                }
+                                updateFriendsDb(entity.members)
+                                if (monthlyExpenseRepository.getMonthlyExpenseEntity(
+                                        entityId = groupId,
+                                        month = Utils.getCurrentMonthYear()
+                                    ) == null
+                                ) {
+                                    monthlyExpenseRepository.addMonthlyExpenseEntity(
+                                        MonthlyExpenseEntity(
+                                            entityID = groupId,
+                                            month = Utils.getCurrentMonthYear(),
+                                            expense = 0.0
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("$tag :: ", error.message)
+                }
+            })
     }
 
-    override fun addGroupForFirebaseListener(groupId: String) {
-        scope.launch(Dispatchers.IO) {
-            fetchDataAndUpdate(groupId)
-        }
-    }
-
-    override suspend fun newSubCategoryAdded(entity: SubCategoryEntity) {
-        if (subcategories.containsKey(entity.category)) {
-            subcategories[entity.category]!!.add(entity.name)
-        } else {
-            subcategories[entity.category] = mutableSetOf(entity.name)
-        }
-    }
-
-    private fun fetchAllGroupsFromFirebase(source: String) {
+    private fun addListenerToPendingGroupNode() {
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
             .child(Utils.GROUP_INFO)
-            .child(source).addValueEventListener(object : ValueEventListener {
+            .child(Utils.PENDING).addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        val pendingGroups = snapshot.value as Map<*, *>
-                        if (pendingGroups.isNotEmpty()) {
-                            for (groupId in pendingGroups.keys) {
-                                updateLocalWithPendingGroups(groupId.toString(), source == Utils.PENDING)
+                        val groupNode = snapshot.value as Map<*, *>
+                        if (groupNode.isNotEmpty()) {
+                            scope.launch(Dispatchers.IO) {
+                                for (node in groupNode) {
+                                    if (Integer.getInteger(node.value.toString()) == 0) {
+                                        if (!groupDao.doesGroupExists(node.key.toString())) {
+                                            getPendingGroupDetailAndAdd(node.key.toString())
+                                        }
+                                    } else if (Integer.getInteger(node.value.toString()) == 1) {
+                                        addListenerToJoinedGroupInfo(node.key.toString())
+                                        updateGroupNodeAfterAdminApproval(node.key.toString())
+                                    } else if (Integer.getInteger(node.value.toString()) == 2) {
+                                        deleteGroupFromLocalAndServer(node.key.toString())
+                                    }
+                                }
                             }
                         }
                     }
@@ -175,39 +240,46 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
             })
     }
 
-    private fun updateLocalWithPendingGroups(groupId: String, needUpdatePendingList: Boolean) {
-        FirebaseDatabase.getInstance()
+    private suspend fun getPendingGroupDetailAndAdd(groupId: String) {
+        val group = FirebaseDatabase.getInstance()
             .getReference(Utils.GROUPS)
-            .child(groupId).child(Utils.GROUP_INFO).addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val entity = snapshot.getValue(GroupEntity::class.java)
-                        if (entity != null && entity.members.isNotEmpty()) {
-                            scope.launch {
-                                downloadGroupImage(entity)
-                                groupDao.addGroup(entity)
-                                if (monthlyExpenseRepository.getMonthlyExpenseEntity(entityId = groupId, month = Utils.getCurrentMonthYear()) == null) {
-                                    monthlyExpenseRepository.addMonthlyExpenseEntity(
-                                        MonthlyExpenseEntity(
-                                            entityID = groupId,
-                                            month = Utils.getCurrentMonthYear(),
-                                            expense = 0.0
-                                        )
-                                    )
-                                }
-                                updateFriendsDb(entity.members)
-                                fetchDataAndUpdate(entity.groupId)
-                                if (needUpdatePendingList)
-                                    updatePendingNode(entity)
-                            }
-                        }
-                    }
-                }
+            .child(groupId)
+            .child(Utils.GROUP_INFO)
+            .get()
+            .await()
+            .getValue(GroupEntity::class.java)
+        if (group != null) {
+            group.isPending = true
+            groupDao.addGroup(group)
+        }
+    }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Log.d("$tag :: ", error.message)
+    private fun getAllPendingGroups() {
+        if (auth.currentUser != null) {
+            scope.launch {
+                addListenerToPendingGroupNode()
+            }
+        }
+    }
+
+    private fun updateGroupsTransactions() {
+        if (auth.currentUser != null) {
+            scope.launch(Dispatchers.IO) {
+                generateLocalMap()
+                val list = groupDao.getAllExistingGroupsFromDb()
+                for (group in list) {
+                    fetchDataAndUpdate(group.groupId)
                 }
-            })
+            }
+        }
+    }
+
+    private suspend fun deleteGroupFromLocalAndServer(groupId: String) {
+        groupDao.delete(groupId)
+        userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUP_INFO)
+            .child(Utils.PENDING).child(groupId).removeValue()
     }
 
     private fun updateFriendsDb(list: List<String>) {
@@ -225,15 +297,15 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun updatePendingNode(entity: GroupEntity) {
-//        userDirectory
-//            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-//            .child(Utils.GROUP_INFO)
-//            .child(Utils.JOINED).child(entity.groupId).setValue(Utils.NON_ADMIN_VALUE)
-//        userDirectory
-//            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
-//            .child(Utils.GROUP_INFO)
-//            .child(Utils.PENDING).child(entity.groupId).removeValue()
+    private fun updateGroupNodeAfterAdminApproval(groupId: String) {
+        userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUP_INFO)
+            .child(Utils.JOINED).child(groupId).setValue(Utils.NON_ADMIN_VALUE)
+        userDirectory
+            .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+            .child(Utils.GROUP_INFO)
+            .child(Utils.PENDING).child(groupId).removeValue()
     }
 
     private suspend fun generateLocalMap() {
@@ -243,7 +315,9 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 budgetMap[budget.entityId]!!.add(budget.category)
             } else {
                 budgetMap[budget.entityId] = mutableSetOf(budget.category)
-                subcategories[budget.category] = categoryAndEmojiRepository.getAllSavedSubCategories(budget.category).map { it.name }.toMutableSet()
+                subcategories[budget.category] =
+                    categoryAndEmojiRepository.getAllSavedSubCategories(budget.category)
+                        .map { it.name }.toMutableSet()
             }
         }
     }
@@ -313,7 +387,8 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                             val newExpenses = documents.mapNotNull { document ->
                                 val expenseEntity = document.toObject(ExpenseEntity::class.java)
                                 expenseEntity.uploadedOnServer = true
-                                expenseEntity.isSentTransaction = auth.currentUser?.uid == expenseEntity.expensorId
+                                expenseEntity.isSentTransaction =
+                                    auth.currentUser?.uid == expenseEntity.expensorId
                                 getAndAddSubCategoryFromFirebaseExpense(expenseEntity)
                                 expenseEntity
                             }
@@ -364,29 +439,27 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
 
     private suspend fun downloadGroupImage(group: GroupEntity) {
         Log.d("downloadGroupImage", group.groupId)
-        if (!groupDao.doesGroupExists(groupId = group.groupId)) {
-            Log.d("downloadGroupImage", "group not present")
-            val inputData = Data.Builder()
-                .putString("firebaseImagePath", Utils.GROUP_IMAGE)
-                .putString("imageId", group.groupId)
-                .build()
+        Log.d("downloadGroupImage", "group not present")
+        val inputData = Data.Builder()
+            .putString("firebaseImagePath", Utils.GROUP_IMAGE)
+            .putString("imageId", group.groupId)
+            .build()
 
-            // Create a WorkRequest
-            val workRequest = OneTimeWorkRequestBuilder<ImageDownloadWorker>()
-                .setInputData(inputData)
-                .build()
+        // Create a WorkRequest
+        val workRequest = OneTimeWorkRequestBuilder<ImageDownloadWorker>()
+            .setInputData(inputData)
+            .build()
 
-            // Enqueue the WorkRequest
-            val workManager = WorkManager.getInstance(context)
-            workManager.enqueue(workRequest)
-            withContext(Dispatchers.Main) {
-                workManager.getWorkInfoByIdLiveData(workRequest.id).observeForever { workInfo ->
-                    if (workInfo != null && workInfo.state.isFinished) {
-                        val result = workInfo.outputData.getString("resultKey")
-                        group.localImagePath = result ?: ""
-                        scope.launch {
-                            groupDao.updateEntity(group)
-                        }
+        // Enqueue the WorkRequest
+        val workManager = WorkManager.getInstance(context)
+        workManager.enqueue(workRequest)
+        withContext(Dispatchers.Main) {
+            workManager.getWorkInfoByIdLiveData(workRequest.id).observeForever { workInfo ->
+                if (workInfo != null && workInfo.state.isFinished) {
+                    val result = workInfo.outputData.getString("resultKey")
+                    group.localImagePath = result ?: ""
+                    scope.launch {
+                        groupDao.updateEntity(group)
                     }
                 }
             }

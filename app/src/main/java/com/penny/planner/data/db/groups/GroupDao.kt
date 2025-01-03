@@ -32,4 +32,7 @@ interface GroupDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM ${Utils.GROUP_TABLE} WHERE groupId = :groupId)")
     suspend fun doesGroupExists(groupId: String): Boolean
+
+    @Query("DELETE FROM ${Utils.GROUP_TABLE} WHERE groupId= :groupId")
+    suspend fun delete(groupId: String)
 }

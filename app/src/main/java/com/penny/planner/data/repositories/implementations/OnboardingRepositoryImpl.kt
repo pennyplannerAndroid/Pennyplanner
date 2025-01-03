@@ -86,7 +86,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             categoryAndEmojiRepository.checkServerAndUpdateCategory()
             if (isLogin) {
                 firebaseBackgroundRepository.getAllPersonalExpenses()
-                firebaseBackgroundRepository.getAllGroupsFromFirebase()
+                firebaseBackgroundRepository.getAllJoinedGroupsFromFirebaseAtLogin()
             }
         }
     }

@@ -23,8 +23,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         categoryAndEmojiRepository.checkServerAndUpdateCategory()
-        firebaseBackgroundRepository.getAllPendingGroups()
-        firebaseBackgroundRepository.updateGroupsTransactions()
+        firebaseBackgroundRepository.init()
         profilePictureRepository.initialize()
 //        createChannelIds()
     }

@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
@@ -38,7 +39,10 @@ class GroupRepositoryImpl @Inject constructor(
     val scope = CoroutineScope(Job() + Dispatchers.IO)
     private val auth = FirebaseAuth.getInstance()
     private val storage = FirebaseStorage.getInstance()
+    val db = FirebaseFirestore.getInstance()
+
     private val userDirectory = FirebaseDatabase.getInstance().getReference(Utils.USERS)
+    private val groupCollectionRef = db.collection(Utils.GROUP_EXPENSES)
 
     override suspend fun getAllGroupLists(): LiveData<List<GroupListDisplayModel>> {
         return groupDao.getAllGroupListForDisplay(Utils.getCurrentMonthYear())
@@ -50,7 +54,7 @@ class GroupRepositoryImpl @Inject constructor(
 
     override suspend fun newGroup(name: String, path: String?, monthlyBudget: Double, safeToSpendLimit: Int, byteArray: ByteArray?): Result<Boolean> {
         if (auth.currentUser != null) {
-            val groupId = "${auth.currentUser!!.uid}_${System.currentTimeMillis()}"
+            val groupId = groupCollectionRef.document().id
             val groupEntity = GroupEntity(
                 groupId = groupId,
                 name = name,

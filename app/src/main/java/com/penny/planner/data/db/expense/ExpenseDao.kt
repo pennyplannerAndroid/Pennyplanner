@@ -24,6 +24,9 @@ interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertList(list: List<ExpenseEntity>)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM ${Utils.EXPENSE_TABLE} WHERE id = :expenseId)")
+    suspend fun doesExpenseExists(expenseId: String): Boolean
+
     @Update
     suspend fun update(entity: ExpenseEntity)
 

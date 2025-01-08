@@ -67,6 +67,7 @@ class GroupRepositoryImpl @Inject constructor(
             FirebaseDatabase.getInstance()
                 .getReference(Utils.GROUPS)
                 .child(groupId)
+                .child(Utils.GROUP_INFO)
                 .setValue(groupEntity.toFireBaseModel()).await()
             var downloadPath: Uri? = null
             if (byteArray != null) {
@@ -82,6 +83,7 @@ class GroupRepositoryImpl @Inject constructor(
                 FirebaseDatabase.getInstance()
                     .getReference(Utils.GROUPS)
                     .child(groupId)
+                    .child(Utils.GROUP_INFO)
                     .child(Utils.PROFILE_URL).setValue(downloadPath.toString())
             }
             userDirectory

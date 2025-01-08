@@ -91,7 +91,8 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     private suspend fun addToExpenseDb(entity: ExpenseEntity) {
-        updateMonthlyExpenseTable(entity)
+        if (!expenseDao.doesExpenseExists(entity.id))
+            updateMonthlyExpenseTable(entity)
         expenseDao.insert(entity)
     }
 
@@ -102,8 +103,11 @@ class ExpenseRepositoryImpl @Inject constructor(
             id = auth.currentUser!!.uid
         }
         for (expense in list) {
-            val monthYear = dateFormatter.format(expense.time.toDate())
-            expensesByMonth[monthYear] = expensesByMonth.getOrDefault(monthYear, 0.0) + expense.price
+            if (!expenseDao.doesExpenseExists(expense.id)) {
+                val monthYear = dateFormatter.format(expense.time.toDate())
+                expensesByMonth[monthYear] =
+                    expensesByMonth.getOrDefault(monthYear, 0.0) + expense.price
+            }
         }
         for (item in expensesByMonth) {
             updateExpenseItem(id, item.key, item.value)

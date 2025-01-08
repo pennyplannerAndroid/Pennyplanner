@@ -1,5 +1,10 @@
 package com.penny.planner.ui.screens.mainpage
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,9 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
-import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.models.GroupListDisplayModel
 import com.penny.planner.ui.components.GroupItem
+import com.penny.planner.ui.enums.FloatingButtonState
 import com.penny.planner.viewmodels.GroupViewModel
 import kotlinx.coroutines.launch
 
@@ -51,6 +57,9 @@ fun GroupScreen(
 
     var groups by remember {
         mutableStateOf(listOf<GroupListDisplayModel>())
+    }
+    var state by remember {
+        mutableStateOf(FloatingButtonState.Collapsed)
     }
     LaunchedEffect(keys = emptyArray()) {
         scope.launch {
@@ -97,11 +106,29 @@ fun GroupScreen(
                         }
                     }
                 }
+                val stateTransition: Transition<FloatingButtonState> =
+                    updateTransition(targetState = state, label = "")
+                val rotation: Float by stateTransition.animateFloat(
+                    transitionSpec = {
+                        if (state == FloatingButtonState.Open) {
+                            spring(stiffness = Spring.StiffnessLow)
+                        } else {
+                            spring(stiffness = Spring.StiffnessMedium)
+                        }
+                    },
+                    label = ""
+                ) { state ->
+                    if (state == FloatingButtonState.Open) 45f else 0f
+                }
                 FloatingActionButton(
                     modifier = modifier
                         .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                    onClick = { addGroup.invoke() },
+                        .padding(16.dp)
+                        .rotate(rotation),
+                    onClick = {
+                        addGroup.invoke()
+                        state = if (state == FloatingButtonState.Collapsed) FloatingButtonState.Open else FloatingButtonState.Collapsed
+                              },
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.add_group_icon),

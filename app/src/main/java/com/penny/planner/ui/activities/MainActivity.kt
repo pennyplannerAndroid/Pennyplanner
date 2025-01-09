@@ -1,5 +1,6 @@
 package com.penny.planner.ui.activities
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -191,7 +192,20 @@ class MainActivity : ComponentActivity() {
                     }
                     POSITION_GROUP -> GroupScreen(
                         modifier = Modifier.padding(innerPadding),
-                        addGroup = { createGroupClicked.invoke() }
+                        addGroup = { createGroupClicked.invoke() },
+                        sendInviteLink = {
+                            val sendIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, it)
+                                type = "text/plain"
+                            }
+
+                            try {
+                                startActivity(sendIntent)
+                            } catch (e: ActivityNotFoundException) {
+                                // Define what your app should do if no activity can handle the intent.
+                            }
+                        }
                     ) {
                        openGroupSession.invoke(it)
                     }

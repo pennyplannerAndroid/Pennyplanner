@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.hilt.common)
+    implementation(libs.firebase.dynamic.links.ktx)
     kapt("com.google.dagger:hilt-compiler:2.51.1")
     implementation(libs.play.services.auth)
 
@@ -136,4 +137,7 @@ dependencies {
 
     //workManager
     implementation(libs.androidx.work.runtime.ktx)
+
+    // firebase dynamic links
+    implementation(libs.firebase.dynamic.links)
 }

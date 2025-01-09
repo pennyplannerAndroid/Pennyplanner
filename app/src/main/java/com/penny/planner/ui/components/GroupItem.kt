@@ -92,7 +92,17 @@ fun GroupItem(
                     color = Color.Gray,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    minLines = 2
+                    minLines = 2,
+                    maxLines = 2
+                )
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.Start),
+                    text = "${entity.expense.toInt()} of ${entity.monthlyBudget.toInt()}",
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
                 )
                 Row(
                     modifier.fillMaxWidth(),
@@ -117,12 +127,11 @@ fun GroupItem(
                             )
                         }
                     }
-                    if (isAdmin) {
-                        CircularButtonWithIcon(
-                            icon = R.drawable.add_group_member,
-                            contentDescription = stringResource(id = R.string.add),
-                            onClick = addCLick)
-                    }
+                    CircularButtonWithIcon(
+                        icon = R.drawable.add_group_member,
+                        contentDescription = stringResource(id = R.string.add),
+                        onClick = addCLick
+                    )
                 }
 
             }

@@ -48,6 +48,7 @@ import kotlinx.coroutines.launch
 fun GroupScreen(
     modifier: Modifier,
     addGroup: () -> Unit,
+    sendInviteLink: (String) -> Unit,
     groupSession: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -102,7 +103,9 @@ fun GroupScreen(
                                 groupSession.invoke(it.groupId)
                             }
                         ) {
-                            // invite link logic likhna hai
+                            scope.launch {
+                                sendInviteLink.invoke(it.shareableLink)
+                            }
                         }
                     }
                 }
@@ -143,5 +146,5 @@ fun GroupScreen(
 @Preview
 @Composable
 fun PreviewGroupScreen() {
-    GroupScreen(Modifier, {}) {}
+    GroupScreen(Modifier, {}, {}) {}
 }

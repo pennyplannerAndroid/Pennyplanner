@@ -8,7 +8,7 @@ import com.penny.planner.helpers.Utils
     """
         SELECT u.groupId AS groupId, u.name AS name, u.creatorId AS creatorId,
         u.members AS members, u.localImagePath AS profileImage, u.lastUpdate AS lastUpdate, 
-        u.monthlyBudget AS monthlyBudget, u.safeToSpendLimit AS safeToSpendLimit,
+        u.monthlyBudget AS monthlyBudget, u.safeToSpendLimit AS safeToSpendLimit, u.shareableLink AS shareableLink,
         t.month AS month, t.expense AS expense
         FROM group_table u
         INNER JOIN monthly_expense_table t ON u.groupId = t.entityID Order by lastUpdate DESC
@@ -25,5 +25,6 @@ data class GroupListDisplayModel(
     var monthlyBudget: Double = 0.0,
     var safeToSpendLimit: Int = 80,
     var month: String = "",
-    var expense: Double = 0.0
+    var expense: Double = 0.0,
+    var shareableLink: String = ""
 )

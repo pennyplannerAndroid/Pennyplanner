@@ -27,7 +27,7 @@ class MonthlyBudgetRepositoryImpl @Inject constructor(
             directoryReference
                 .child(Utils.formatEmailForFirebase(FirebaseAuth.getInstance().currentUser!!.email!!))
                 .child(Utils.BUDGET_INFO)
-                .setValue(monthlyBudgetInfo)
+                .setValue(monthlyBudgetInfo.toFireBaseEntity())
                 .await()
             updateLocalWithMonthlyBudget(monthlyBudgetInfo)
             return Result.success(true)

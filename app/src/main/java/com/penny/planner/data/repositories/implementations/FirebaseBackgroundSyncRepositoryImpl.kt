@@ -169,7 +169,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val entity = snapshot.getValue(GroupEntity::class.java)
-                        if (entity != null && entity.members.isNotEmpty()) {
+                        if (entity != null) {
                             scope.launch {
                                 entity.isPending = false
                                 if (groupDao.doesGroupExists(groupId)) {

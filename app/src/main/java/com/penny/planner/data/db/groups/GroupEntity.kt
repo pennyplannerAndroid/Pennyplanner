@@ -17,8 +17,7 @@ data class GroupEntity(
     var monthlyBudget: Double = 0.0,
     var safeToSpendLimit: Int = 80,
     var localImagePath: String = "",
-    var isPending: Boolean = false,
-    var shareableLink: String = ""
+    var isPending: Boolean = false
 ) {
     fun toFireBaseModel() =
         mapOf(
@@ -29,7 +28,6 @@ data class GroupEntity(
             Pair("creatorId", creatorId),
             Pair("monthlyBudget", monthlyBudget),
             Pair("profileImage", profileImage),
-            Pair("safeToSpendLimit", safeToSpendLimit),
-            Pair("shareableLink", shareableLink)
+            Pair("safeToSpendLimit", safeToSpendLimit)
         )
 }

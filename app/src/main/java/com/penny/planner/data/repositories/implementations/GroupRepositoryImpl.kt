@@ -52,7 +52,13 @@ class GroupRepositoryImpl @Inject constructor(
         return groupDao.getGroupByGroupId(groupId = groupId)
     }
 
-    override suspend fun newGroup(name: String, path: String?, monthlyBudget: Double, safeToSpendLimit: Int, byteArray: ByteArray?): Result<Boolean> {
+    override suspend fun newGroup(
+        name: String,
+        path: String?,
+        monthlyBudget: Double,
+        safeToSpendLimit: Int,
+        byteArray: ByteArray?
+    ): Result<Boolean> {
         if (auth.currentUser != null) {
             val groupId = groupCollectionRef.document().id
             val groupEntity = GroupEntity(
@@ -95,7 +101,11 @@ class GroupRepositoryImpl @Inject constructor(
                 groupEntity.localImagePath = saveGroupImageLocally(groupEntity, byteArray)
             addGroup(groupEntity)
             monthlyExpenseRepository.addMonthlyExpenseEntity(
-                MonthlyExpenseEntity(entityID = groupId, month = Utils.getCurrentMonthYear(), expense = 0.0)
+                MonthlyExpenseEntity(
+                    entityID = groupId,
+                    month = Utils.getCurrentMonthYear(),
+                    expense = 0.0
+                )
             )
             firebaseBackgroundSyncRepository.addGroupForFirebaseListener(groupId)
             return Result.success(true)
@@ -143,4 +153,5 @@ class GroupRepositoryImpl @Inject constructor(
         }
         return localFile.absolutePath
     }
+
 }

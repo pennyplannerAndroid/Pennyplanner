@@ -97,6 +97,10 @@ class Utils {
         const val FRIEND_TABLE = "friend_table"
         const val MONTHLY_EXPENSE_TABLE = "monthly_expense_table"
 
+        //urls
+        const val BASE_URL = "https://pennyplanner.shop/"
+        const val JOIN_GROUP_QUERY = "join?groupId="
+
         fun formatEmailForFirebase(email: String): String {
             return email.replace('.', ',')
         }

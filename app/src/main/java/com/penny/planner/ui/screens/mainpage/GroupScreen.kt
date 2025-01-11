@@ -104,7 +104,7 @@ fun GroupScreen(
                             }
                         ) {
                             scope.launch {
-                                sendInviteLink.invoke(it.shareableLink)
+                                sendInviteLink.invoke(viewModel.getJoinGroupLink(it.groupId))
                             }
                         }
                     }

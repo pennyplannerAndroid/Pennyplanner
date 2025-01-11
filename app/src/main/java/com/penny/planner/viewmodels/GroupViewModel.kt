@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
+import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -43,5 +44,9 @@ class GroupViewModel @Inject constructor(
             result.add(profilePictureRepository.findLocalImagePath(list[1]))
         }
         return result
+    }
+
+    fun getJoinGroupLink(groupId: String): String {
+        return "${Utils.BASE_URL}${Utils.JOIN_GROUP_QUERY}$groupId"
     }
 }

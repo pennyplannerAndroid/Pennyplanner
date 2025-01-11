@@ -22,7 +22,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PennyPlanner"
-        tools:targetApi="31">
+        tools:targetApi="34">
         <activity
             android:name=".learning.MainActivity2"
             android:exported="false" />
@@ -40,6 +40,16 @@
             android:name=".ui.activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.PennyPlanner">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="pennyplanner.shop" />
+
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

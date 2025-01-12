@@ -141,12 +141,14 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun fetchAllJoinedGroupsFromFirebase() {
-        val joinedGroups: Map<*, *> = userDirectory
+        val joinedGroups: Map<*, *>? = userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
             .child(Utils.GROUP_INFO)
-            .child(Utils.JOINED).get().await().value as Map<*, *>
-        for (groupId in joinedGroups.keys) {
-            addListenerToJoinedGroupInfo(groupId = groupId.toString())
+            .child(Utils.JOINED).get().await().value as Map<*, *>?
+        if (joinedGroups != null) {
+            for (groupId in joinedGroups.keys) {
+                addListenerToJoinedGroupInfo(groupId = groupId.toString())
+            }
         }
     }
 

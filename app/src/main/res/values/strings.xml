@@ -94,4 +94,6 @@
     <string name="budget">"Budget"</string>
     <string name="safe_to_spend">"Safe to spend"</string>
     <string name="dynamic_link_share_message">"Let’s track our expenses together with the PennyPlanner app! Join the group for our monthly budget/trip by clicking the link: %s. Don’t have the app? Download it now and use the Group ID: %s to join manually."</string>
+    <string name="create_group">"Create Group"</string>
+    <string name="join_group">"Join Group"</string>
 </resources>

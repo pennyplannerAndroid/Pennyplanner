@@ -1,12 +1,14 @@
 package com.penny.planner.ui.screens.mainpage
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -15,7 +17,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,8 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
+import com.penny.planner.helpers.noRippleClickable
 import com.penny.planner.models.GroupListDisplayModel
+import com.penny.planner.ui.components.BigFabMenuOption
 import com.penny.planner.ui.components.GroupItem
+import com.penny.planner.ui.components.SmallFabMenuWithDescription
 import com.penny.planner.ui.enums.FloatingButtonState
 import com.penny.planner.viewmodels.GroupViewModel
 import kotlinx.coroutines.launch
@@ -123,20 +127,56 @@ fun GroupScreen(
                 ) { state ->
                     if (state == FloatingButtonState.Open) 45f else 0f
                 }
-                FloatingActionButton(
+                AnimatedVisibility(
+                    visible = state == FloatingButtonState.Open,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = Color.White.copy(alpha = 0.8f))
+                        .noRippleClickable {
+                            state = FloatingButtonState.Collapsed
+                        },
+                        text = ""
+                    )
+                }
+                Column(
                     modifier = modifier
                         .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                        .rotate(rotation),
-                    onClick = {
-                        addGroup.invoke()
-                        state = if (state == FloatingButtonState.Collapsed) FloatingButtonState.Open else FloatingButtonState.Collapsed
-                              },
+                        .padding(end = 16.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.add_group_icon),
-                        contentDescription = stringResource(id = R.string.new_group)
-                    )
+                    AnimatedVisibility(
+                        visible = state == FloatingButtonState.Open
+                    ) {
+                        Column(
+                            modifier = Modifier.align(Alignment.End),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            SmallFabMenuWithDescription(
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp),
+                                description = stringResource(id = R.string.create_group),
+                                icon = R.drawable.create_group_small_fab
+                            ) {
+                                addGroup.invoke()
+                            }
+                            SmallFabMenuWithDescription(
+                                modifier = Modifier
+                                    .padding(bottom = 4.dp),
+                                description = stringResource(id = R.string.join_group),
+                                icon = R.drawable.join_group_fab_icon
+                            ) {
+
+                            }
+                        }
+                    }
+                    BigFabMenuOption(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .rotate(rotation)
+                    ) {
+                        state = if (state == FloatingButtonState.Collapsed) FloatingButtonState.Open else FloatingButtonState.Collapsed
+                    }
                 }
             }
         }

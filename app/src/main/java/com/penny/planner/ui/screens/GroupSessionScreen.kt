@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +34,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.models.GroupDisplayModel
+import com.penny.planner.ui.components.BigFabMenuOption
 import com.penny.planner.ui.components.ExpenseListItem
 import com.penny.planner.ui.components.GroupSessionTopBar
 import com.penny.planner.viewmodels.GroupSessionViewModel
@@ -92,17 +92,11 @@ fun GroupSessionScreen(
             },
             bottomBar = {
                 Row {
-                    androidx.compose.material3.FloatingActionButton(
+                    BigFabMenuOption(
                         modifier = Modifier
-                            .padding(16.dp),
-                        onClick = {
-                            addExpense = true
-                        },
+                            .padding(16.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.add_group_icon),
-                            contentDescription = stringResource(id = R.string.new_group)
-                        )
+                        addExpense = true
                     }
                     OutlinedTextField(
                         modifier = Modifier

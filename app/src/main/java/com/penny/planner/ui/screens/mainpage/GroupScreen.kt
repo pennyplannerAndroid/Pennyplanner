@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -93,7 +94,8 @@ fun GroupScreen(
                 LazyVerticalGrid(
                     modifier = Modifier
                         .padding(12.dp)
-                        .navigationBarsPadding(),
+                        .navigationBarsPadding()
+                        .blur(if (state == FloatingButtonState.Open) 10.dp else 0.dp),
                     columns = GridCells.Fixed(count = 2)
                 ) {
                     items(groups) {
@@ -133,10 +135,10 @@ fun GroupScreen(
                 ) {
                     Text(modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.White.copy(alpha = 0.8f))
+                        .background(color = Color.White.copy(alpha = 0.5f))
                         .noRippleClickable {
                             state = FloatingButtonState.Collapsed
-                        },
+                        }.blur(radius = 16.dp),
                         text = ""
                     )
                 }

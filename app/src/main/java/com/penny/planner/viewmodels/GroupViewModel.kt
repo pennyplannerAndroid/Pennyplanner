@@ -5,12 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.db.friends.UsersEntity
+import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
 import com.penny.planner.helpers.Utils
-import com.penny.planner.models.GroupListDisplayModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +24,18 @@ class GroupViewModel @Inject constructor(
     private val _newGroupResult = MutableLiveData<Result<Boolean>>()
     val newGroupResult: LiveData<Result<Boolean>> = _newGroupResult
 
+    private val _searchGroupResult = MutableLiveData<Result<GroupEntity>?>()
+    val searchGroupResult: LiveData<Result<GroupEntity>?> = _searchGroupResult
+
+    private val _joinExistingGroup = MutableLiveData<Result<Boolean>>()
+    val joinExistingGroup: LiveData<Result<Boolean>> = _joinExistingGroup
+
+    var deepLinkGroupId = ""
+        get() = field
+        set(value) {
+            field = value
+        }
+
     suspend fun getAllGroups() = groupRepository.getAllGroupLists()
 
     fun newGroup(name: String,
@@ -30,8 +44,11 @@ class GroupViewModel @Inject constructor(
                  safeToSpendLimit: Int,
                  byteArray: ByteArray?
     ) {
-        viewModelScope.launch {
-            _newGroupResult.value = groupRepository.newGroup(name, path, monthlyBudget, safeToSpendLimit, byteArray)
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = groupRepository.newGroup(name, path, monthlyBudget, safeToSpendLimit, byteArray)
+            withContext(Dispatchers.Main) {
+                _newGroupResult.value = result
+            }
         }
     }
 
@@ -48,5 +65,28 @@ class GroupViewModel @Inject constructor(
 
     fun getJoinGroupLink(groupId: String): String {
         return "${Utils.BASE_URL}${Utils.JOIN_GROUP_QUERY}$groupId"
+    }
+
+    fun searchGroup(groupId: String = deepLinkGroupId) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = groupRepository.searchGroup(groupId)
+            withContext(Dispatchers.Main) {
+                _searchGroupResult.value = result
+            }
+        }
+    }
+
+    fun joinGroup(group: GroupEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = groupRepository.joinExistingGroup(group)
+            withContext(Dispatchers.Main) {
+                _joinExistingGroup.value = result
+            }
+        }
+    }
+
+    fun resetDeeplinkSearch() {
+        _searchGroupResult.value = null
+        deepLinkGroupId = ""
     }
 }

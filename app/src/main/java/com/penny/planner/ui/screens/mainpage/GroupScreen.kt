@@ -1,5 +1,7 @@
 package com.penny.planner.ui.screens.mainpage
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
@@ -22,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,12 +43,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
+import com.penny.planner.data.db.groups.GroupEntity
+import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.noRippleClickable
 import com.penny.planner.models.GroupListDisplayModel
 import com.penny.planner.ui.components.BigFabMenuOption
 import com.penny.planner.ui.components.GroupItem
+import com.penny.planner.ui.components.GroupSearchProgressIndicator
+import com.penny.planner.ui.components.JoinGroupDrawer
 import com.penny.planner.ui.components.SmallFabMenuWithDescription
 import com.penny.planner.ui.enums.FloatingButtonState
+import com.penny.planner.ui.enums.JoinGroupUIStatus
 import com.penny.planner.viewmodels.GroupViewModel
 import kotlinx.coroutines.launch
 
@@ -60,13 +69,61 @@ fun GroupScreen(
     val viewModel = hiltViewModel<GroupViewModel>()
 
     val lifeCycle = LocalLifecycleOwner.current
-
+    val context = LocalContext.current
     var groups by remember {
         mutableStateOf(listOf<GroupListDisplayModel>())
     }
     var state by remember {
         mutableStateOf(FloatingButtonState.Collapsed)
     }
+    var joinGroup by remember {
+        mutableStateOf(false)
+    }
+    var joinGroupPageStatus by remember {
+        mutableStateOf(JoinGroupUIStatus.GroupIdPage)
+    }
+    var groupToJoin by remember {
+        mutableStateOf<GroupEntity?>(null)
+    }
+    var showLoader by remember {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(key1 = Unit){
+        if (viewModel.deepLinkGroupId.isNotEmpty()) {
+            showLoader = true
+            viewModel.searchGroup()
+        }
+    }
+
+    val joinGroupDetails = viewModel.searchGroupResult.observeAsState().value
+    if (joinGroupDetails != null) {
+        viewModel.deepLinkGroupId = ""
+        showLoader = false
+        if (joinGroupDetails.isSuccess) {
+            joinGroup = true
+            groupToJoin = joinGroupDetails.getOrNull()
+            joinGroupPageStatus = JoinGroupUIStatus.GroupDetailPage
+            viewModel.resetDeeplinkSearch()
+        } else {
+            Toast.makeText(context, joinGroupDetails.exceptionOrNull()?.message ?: Utils.FAILED, Toast.LENGTH_SHORT).show()
+            viewModel.resetDeeplinkSearch()
+        }
+    }
+
+    val joinExistingGroupResult = viewModel.joinExistingGroup.observeAsState().value
+    if (joinExistingGroupResult != null) {
+        showLoader = false
+        if (joinExistingGroupResult.isSuccess) {
+            joinGroupPageStatus = JoinGroupUIStatus.SuccessPage
+        } else {
+            Toast.makeText(context, joinExistingGroupResult.exceptionOrNull()!!.message!!, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    BackHandler(enabled = state == FloatingButtonState.Open) {
+        state = FloatingButtonState.Collapsed
+    }
+
     LaunchedEffect(keys = emptyArray()) {
         scope.launch {
             viewModel.getAllGroups().observe(lifeCycle) {
@@ -138,7 +195,8 @@ fun GroupScreen(
                         .background(color = Color.White.copy(alpha = 0.5f))
                         .noRippleClickable {
                             state = FloatingButtonState.Collapsed
-                        }.blur(radius = 16.dp),
+                        }
+                        .blur(radius = 16.dp),
                         text = ""
                     )
                 }
@@ -168,7 +226,7 @@ fun GroupScreen(
                                 description = stringResource(id = R.string.join_group),
                                 icon = R.drawable.join_group_fab_icon
                             ) {
-
+                                joinGroup = true
                             }
                         }
                     }
@@ -181,6 +239,25 @@ fun GroupScreen(
                     }
                 }
             }
+            JoinGroupDrawer(
+                modifier = Modifier,
+                showSheet = joinGroup,
+                onClose = {
+                    joinGroup = false
+                    groupToJoin = null
+                    joinGroupPageStatus = JoinGroupUIStatus.GroupIdPage
+                },
+                groupId = "",
+                pageState = joinGroupPageStatus,
+                group = groupToJoin,
+                joinGroupClicked = {
+                    viewModel.joinGroup(groupToJoin!!)
+                },
+                showLoader = showLoader
+            ) {
+                viewModel.searchGroup(it)
+            }
+            GroupSearchProgressIndicator(show = showLoader)
         }
     )
 }

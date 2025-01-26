@@ -3,6 +3,7 @@ package com.penny.planner.ui.activities
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +17,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,6 +44,7 @@ import com.penny.planner.ui.screens.mainpage.HomeScreen
 import com.penny.planner.ui.screens.mainpage.ProfileScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.ExpenseViewModel
+import com.penny.planner.viewmodels.GroupViewModel
 import com.penny.planner.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +60,8 @@ class MainActivity : ComponentActivity() {
         const val POSITION_PROFILE = 3
     }
 
+    private var deeplink = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModel = ViewModelProvider(this)[MainActivityViewModel::class]
@@ -69,6 +74,10 @@ class MainActivity : ComponentActivity() {
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
+        deeplink = if (intent.data?.lastPathSegment == Utils.JOIN) {
+            intent.data?.getQueryParameter("groupId") ?: ""
+        } else ""
+
         lifecycleScope.launch(Dispatchers.Main) {
             if (viewModel.getIsBudgetSet()) {
                 setContent {
@@ -81,6 +90,20 @@ class MainActivity : ComponentActivity() {
                 intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.SET_MONTHLY_BUDGET)
                 startActivity(intent)
                 finish()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        deeplink = if (intent.data?.lastPathSegment == Utils.JOIN) {
+            intent.data?.getQueryParameter("groupId") ?: ""
+        } else ""
+        lifecycleScope.launch(Dispatchers.Main) {
+            setContent {
+                PennyPlannerTheme {
+                    MainPageNavigation()
+                }
             }
         }
     }
@@ -146,6 +169,16 @@ class MainActivity : ComponentActivity() {
             HomeNavigationItem(name = Utils.BUDGET, selectedIcon = R.drawable.budget_selected_icon, unselectedIcon = R.drawable.budget_unselected_icon, position = POSITION_BUDGET),
             HomeNavigationItem(name = Utils.PROFILE, selectedIcon = R.drawable.profile_selected_icon, unselectedIcon = R.drawable.profile_unselected_icon, position = POSITION_PROFILE),
         )
+        val groupViewModel = hiltViewModel<GroupViewModel>()
+        if (deeplink.isNotEmpty()) {
+            groupViewModel.deepLinkGroupId = deeplink
+            deeplink = ""
+            SideEffect {
+                scope.launch {
+                    pagerState.scrollToPage(POSITION_GROUP)
+                }
+            }
+        }
         Scaffold(
             bottomBar = {
                 BottomNavigation(
@@ -199,11 +232,10 @@ class MainActivity : ComponentActivity() {
                                 putExtra(Intent.EXTRA_TEXT, it)
                                 type = "text/plain"
                             }
-
                             try {
                                 startActivity(sendIntent)
                             } catch (e: ActivityNotFoundException) {
-                                // Define what your app should do if no activity can handle the intent.
+                                Toast.makeText(this@MainActivity, Utils.FAILED, Toast.LENGTH_LONG).show()
                             }
                         }
                     ) {

@@ -96,4 +96,13 @@
     <string name="dynamic_link_share_message">"Let’s track our expenses together with the PennyPlanner app! Join the group for our monthly budget/trip by clicking the link: %s. Don’t have the app? Download it now and use the Group ID: %s to join manually."</string>
     <string name="create_group">"Create Group"</string>
     <string name="join_group">"Join Group"</string>
+    <string name="join_existing_group">"Enter the group id to search and join an existing group"</string>
+    <string name="group_id">"Group id"</string>
+    <string name="group_id_wrong_error">"Group id is incorrect!"</string>
+    <string name="search_group">"Search Group"</string>
+    <string name="success">"Success"</string>
+    <string name="request_to_join">"Request to Join"</string>
+    <string name="member_count_in_group">"%s member(s) in this group"</string>
+    <string name="join_group_request_sent">"Your request to join %s has been sent to the group admin for approval."</string>
+    <string name="join_group_intimation_information">"You will be notified once the admin approves your request."</string>
 </resources>

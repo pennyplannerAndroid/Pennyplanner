@@ -11,4 +11,6 @@ interface GroupRepository {
     suspend fun addGroup(groupEntity: GroupEntity)
     suspend fun updateGroupMembers(group: GroupEntity)
     fun isAdmin(creatorId: String): Boolean
+    suspend fun searchGroup(groupId: String): Result<GroupEntity>
+    suspend fun joinExistingGroup(group: GroupEntity): Result<Boolean>
 }

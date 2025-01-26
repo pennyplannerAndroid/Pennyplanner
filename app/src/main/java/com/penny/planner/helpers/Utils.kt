@@ -1,8 +1,12 @@
 package com.penny.planner.helpers
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Picture
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import com.google.firebase.Timestamp
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
@@ -47,6 +51,10 @@ class Utils {
         const val USER_NOT_FOUND = "User not found"
         const val SAME_EMAIL_ERROR = "You can't make group with your own!"
         const val SESSION_EXPIRED_ERROR = "Session expired! Login again."
+        const val GROUP_NOT_FOUND = "Group not found!"
+        const val GROUP_NOT_OPEN = "This group has reached its limit set by the admin!"
+        const val ALREADY_A_MEMBER = "You are already a member or have requested to join this group!"
+        const val NETWORK_NOT_AVAILABLE = "Network not available!"
 
         // regex
         private const val SPECIAL_CHARACTERS = "-@%\\[\\}+'!/#$^?:;,\\(\"\\)~`.*=&\\{>\\]<_"
@@ -59,6 +67,10 @@ class Utils {
         const val DEFAULT = "Default"
         const val GROUP_ID = "group_id"
         const val TIME = "time"
+
+        //search
+        const val FETCHING_GROUP = "Fetching group..."
+        const val PLEASE_WAIT = "Please wait..."
 
         //values
         const val PRICE_LIMIT = 7
@@ -77,13 +89,15 @@ class Utils {
         const val GROUPS = "Groups"
         const val PENDING = "Pending"
         const val JOINED = "Joined"
+        const val JOIN = "join"
         const val GENERAL_DATA = "GeneralData"
         const val EMOJI_FILE_ID = "emojiFileID"
-        const val PROFILE_URL = "profileUrl"
+        const val PROFILE_URL = "profileImage"
         const val BUDGET_DETAILS = "BudgetDetails"
         const val USER_EXPENSES = "UserExpenses"
         const val GROUP_EXPENSES = "GroupExpenses"
         const val EXPENSES = "Expenses"
+        const val APPROVALS = "Approvals"
 
         //db name
         const val PENNY_DATABASE = "penny_database"
@@ -156,6 +170,30 @@ class Utils {
 
         fun moreThanADay(lastUpdate: Long): Boolean {
             return System.currentTimeMillis() - lastUpdate > java.util.concurrent.TimeUnit.DAYS.toMillis(1)
+        }
+
+        fun isNetworkAvailable(context: Context?): Boolean {
+            if (context == null) return false
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+                if (capabilities != null) {
+                    when {
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
+                            return true
+                        }
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                            return true
+                        }
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
+                            return true
+                        }
+                    }
+                }
+            } else {
+                return true
+            }
+            return false
         }
     }
 }

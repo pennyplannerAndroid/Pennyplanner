@@ -2,7 +2,11 @@ package com.penny.planner.data.repositories.implementations
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,17 +19,19 @@ import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
+import com.penny.planner.data.workmanager.ImageDownloadWorker
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
-
 
 class GroupRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -142,6 +148,56 @@ class GroupRepositoryImpl @Inject constructor(
 
     override fun isAdmin(creatorId: String) = auth.currentUser?.uid == creatorId
 
+    override suspend fun searchGroup(groupId: String): Result<GroupEntity> {
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+            if (groupDao.doesGroupExists(groupId)) {
+                throw Exception(Utils.ALREADY_A_MEMBER)
+            }
+            val snapshot = FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(groupId)
+                .child(Utils.GROUP_INFO)
+                .get().await()
+            if (snapshot != null) {
+                val entity = snapshot.getValue(GroupEntity::class.java)
+                if (entity!!.status != 1)
+                    throw Exception(Utils.GROUP_NOT_OPEN)
+                return Result.success(entity)
+            } else
+                throw Exception(Utils.GROUP_NOT_FOUND)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
+    override suspend fun joinExistingGroup(group: GroupEntity): Result<Boolean> {
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(group.groupId)
+                .child(Utils.APPROVALS)
+                .child(auth.currentUser!!.uid)
+                .setValue(getSelfData()).await()
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.USERS)
+                .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+                .child(Utils.GROUP_INFO)
+                .child(Utils.PENDING)
+                .child(group.groupId)
+                .setValue(0).await()
+            group.isPending = true
+            groupDao.addGroup(group)
+            downloadGroupImage(group)
+            return Result.success(true)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
     private fun saveGroupImageLocally(group: GroupEntity, byteArray: ByteArray): String {
         val localFile = File(context.filesDir, "${group.groupId}.jpeg")
         try {
@@ -154,4 +210,39 @@ class GroupRepositoryImpl @Inject constructor(
         return localFile.absolutePath
     }
 
+    private fun getSelfData() =
+        mapOf(
+            Pair("email", auth.currentUser!!.email),
+            Pair("id", auth.currentUser!!.uid),
+            Pair("name", auth.currentUser!!.displayName),
+        )
+
+    private suspend fun downloadGroupImage(group: GroupEntity) {
+        Log.d("downloadGroupImage", group.groupId)
+        Log.d("downloadGroupImage", "group not present")
+        val inputData = Data.Builder()
+            .putString("firebaseImagePath", Utils.GROUP_IMAGE)
+            .putString("imageId", group.groupId)
+            .build()
+
+        // Create a WorkRequest
+        val workRequest = OneTimeWorkRequestBuilder<ImageDownloadWorker>()
+            .setInputData(inputData)
+            .build()
+
+        // Enqueue the WorkRequest
+        val workManager = WorkManager.getInstance(context)
+        workManager.enqueue(workRequest)
+        withContext(Dispatchers.Main) {
+            workManager.getWorkInfoByIdLiveData(workRequest.id).observeForever { workInfo ->
+                if (workInfo != null && workInfo.state.isFinished) {
+                    val result = workInfo.outputData.getString("resultKey")
+                    group.localImagePath = result ?: ""
+                    scope.launch {
+                        groupDao.updateEntity(group)
+                    }
+                }
+            }
+        }
+    }
 }

@@ -11,9 +11,12 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -52,6 +55,7 @@ import com.penny.planner.ui.components.GroupItem
 import com.penny.planner.ui.components.GroupSearchProgressIndicator
 import com.penny.planner.ui.components.JoinGroupDrawer
 import com.penny.planner.ui.components.SmallFabMenuWithDescription
+import com.penny.planner.ui.components.TextWithBackground
 import com.penny.planner.ui.enums.FloatingButtonState
 import com.penny.planner.ui.enums.JoinGroupUIStatus
 import com.penny.planner.viewmodels.GroupViewModel
@@ -93,6 +97,9 @@ fun GroupScreen(
             showLoader = true
             viewModel.searchGroup()
         }
+    }
+    var joinedCategory by remember {
+        mutableStateOf(true)
     }
 
     val joinGroupDetails = viewModel.searchGroupResult.observeAsState().value
@@ -148,26 +155,40 @@ fun GroupScreen(
             Box(modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)) {
-                LazyVerticalGrid(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .navigationBarsPadding()
-                        .blur(if (state == FloatingButtonState.Open) 10.dp else 0.dp),
-                    columns = GridCells.Fixed(count = 2)
-                ) {
-                    items(groups) {
-                        val friends = viewModel.getTwoFriends(it.members)
-                        GroupItem(
-                            modifier = Modifier,
-                            entity = it,
-                            isAdmin = viewModel.isAdmin(it.creatorId),
-                            friendsForDisplayPicture = friends,
-                            onClick = {
-                                groupSession.invoke(it.groupId)
-                            }
-                        ) {
-                            scope.launch {
-                                sendInviteLink.invoke(viewModel.getJoinGroupLink(it.groupId))
+                Column {
+                    Row(
+                        modifier = Modifier.padding(start = 12.dp)
+                    ) {
+                        TextWithBackground(isSelected = joinedCategory, text = Utils.JOINED) {
+                            joinedCategory = true
+                        }
+                        Spacer(modifier = Modifier.size(width = 10.dp, height = 10.dp))
+                        TextWithBackground(isSelected = !joinedCategory, text = Utils.PENDING) {
+                            joinedCategory = false
+                        }
+                    }
+                    LazyVerticalGrid(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .navigationBarsPadding()
+                            .blur(if (state == FloatingButtonState.Open) 10.dp else 0.dp),
+                        columns = GridCells.Fixed(count = 2)
+                    ) {
+                        items(groups.filter { if(joinedCategory) !it.pending else it.pending }) {
+                            val friends = if(joinedCategory) viewModel.getTwoFriends(it.members) else mutableListOf()
+                            GroupItem(
+                                modifier = Modifier,
+                                entity = it,
+                                isAdmin = viewModel.isAdmin(it.creatorId),
+                                friendsForDisplayPicture = friends,
+                                onClick = {
+                                    groupSession.invoke(it.groupId)
+                                },
+                                isJoinedCategory = joinedCategory
+                            ) {
+                                scope.launch {
+                                    sendInviteLink.invoke(viewModel.getJoinGroupLink(it.groupId))
+                                }
                             }
                         }
                     }

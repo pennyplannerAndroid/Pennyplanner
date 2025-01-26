@@ -1,5 +1,6 @@
 package com.penny.planner.ui.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +32,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.penny.planner.R
 import com.penny.planner.data.db.friends.UsersEntity
+import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -40,15 +43,20 @@ fun GroupItem(
     isAdmin: Boolean,
     friendsForDisplayPicture: List<UsersEntity>,
     onClick: () -> Unit,
+    isJoinedCategory: Boolean,
     addCLick: () -> Unit
 ) {
+    val context = LocalContext.current
     OutlinedCard(
         modifier = modifier
             .padding(6.dp)
             .fillMaxWidth()
             .background(color = colorResource(id = R.color.white)),
         onClick = {
-            onClick.invoke()
+            if (isJoinedCategory)
+                onClick.invoke()
+            else
+                Toast.makeText(context, Utils.REQUEST_YET_TO_BE_CONFIRMED, Toast.LENGTH_LONG).show()
         },
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -93,41 +101,54 @@ fun GroupItem(
                 )
                 Text(
                     modifier = Modifier
-                        .align(Alignment.Start),
+                        .align(Alignment.CenterHorizontally),
                     text = "${entity.expense.toInt()} of ${entity.monthlyBudget.toInt()}",
                     color = Color.Black,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
-                Row(
-                    modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Box(modifier = Modifier) {
-                        ShowGlideImage(
-                            modifier = Modifier.padding(6.dp),
-                            size = 32.dp,
-                            image = friendsForDisplayPicture[0].localImagePath
-                        )
-                        if (friendsForDisplayPicture.size > 1) {
+                if (isJoinedCategory) {
+                    Row(
+                        modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Box(modifier = Modifier) {
                             ShowGlideImage(
-                                modifier = Modifier.padding(start = 32.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                                modifier = Modifier.padding(6.dp),
                                 size = 32.dp,
-                                image = friendsForDisplayPicture[1].localImagePath
+                                image = friendsForDisplayPicture[0].localImagePath
                             )
+                            if (friendsForDisplayPicture.size > 1) {
+                                ShowGlideImage(
+                                    modifier = Modifier.padding(
+                                        start = 32.dp,
+                                        end = 6.dp,
+                                        top = 6.dp,
+                                        bottom = 6.dp
+                                    ),
+                                    size = 32.dp,
+                                    image = friendsForDisplayPicture[1].localImagePath
+                                )
+                            }
+                            if (friendsForDisplayPicture.size > 2) {
+                                Text(
+                                    modifier = Modifier.padding(
+                                        start = 66.dp,
+                                        end = 6.dp,
+                                        top = 12.dp,
+                                        bottom = 6.dp
+                                    ),
+                                    text = "+ ${friendsForDisplayPicture.size - 2}"
+                                )
+                            }
                         }
-                        if(friendsForDisplayPicture.size > 2) {
-                            Text(modifier = Modifier.padding(start = 66.dp, end = 6.dp, top = 12.dp, bottom = 6.dp),
-                                text = "+ ${friendsForDisplayPicture.size - 2}"
-                            )
-                        }
+                        CircularButtonWithIcon(
+                            icon = R.drawable.add_group_member,
+                            contentDescription = stringResource(id = R.string.add),
+                            onClick = addCLick
+                        )
                     }
-                    CircularButtonWithIcon(
-                        icon = R.drawable.add_group_member,
-                        contentDescription = stringResource(id = R.string.add),
-                        onClick = addCLick
-                    )
                 }
 
             }
@@ -165,6 +186,7 @@ fun PreviewGroup() {
         GroupListDisplayModel(name = "Family"),
         true,
         listOf(UsersEntity(), UsersEntity(), UsersEntity()),
-        {}
+        {},
+        true
     ) {}
 }

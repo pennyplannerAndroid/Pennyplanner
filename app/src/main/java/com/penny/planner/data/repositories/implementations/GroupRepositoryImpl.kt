@@ -191,6 +191,13 @@ class GroupRepositoryImpl @Inject constructor(
                 .setValue(0).await()
             group.isPending = true
             groupDao.addGroup(group)
+            monthlyExpenseRepository.addMonthlyExpenseEntity(
+                MonthlyExpenseEntity(
+                    entityID = group.groupId,
+                    month = Utils.getCurrentMonthYear(),
+                    expense = 0.0
+                )
+            )
             downloadGroupImage(group)
             return Result.success(true)
         } catch (e: Exception) {

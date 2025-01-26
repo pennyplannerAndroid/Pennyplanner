@@ -55,6 +55,7 @@ class Utils {
         const val GROUP_NOT_OPEN = "This group has reached its limit set by the admin!"
         const val ALREADY_A_MEMBER = "You are already a member or have requested to join this group!"
         const val NETWORK_NOT_AVAILABLE = "Network not available!"
+        const val REQUEST_YET_TO_BE_CONFIRMED = "Request to join this group is yet to be approved by the admin!"
 
         // regex
         private const val SPECIAL_CHARACTERS = "-@%\\[\\}+'!/#$^?:;,\\(\"\\)~`.*=&\\{>\\]<_"

@@ -16,4 +16,8 @@ interface MonthlyExpenseDao {
 
     @Query("SELECT * FROM monthly_expense_table WHERE entityID = :entityId AND month = :month")
     suspend fun getMonthlyExpenseEntity(entityId: String, month: String): MonthlyExpenseEntity?
+
+    @Query("DELETE FROM monthly_expense_table WHERE entityID = :groupID")
+    suspend fun removeExpenseDataForGroup(groupID: String)
+
 }

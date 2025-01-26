@@ -155,10 +155,11 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private fun addListenerToAllAddedGroups() {
         scope.launch {
             val groups = groupDao.getAllExistingGroupsFromDb()
-            if (groups.isNotEmpty())
-            for (group in groups) {
-                if (!group.isPending)
-                    addListenerToJoinedGroupInfo(groupId = group.groupId)
+            if (groups.isNotEmpty()) {
+                for (group in groups) {
+                    if (!group.isPending)
+                        addListenerToJoinedGroupInfo(groupId = group.groupId)
+                }
             }
         }
     }
@@ -220,14 +221,14 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                         if (groupNode.isNotEmpty()) {
                             scope.launch(Dispatchers.IO) {
                                 for (node in groupNode) {
-                                    if (Integer.getInteger(node.value.toString()) == 0) {
+                                    if (node.value == 0L) {
                                         if (!groupDao.doesGroupExists(node.key.toString())) {
                                             getPendingGroupDetailAndAdd(node.key.toString())
                                         }
-                                    } else if (Integer.getInteger(node.value.toString()) == 1) {
+                                    } else if (node.value == 1L) {
                                         addListenerToJoinedGroupInfo(node.key.toString())
                                         updateGroupNodeAfterAdminApproval(node.key.toString())
-                                    } else if (Integer.getInteger(node.value.toString()) == 2) {
+                                    } else if (node.value == 2L) {
                                         deleteGroupFromLocalAndServer(node.key.toString())
                                     }
                                 }
@@ -278,6 +279,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
 
     private suspend fun deleteGroupFromLocalAndServer(groupId: String) {
         groupDao.delete(groupId)
+        monthlyExpenseRepository.removeExpenseDataForGroup(groupId)
         userDirectory
             .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
             .child(Utils.GROUP_INFO)

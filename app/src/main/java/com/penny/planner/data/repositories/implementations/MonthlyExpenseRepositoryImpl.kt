@@ -20,4 +20,8 @@ class MonthlyExpenseRepositoryImpl @Inject constructor(
         monthlyExpenseDao.updateEntity(monthlyExpenseEntity)
     }
 
+    override suspend fun removeExpenseDataForGroup(groupId: String) {
+        monthlyExpenseDao.removeExpenseDataForGroup(groupID = groupId)
+    }
+
 }

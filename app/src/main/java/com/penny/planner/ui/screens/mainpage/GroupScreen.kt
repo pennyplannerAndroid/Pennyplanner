@@ -92,7 +92,7 @@ fun GroupScreen(
     var showLoader by remember {
         mutableStateOf(false)
     }
-    LaunchedEffect(key1 = Unit){
+    LaunchedEffect(key1 = viewModel.deepLinkGroupId){
         if (viewModel.deepLinkGroupId.isNotEmpty()) {
             showLoader = true
             viewModel.searchGroup()

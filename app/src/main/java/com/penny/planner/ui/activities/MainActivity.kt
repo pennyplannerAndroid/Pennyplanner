@@ -102,14 +102,14 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             setContent {
                 PennyPlannerTheme {
-                    MainPageNavigation()
+                    MainPageNavigation(true)
                 }
             }
         }
     }
 
     @Composable
-    fun MainPageNavigation() {
+    fun MainPageNavigation(needNavigation: Boolean = false) {
         val viewModel = hiltViewModel<ExpenseViewModel>()
         val controller = rememberNavController()
         NavHost(navController = controller, startDestination = Utils.MAIN_PAGE) {
@@ -151,6 +151,11 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
                 GroupSessionScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "")
+            }
+        }
+        if (needNavigation) {
+            if (controller.currentDestination?.route != Utils.MAIN_PAGE) {
+                controller.popBackStack()
             }
         }
     }

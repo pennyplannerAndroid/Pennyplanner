@@ -12,4 +12,11 @@ data class UsersEntity(
     var profileImageURL: String = "",
     var localImagePath: String = "",
     var lastUpdate: Long = System.currentTimeMillis()
-)
+) {
+    fun toFirebaseEntityForApprovals() =
+        mapOf(
+            Pair("id", id),
+            Pair("email", email),
+            Pair("name", name)
+        )
+}

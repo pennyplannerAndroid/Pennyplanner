@@ -1,7 +1,5 @@
 package com.penny.planner.ui.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -10,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,61 +33,80 @@ import com.penny.planner.data.db.friends.UsersEntity
 fun FriendInfoCard(
     modifier: Modifier,
     model: UsersEntity,
-    onCLick: () -> Unit,
-    deleteClick: () -> Unit
+    onCancel: () -> Unit,
+    onAccept: () -> Unit
 ) {
-    OutlinedCard(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = colorResource(id = R.color.loginText)),
-        onClick = onCLick,
+            .padding(12.dp)
     ) {
-        Row {
-            GlideImage(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .size(48.dp)
-                    .border(
-                        color = colorResource(id = R.color.textField_border),
-                        width = 2.dp,
-                        shape = CircleShape
-                    )
-                    .clip(CircleShape),
-                model = model.profileImageURL,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            ) {
-                it.load(model.profileImageURL)
-                    .placeholder(R.drawable.default_user_display)
-                    .error(R.drawable.default_user_display)
-            }
-            Column(
-                modifier = modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(start = 12.dp)
-                    .weight(0.6f)
-            ) {
-                model.name?.let {
-                    Text(
-                        text = it,
-                        color = Color.Gray,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+        GlideImage(
+            modifier = Modifier
+                .size(48.dp)
+                .align(Alignment.CenterVertically)
+                .border(
+                    color = colorResource(id = R.color.textField_border),
+                    width = 2.dp,
+                    shape = CircleShape
+                )
+                .clip(CircleShape),
+            model = model.profileImageURL,
+            contentDescription = "",
+            contentScale = ContentScale.Crop
+        ) {
+            it.load(model.profileImageURL)
+                .placeholder(R.drawable.default_user_display)
+                .error(R.drawable.default_user_display)
+        }
+        Column(
+            modifier = modifier
+                .align(Alignment.CenterVertically)
+                .padding(start = 12.dp)
+                .weight(1f)
+        ) {
+            Text(
+                text = model.name,
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
 
-                    )
-                }
-                model.email?.let { Text(text = it) }
-            }
-            Image(
-                modifier = modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(12.dp)
-                    .clickable(onClick = deleteClick),
-                painter = painterResource(id = R.drawable.delete_icon),
-                contentDescription = "",
+            )
+            Text(
+                text = model.email,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                color = Color.Black,
+                fontSize = 14.sp
             )
         }
-
+        Row(
+            modifier = modifier
+                .align(Alignment.CenterVertically)
+                .padding(start = 4.dp)
+        ) {
+            Icon(
+                modifier = modifier
+                    .padding(end = 4.dp)
+                    .size(32.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable(onClick = onCancel),
+                painter = painterResource(id = R.drawable.cancel_button),
+                contentDescription = "",
+                tint = Color.Red
+            )
+            Icon(
+                modifier = modifier
+                    .size(36.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable(onClick = onAccept),
+                painter = painterResource(id = R.drawable.success_icon),
+                contentDescription = "",
+                tint = colorResource(id = R.color.success_green)
+            )
+        }
     }
 }
 

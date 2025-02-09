@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.db.groups.GroupDao
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
@@ -146,7 +147,7 @@ class GroupRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun isAdmin(creatorId: String) = auth.currentUser?.uid == creatorId
+    override fun isAdmin(creatorId: String) = auth.currentUser?.email == creatorId
 
     override suspend fun searchGroup(groupId: String): Result<GroupEntity> {
         try {
@@ -181,7 +182,12 @@ class GroupRepositoryImpl @Inject constructor(
                 .child(group.groupId)
                 .child(Utils.APPROVALS)
                 .child(auth.currentUser!!.uid)
-                .setValue(getSelfData()).await()
+                .setValue(UsersEntity(
+                    email = auth.currentUser!!.email!!,
+                    id = auth.currentUser!!.uid,
+                    name = auth.currentUser!!.displayName!!
+                    ).toFirebaseEntityForApprovals()
+                ).await()
             FirebaseDatabase.getInstance()
                 .getReference(Utils.USERS)
                 .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
@@ -217,12 +223,128 @@ class GroupRepositoryImpl @Inject constructor(
         return localFile.absolutePath
     }
 
-    private fun getSelfData() =
-        mapOf(
-            Pair("email", auth.currentUser!!.email),
-            Pair("id", auth.currentUser!!.uid),
-            Pair("name", auth.currentUser!!.displayName),
-        )
+    override suspend fun getApprovalList(groupId: String): Result<List<UsersEntity>> {
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+            val snapshot = FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(groupId)
+                .child(Utils.APPROVALS)
+                .get().await()
+            if (snapshot.exists()) {
+                val list = mutableListOf<UsersEntity>()
+                for (child in snapshot.children) {
+                    var approvalItem = child.getValue(UsersEntity::class.java)
+                    if (approvalItem != null) {
+                        if (profilePictureRepository.findLocalImagePath(approvalItem.email).name.isEmpty()) {
+                            friendsDirectoryRepository.addFriend(approvalItem)
+                            profilePictureRepository.downloadProfilePicture(approvalItem)
+                        } else {
+                            approvalItem = profilePictureRepository.findLocalImagePath(approvalItem.email)
+                        }
+                        list.add(approvalItem)
+                    }
+                }
+                if (list.isNotEmpty()) {
+                    groupDao.updateEntityPendingMemberStatus(groupId, true)
+                }
+                return Result.success(list)
+            }
+            throw Exception(Utils.NO_PENDING_REQUESTS)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
+    override suspend fun approveToJoin(group: GroupEntity, usersEntity: UsersEntity, needUpdatePendingFlag: Boolean): Result<Boolean> {
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+
+            userDirectory
+                .child(Utils.formatEmailForFirebase(usersEntity.email))
+                .child(Utils.GROUP_INFO)
+                .child(Utils.PENDING)
+                .child(group.groupId)
+                .setValue(1).await()
+
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(group.groupId)
+                .child(Utils.GROUP_INFO)
+                .child(Utils.MEMBERS)
+                .child(group.members.size.toString())
+                .setValue(usersEntity.email)
+                .await()
+
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(group.groupId)
+                .child(Utils.APPROVALS)
+                .child(usersEntity.id)
+                .removeValue().await()
+
+            if (needUpdatePendingFlag)
+                groupDao.updateEntityPendingMemberStatus(group.groupId, false)
+            return Result.success(true)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
+    override suspend fun rejectRequestToJoin(group: GroupEntity, usersEntity: UsersEntity, needUpdatePendingFlag: Boolean): Result<Boolean> {
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+
+            userDirectory
+                .child(Utils.formatEmailForFirebase(usersEntity.email))
+                .child(Utils.GROUP_INFO)
+                .child(Utils.PENDING)
+                .child(group.groupId)
+                .setValue(2).await()
+
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(group.groupId)
+                .child(Utils.APPROVALS)
+                .child(usersEntity.id)
+                .removeValue().await()
+
+            if (needUpdatePendingFlag)
+                groupDao.updateEntityPendingMemberStatus(group.groupId, false)
+            return Result.success(true)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
+    override suspend fun rejectAll(groupId: String): Result<Boolean> {
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(groupId)
+                .child(Utils.GROUP_INFO)
+                .child(Utils.STATUS)
+                .setValue(0).await()
+
+            FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(groupId)
+                .child(Utils.APPROVALS)
+                .removeValue().await()
+
+            groupDao.updateEntityPendingMemberStatus(groupId, false)
+
+            return Result.success(true)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
 
     private suspend fun downloadGroupImage(group: GroupEntity) {
         Log.d("downloadGroupImage", group.groupId)
@@ -246,7 +368,7 @@ class GroupRepositoryImpl @Inject constructor(
                     val result = workInfo.outputData.getString("resultKey")
                     group.localImagePath = result ?: ""
                     scope.launch {
-                        groupDao.updateEntity(group)
+                        groupDao.updatePicturePath(group.groupId, group.localImagePath)
                     }
                 }
             }

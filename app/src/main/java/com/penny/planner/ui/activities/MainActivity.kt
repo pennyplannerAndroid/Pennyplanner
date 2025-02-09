@@ -37,6 +37,7 @@ import com.penny.planner.helpers.Utils
 import com.penny.planner.models.HomeNavigationItem
 import com.penny.planner.ui.screens.AddExpenseScreen
 import com.penny.planner.ui.screens.AddNewGroupScreen
+import com.penny.planner.ui.screens.AdminApprovalScreen
 import com.penny.planner.ui.screens.GroupSessionScreen
 import com.penny.planner.ui.screens.mainpage.BudgetScreen
 import com.penny.planner.ui.screens.mainpage.GroupScreen
@@ -150,7 +151,22 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             ) {
-                GroupSessionScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "")
+                GroupSessionScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "") {
+                    controller.navigate(
+                        route = "${Utils.PENDING_APPROVAL_PAGE}/$it"
+                    )
+                }
+            }
+            composable(
+                route = "${Utils.PENDING_APPROVAL_PAGE}/{${Utils.GROUP_ID}}",
+                arguments = listOf(
+                    navArgument(Utils.GROUP_ID) {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) {
+                AdminApprovalScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "")
             }
         }
         if (needNavigation) {

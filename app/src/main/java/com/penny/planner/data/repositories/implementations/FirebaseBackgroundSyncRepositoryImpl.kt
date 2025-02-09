@@ -176,9 +176,12 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                             scope.launch {
                                 entity.isPending = false
                                 if (groupDao.doesGroupExists(groupId)) {
-                                    if (groupDao.getGroupByGroupId(groupId).profileImage != entity.profileImage) {
+                                    val existingGroup = groupDao.getGroupByGroupId(groupId)
+                                    if (existingGroup.profileImage != entity.profileImage) {
                                         downloadGroupImage(entity)
                                     }
+                                    entity.hasPendingMembers = existingGroup.hasPendingMembers
+                                    entity.lastUpdate = existingGroup.lastUpdate
                                     groupDao.updateEntity(entity = entity)
                                 } else {
                                     downloadGroupImage(entity)
@@ -463,7 +466,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                     val result = workInfo.outputData.getString("resultKey")
                     group.localImagePath = result ?: ""
                     scope.launch {
-                        groupDao.updateEntity(group)
+                        groupDao.updatePicturePath(group.groupId, group.localImagePath)
                     }
                 }
             }

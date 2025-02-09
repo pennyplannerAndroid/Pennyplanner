@@ -13,11 +13,12 @@ data class GroupEntity(
     var members: List<String> = listOf(),
     var profileImage: String = "",
     var creatorId: String = "",
-    var lastUpdate: Timestamp = Utils.getDefaultTimestamp(),
+    var lastUpdate: Timestamp = Utils.getDefaultTimestamp(),  // only local
     var monthlyBudget: Double = 0.0,
     var safeToSpendLimit: Int = 80,
-    var localImagePath: String = "",
-    var isPending: Boolean = false
+    var localImagePath: String = "", // only local
+    var isPending: Boolean = false, // only local
+    var hasPendingMembers: Boolean = false // only local
 ) {
     fun toFireBaseModel() =
         mapOf(

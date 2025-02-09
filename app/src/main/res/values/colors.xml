@@ -21,4 +21,5 @@
     <color name="yellow">#FFEB3B</color>
     <color name="orange">#FF9800</color>
     <color name="group_list_item_top">#FFF6E5</color>
+    <color name="success_green">#00A86B</color>
 </resources>

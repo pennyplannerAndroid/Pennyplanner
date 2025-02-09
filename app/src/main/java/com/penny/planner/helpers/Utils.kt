@@ -38,6 +38,7 @@ class Utils {
         const val ADD_EXPENSE = "add_expense"
         const val CREATE_GROUP = "create_group"
         const val GROUP_SESSION = "group_session"
+        const val PENDING_APPROVAL_PAGE = "pending_approval_page"
 
         // Key
         const val EMAIL = "email"
@@ -56,6 +57,7 @@ class Utils {
         const val ALREADY_A_MEMBER = "You are already a member or have requested to join this group!"
         const val NETWORK_NOT_AVAILABLE = "Network not available!"
         const val REQUEST_YET_TO_BE_CONFIRMED = "Request to join this group is yet to be approved by the admin!"
+        const val NO_PENDING_REQUESTS = "No Pending Requests"
 
         // regex
         private const val SPECIAL_CHARACTERS = "-@%\\[\\}+'!/#$^?:;,\\(\"\\)~`.*=&\\{>\\]<_"
@@ -99,6 +101,8 @@ class Utils {
         const val GROUP_EXPENSES = "GroupExpenses"
         const val EXPENSES = "Expenses"
         const val APPROVALS = "Approvals"
+        const val MEMBERS = "members"
+        const val STATUS = "status"
 
         //db name
         const val PENNY_DATABASE = "penny_database"

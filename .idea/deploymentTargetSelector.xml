@@ -11,6 +11,9 @@
       <SelectionState runConfigName="PreviewBottomDrawer">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="JoinGroupDrawerPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

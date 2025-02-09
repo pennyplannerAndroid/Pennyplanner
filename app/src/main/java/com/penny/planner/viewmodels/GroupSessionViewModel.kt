@@ -1,5 +1,7 @@
 package com.penny.planner.viewmodels
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.db.expense.ExpenseEntity
@@ -9,6 +11,7 @@ import com.penny.planner.data.repositories.interfaces.GroupRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,6 +21,8 @@ class GroupSessionViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var groupId = ""
+    private val _approvalList = MutableLiveData<Boolean>()
+    val approvalList: LiveData<Boolean> = _approvalList
 
     fun setGroupId(groupId: String) {
         this.groupId = groupId
@@ -50,4 +55,23 @@ class GroupSessionViewModel @Inject constructor(
             groupRepository.updateGroupMembers(group)
         }
     }
+
+    fun isAdmin(group: GroupEntity) =
+        groupRepository.isAdmin(group.creatorId)
+
+    fun getApprovalList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = groupRepository.getApprovalList(groupId)
+            withContext(Dispatchers.Main) {
+                var result = false
+                if (list.isSuccess) {
+                    if ((list.getOrNull()?.size ?: 0) > 0) {
+                        result = true
+                    }
+                }
+                _approvalList.value = result
+            }
+        }
+    }
+
 }

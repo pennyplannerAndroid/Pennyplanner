@@ -35,4 +35,10 @@ interface GroupDao {
 
     @Query("DELETE FROM ${Utils.GROUP_TABLE} WHERE groupId= :groupId")
     suspend fun delete(groupId: String)
+
+    @Query("UPDATE ${Utils.GROUP_TABLE} SET hasPendingMembers = :status WHERE groupId = :groupId")
+    suspend fun updateEntityPendingMemberStatus(groupId: String, status: Boolean)
+
+    @Query("UPDATE ${Utils.GROUP_TABLE} SET localImagePath = :path WHERE groupId = :groupId")
+    suspend fun updatePicturePath(groupId: String, path: String)
 }

@@ -50,14 +50,6 @@ class ProfilePictureRepositoryImpl @Inject constructor(
     override fun findLocalImagePath(email: String): UsersEntity {
         return if (map.containsKey(email)) map[email]!!
         else UsersEntity()
-//        if (map.containsKey(email)) return map[email]!!.localImagePath
-//        else if(friendsDirectoryRepository.doesFriendExists(email)) {
-//            val friend = friendsDirectoryRepository.findFriend(email)
-//            addUpdateFriend(friend)
-//            return friend.localImagePath
-//        } else {
-//            return ""
-//        }
     }
 
     private suspend fun downloadImageWithWorkManager(entity: UsersEntity) {

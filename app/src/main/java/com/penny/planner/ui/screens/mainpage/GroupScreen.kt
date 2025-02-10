@@ -94,6 +94,7 @@ fun GroupScreen(
     }
     LaunchedEffect(key1 = viewModel.deepLinkGroupId){
         if (viewModel.deepLinkGroupId.isNotEmpty()) {
+            joinGroupPageStatus = JoinGroupUIStatus.GroupIdPage
             showLoader = true
             viewModel.searchGroup()
         }
@@ -118,7 +119,7 @@ fun GroupScreen(
     }
 
     val joinExistingGroupResult = viewModel.joinExistingGroup.observeAsState().value
-    if (joinExistingGroupResult != null) {
+    if (joinExistingGroupResult != null && joinGroupPageStatus == JoinGroupUIStatus.GroupDetailPage) {
         showLoader = false
         if (joinExistingGroupResult.isSuccess) {
             joinGroupPageStatus = JoinGroupUIStatus.SuccessPage

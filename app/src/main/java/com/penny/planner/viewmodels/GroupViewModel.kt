@@ -27,8 +27,8 @@ class GroupViewModel @Inject constructor(
     private val _searchGroupResult = MutableLiveData<Result<GroupEntity>?>()
     val searchGroupResult: LiveData<Result<GroupEntity>?> = _searchGroupResult
 
-    private val _joinExistingGroup = MutableLiveData<Result<Boolean>>()
-    val joinExistingGroup: LiveData<Result<Boolean>> = _joinExistingGroup
+    private val _joinExistingGroup = MutableLiveData<Result<Boolean>?>()
+    val joinExistingGroup: LiveData<Result<Boolean>?> = _joinExistingGroup
 
     var deepLinkGroupId = ""
         get() = field
@@ -87,6 +87,7 @@ class GroupViewModel @Inject constructor(
 
     fun resetDeeplinkSearch() {
         _searchGroupResult.value = null
+        _joinExistingGroup.value = null
         deepLinkGroupId = ""
     }
 }

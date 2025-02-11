@@ -189,7 +189,8 @@ fun GroupScreen(
                                 isJoinedCategory = joinedCategory
                             ) {
                                 scope.launch {
-                                    sendInviteLink.invoke(viewModel.getJoinGroupLink(it.groupId))
+                                    val inviteMessage = String.format(context.getString(R.string.dynamic_link_share_message), viewModel.getJoinGroupLink(it.groupId), it.groupId)
+                                    sendInviteLink.invoke(inviteMessage)
                                 }
                             }
                         }

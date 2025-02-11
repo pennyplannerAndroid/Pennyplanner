@@ -18,4 +18,5 @@ interface GroupRepository {
     suspend fun approveToJoin(group: GroupEntity, usersEntity: UsersEntity, needUpdatePendingFlag: Boolean): Result<Boolean>
     suspend fun rejectRequestToJoin(group: GroupEntity, usersEntity: UsersEntity, needUpdatePendingFlag: Boolean): Result<Boolean>
     suspend fun rejectAll(groupId: String): Result<Boolean>
+    suspend fun checkUpdateOfPendingGroups()
 }

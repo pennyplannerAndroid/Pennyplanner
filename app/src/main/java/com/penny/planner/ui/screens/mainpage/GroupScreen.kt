@@ -166,6 +166,7 @@ fun GroupScreen(
                         Spacer(modifier = Modifier.size(width = 10.dp, height = 10.dp))
                         TextWithBackground(isSelected = !joinedCategory, text = Utils.PENDING) {
                             joinedCategory = false
+                            viewModel.checkUpdateOfPendingGroups()
                         }
                     }
                     LazyVerticalGrid(

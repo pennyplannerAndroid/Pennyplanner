@@ -346,6 +346,41 @@ class GroupRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun checkUpdateOfPendingGroups() {
+        val pendingGroups = groupDao.getAllPendingGroups()
+        for (groupId in pendingGroups) {
+            deleteFromPendingIfClosed(groupId)
+        }
+    }
+
+    private suspend fun deleteFromPendingIfClosed(groupId: String){
+        try {
+            if(!Utils.isNetworkAvailable(context))
+                throw Exception(Utils.NETWORK_NOT_AVAILABLE)
+            val snapshot = FirebaseDatabase.getInstance()
+                .getReference(Utils.GROUPS)
+                .child(groupId)
+                .child(Utils.GROUP_INFO)
+                .get().await()
+            if (snapshot != null) {
+                val entity = snapshot.getValue(GroupEntity::class.java)
+                if (entity!!.status != 1) {
+                    FirebaseDatabase.getInstance()
+                        .getReference(Utils.USERS)
+                        .child(Utils.formatEmailForFirebase(auth.currentUser!!.email!!))
+                        .child(Utils.GROUP_INFO)
+                        .child(Utils.PENDING)
+                        .child(groupId)
+                        .setValue(2).await()
+                    groupDao.delete(groupId)
+                }
+            }
+
+        } catch (e: Exception) {
+            return
+        }
+    }
+
     private suspend fun downloadGroupImage(group: GroupEntity) {
         Log.d("downloadGroupImage", group.groupId)
         Log.d("downloadGroupImage", "group not present")

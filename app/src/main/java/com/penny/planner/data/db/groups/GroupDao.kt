@@ -30,6 +30,9 @@ interface GroupDao {
     @Query("SELECT * FROM groupListDisplayModel WHERE month = :month")
     fun getAllGroupListForDisplay(month: String):  LiveData<List<GroupListDisplayModel>>
 
+    @Query("SELECT groupId FROM group_table WHERE isPending = 1")
+    fun getAllPendingGroups(): List<String>
+
     @Query("SELECT EXISTS(SELECT 1 FROM ${Utils.GROUP_TABLE} WHERE groupId = :groupId)")
     suspend fun doesGroupExists(groupId: String): Boolean
 

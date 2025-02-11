@@ -90,4 +90,11 @@ class GroupViewModel @Inject constructor(
         _joinExistingGroup.value = null
         deepLinkGroupId = ""
     }
+
+    fun checkUpdateOfPendingGroups() {
+        viewModelScope.launch(Dispatchers.IO) {
+            groupRepository.checkUpdateOfPendingGroups()
+
+        }
+    }
 }

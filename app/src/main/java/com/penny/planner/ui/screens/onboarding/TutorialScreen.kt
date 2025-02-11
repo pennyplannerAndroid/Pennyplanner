@@ -1,10 +1,11 @@
 package com.penny.planner.ui.screens.onboarding
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -21,7 +22,6 @@ import com.penny.planner.ui.components.InformationWithIconAndBody
 import com.penny.planner.ui.components.PrimaryButton
 import com.penny.planner.ui.components.SecondaryButton
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TutorialScreen(
     modifier: Modifier,
@@ -30,7 +30,11 @@ fun TutorialScreen(
 ) {
     val state = rememberPagerState(pageCount = { 3 })
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+        .navigationBarsPadding()
+    ) {
         HorizontalPager(
             modifier = modifier
                 .fillMaxWidth()

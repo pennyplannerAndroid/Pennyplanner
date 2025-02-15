@@ -51,6 +51,7 @@ fun ForgotPasswordScreen(
                 result.exceptionOrNull()?.message ?: stringResource(id = R.string.operation_failed),
                 Toast.LENGTH_LONG
             ).show()
+        viewModel.resetForgotPasswordResult()
     }
     Scaffold (
         modifier = Modifier.pointerInput(Unit) {
@@ -96,6 +97,7 @@ fun ForgotPasswordScreen(
                         .size(48.dp),
                     textRes = R.string.general_continue,
                     onClick = {
+                        focusManager.clearFocus()
                         check = true
                         viewModel.sendForgetPasswordEmail(email)
                     },

@@ -116,6 +116,7 @@ fun UpdateProfileScreen (
                 state.exceptionOrNull()?.message ?: stringResource(id = R.string.operation_failed),
                 Toast.LENGTH_LONG
             ).show()
+        viewModel.resetProfileUpdateResult()
     }
 
     SideEffect {
@@ -273,6 +274,7 @@ fun UpdateProfileScreen (
                 .size(48.dp),
             textRes = R.string.lets_go,
             onClick = {
+                focusManager.clearFocus()
                 showLoader = true
                 val byteArray = if (imageUri != null) createBitmapFromPicture(picture) else null
                 viewModel.updateProfile(name, byteArray)

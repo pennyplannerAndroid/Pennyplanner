@@ -25,6 +25,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.ui.theme.PennyPlannerTheme
@@ -32,17 +33,15 @@ import java.util.regex.Pattern
 
 @Composable
 fun SignupAndLoginComposable(
-    modifier : Modifier,
+    modifier: Modifier,
     title: String,
-    googleButtonString : String,
-    facebookButtonString : String,
-    mainButtonString : Int,
+    googleButtonString: String,
+    mainButtonString: Int,
     text: AnnotatedString,
     needForgotPassword: Boolean = false,
-    onBackPressed : () -> Unit,
-    buttonClicked : (String, String) -> Unit,
-    googleButtonClicked : () -> Unit,
-    facebookButtonClicked : () -> Unit,
+    onBackPressed: () -> Unit,
+    buttonClicked: (String, String) -> Unit,
+    googleButtonClicked: () -> Unit,
     navigationButtonClicked: () -> Unit,
     forgotPasswordClicked: () -> Unit = {}
 ) {
@@ -61,7 +60,10 @@ fun SignupAndLoginComposable(
             TopBar(
                 modifier = modifier,
                 title = title,
-                onBackPressed = onBackPressed
+                onBackPressed = {
+                    focusManager.clearFocus()
+                    onBackPressed.invoke()
+                }
             )
         },
         content = { paddingValues ->
@@ -110,7 +112,10 @@ fun SignupAndLoginComposable(
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp)
                         .size(48.dp),
-                    onClick = { buttonClicked.invoke(email, password) },
+                    onClick = {
+                        focusManager.clearFocus()
+                        buttonClicked.invoke(email, password)
+                    },
                     enabled = (
                             Patterns.EMAIL_ADDRESS.matcher(email).matches()
                                     && pattern.matcher(password).matches()
@@ -123,25 +128,20 @@ fun SignupAndLoginComposable(
                         id = R.string.or_with
                     ),
                     color = colorResource(id = R.color.or_with_color),
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp
                 )
                 OutlinedButtonWIthIcon(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, top = 8.dp)
                         .size(48.dp),
-                    onClick = googleButtonClicked,
+                    onClick = {
+                        focusManager.clearFocus()
+                        googleButtonClicked.invoke()
+                    },
                     imageRes = R.drawable.goole_login,
                     text = googleButtonString
-                )
-                OutlinedButtonWIthIcon(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                        .size(48.dp),
-                    onClick = facebookButtonClicked,
-                    imageRes = R.drawable.facebook_login,
-                    text = facebookButtonString
                 )
                 ClickableText(
                     text = text,
@@ -171,7 +171,6 @@ fun PreviewSignUpLoginScreen() {
             modifier = Modifier,
             title = "Sign Up",
             "Signup with google",
-            "SignUp with facebook",
             R.string.signup,
             buildText(
                 start = R.string.login_from_signup,
@@ -179,8 +178,7 @@ fun PreviewSignUpLoginScreen() {
             ),
             false,
             {},
-            {name, email -> },
-            {},
+            { _, _ -> },
             {},
             {}
         )

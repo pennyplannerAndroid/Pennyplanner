@@ -95,6 +95,7 @@ fun SetBudgetScreen(
                 result.exceptionOrNull()?.message ?: stringResource(id = R.string.operation_failed),
                 Toast.LENGTH_LONG
             ).show()
+        viewModel.resetMonthlyBudgetResult()
     }
     Column(
         modifier = Modifier.pointerInput(Unit) {
@@ -212,6 +213,7 @@ fun SetBudgetScreen(
                 .size(48.dp),
             textRes = R.string.general_continue,
             onClick = {
+                focusManager.clearFocus()
                 showLoader = true
                 viewModel.setMonthlyLimit(
                     MonthlyBudgetInfoModel(

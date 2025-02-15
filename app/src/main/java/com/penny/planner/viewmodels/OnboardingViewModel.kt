@@ -20,24 +20,24 @@ class OnboardingViewModel @Inject constructor(
     private val budgetRepository: MonthlyBudgetRepository
 ): ViewModel() {
     //login
-    private val _loginResult = MutableLiveData<Result<LoginResult>>()
-    val loginResult : LiveData<Result<LoginResult>> = _loginResult
+    private val _loginResult = MutableLiveData<Result<LoginResult>?>()
+    val loginResult : LiveData<Result<LoginResult>?> = _loginResult
     //signup
-    private val _signupResult = MutableLiveData<Result<Boolean>>()
-    val signUpResult: LiveData<Result<Boolean>> = _signupResult
+    private val _signupResult = MutableLiveData<Result<Boolean>?>()
+    val signUpResult: LiveData<Result<Boolean>?> = _signupResult
     //profile update
-    private val _profileUpdateResult = MutableLiveData<Result<Boolean>>()
-    var profileUpdateResult: LiveData<Result<Boolean>> = _profileUpdateResult
+    private val _profileUpdateResult = MutableLiveData<Result<Boolean>?>()
+    var profileUpdateResult: LiveData<Result<Boolean>?> = _profileUpdateResult
     //email verification link send and verification check
-    private val _emailSent = MutableLiveData<Result<Boolean>>()
+    private val _emailSent = MutableLiveData<Result<Boolean>?>()
     val emailSent = _emailSent
-    private val _isVerified = MutableLiveData<Result<Boolean>>()
+    private val _isVerified = MutableLiveData<Result<Boolean>?>()
     val isVerified = _isVerified
     //forget password
-    private val _forgetPasswordSentStatus = MutableLiveData<Result<Boolean>>()
+    private val _forgetPasswordSentStatus = MutableLiveData<Result<Boolean>?>()
     val forgetPasswordSentStatus = _forgetPasswordSentStatus
     // set monthly budget
-    private val _monthlyBudgetStatus = MutableLiveData<Result<Boolean>>()
+    private val _monthlyBudgetStatus = MutableLiveData<Result<Boolean>?>()
     val monthlyBudgetStatus = _monthlyBudgetStatus
 
     fun login(email: String, password: String) {
@@ -50,10 +50,6 @@ class OnboardingViewModel @Inject constructor(
 
     }
 
-    fun loginWithFacebook() {
-
-    }
-
     fun signup(email: String, password: String) {
         viewModelScope.launch {
             _signupResult.value = repository.signup(email, password)
@@ -62,12 +58,6 @@ class OnboardingViewModel @Inject constructor(
 
     fun signupWithGoogle() {
 
-    }
-
-    fun signupWithFacebook() {
-        viewModelScope.launch {
-
-        }
     }
 
     fun updateProfile(name: String, byteArray: ByteArray?) {
@@ -112,6 +102,34 @@ class OnboardingViewModel @Inject constructor(
 
     fun getName(): String {
         return repository.getName()
+    }
+
+    fun resetLoginResult() {
+        _loginResult.value = null
+    }
+
+    fun resetSignupResult() {
+        _signupResult.value = null
+    }
+
+    fun resetProfileUpdateResult() {
+        _profileUpdateResult.value = null
+    }
+
+    fun resetEmailSentResult() {
+        _emailSent.value = null
+    }
+
+    fun resetVerifiedResult() {
+        _isVerified.value = null
+    }
+
+    fun resetForgotPasswordResult() {
+        _forgetPasswordSentStatus.value = null
+    }
+
+    fun resetMonthlyBudgetResult() {
+        _monthlyBudgetStatus.value = null
     }
 
 }

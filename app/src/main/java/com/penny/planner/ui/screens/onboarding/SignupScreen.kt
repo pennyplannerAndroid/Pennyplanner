@@ -39,13 +39,13 @@ fun SignupScreen(
                 Toast.LENGTH_LONG
             ).show()
         isLoadingShown = false
+        viewModel.resetSignupResult()
     }
 
     SignupAndLoginComposable(
         modifier = modifier,
         title = stringResource(id = R.string.signup),
         googleButtonString = stringResource(id = R.string.signup_with_google),
-        facebookButtonString = stringResource(id = R.string.signup_with_facebook),
         mainButtonString = R.string.signup,
         text = buildText(
             start = R.string.login_from_signup,
@@ -59,9 +59,6 @@ fun SignupScreen(
         },
         googleButtonClicked = {
             viewModel.signupWithGoogle()
-        },
-        facebookButtonClicked = {
-            viewModel.signupWithFacebook()
         },
         navigationButtonClicked = navToLogin
     )

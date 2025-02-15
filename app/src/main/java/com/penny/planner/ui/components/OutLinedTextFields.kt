@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -51,7 +52,10 @@ fun OutLinedTextFieldForEmail(
         label = {
             Text(stringResource(id = R.string.email))
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email).copy(
+            imeAction = ImeAction.Done
+        )
     )
 }
 
@@ -81,10 +85,13 @@ fun OutlinedTextFieldForPassword(
         label = {
             Text(stringResource(id = R.string.password))
         },
+        singleLine = true,
         visualTransformation = if (showPassword)
             VisualTransformation.None else
             PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(
+            imeAction = ImeAction.Done
+        ),
         trailingIcon = if (password.isNotEmpty()) {
             {
                 Image(

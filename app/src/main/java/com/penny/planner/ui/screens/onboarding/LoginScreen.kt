@@ -38,12 +38,12 @@ fun LoginScreen(
             loginResult.invoke(result.getOrNull()!!)
         else
             Toast.makeText(context, result.exceptionOrNull()?.message ?: stringResource(id = R.string.invalid_user), Toast.LENGTH_LONG).show()
+        viewModel.resetLoginResult()
     }
     SignupAndLoginComposable(
         modifier = modifier,
         title = stringResource(id = R.string.login),
         googleButtonString = stringResource(id = R.string.login_with_google),
-        facebookButtonString = stringResource(id = R.string.login_with_facebook),
         mainButtonString = R.string.login,
         text = buildText(
             start = R.string.signup_from_login,
@@ -58,9 +58,6 @@ fun LoginScreen(
         },
         googleButtonClicked = {
             viewModel.loginWithGoogle()
-        },
-        facebookButtonClicked = {
-            viewModel.loginWithFacebook()
         },
         navigationButtonClicked = navToSignup,
         forgotPasswordClicked = forgotPassword

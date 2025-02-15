@@ -60,6 +60,7 @@ fun EmailVerificationScreen (
                 Toast.LENGTH_LONG
             ).show()
         }
+        viewModel.resetEmailSentResult()
     }
     if (isVerified != null) {
         isLoadingShown = false
@@ -72,6 +73,7 @@ fun EmailVerificationScreen (
                 Toast.LENGTH_LONG
             ).show()
         }
+        viewModel.resetVerifiedResult()
     }
     Scaffold(
         topBar = {

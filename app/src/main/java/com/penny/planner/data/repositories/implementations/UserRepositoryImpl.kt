@@ -11,11 +11,11 @@ class UserRepositoryImpl @Inject constructor(): UserRepository {
 
     override fun navigationToOnboardingNeeded(): String? {
         if (auth.currentUser == null)
-            Utils.TUTORIAL
+            return Utils.TUTORIAL
         else if (!auth.currentUser?.isEmailVerified!!)
-            Utils.EMAIL_VERIFICATION
+            return Utils.EMAIL_VERIFICATION
         else if (auth.currentUser?.displayName == null || FirebaseAuth.getInstance().currentUser?.displayName!!.isEmpty()) {
-            Utils.UPDATE_PROFILE
+            return Utils.UPDATE_PROFILE
         }
         return null
     }

@@ -59,9 +59,11 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                     }
                     return Result.success(LoginResult.VERIFY_SUCCESS)
                 } else {
+                    getAllFirebaseDataAndUpdateLocal(isLogin = true, isFirstTime = false)
                     return Result.success(LoginResult.ADD_BUDGET)
                 }
             } else {
+                getAllFirebaseDataAndUpdateLocal(isLogin = true, isFirstTime = false)
                 return Result.success(LoginResult.ADD_BUDGET)
             }
         } catch (e: Exception) {
@@ -69,7 +71,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         }
     }
 
-    private fun getAllFirebaseDataAndUpdateLocal(isLogin: Boolean = false, localImagePath: String = "") {
+    private fun getAllFirebaseDataAndUpdateLocal(isLogin: Boolean = false, localImagePath: String = "", isFirstTime: Boolean = true) {
         applicationScope.launch {
             auth.currentUser?.let {
                 val self = UsersEntity(
@@ -84,7 +86,7 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
                     profilePictureRepository.downloadProfilePicture(self)
             }
             categoryAndEmojiRepository.checkServerAndUpdateCategory()
-            if (isLogin) {
+            if (isLogin && isFirstTime) {
                 firebaseBackgroundRepository.getAllPersonalExpenses()
                 firebaseBackgroundRepository.getAllJoinedGroupsFromFirebaseAtLogin()
             }

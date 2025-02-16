@@ -143,4 +143,7 @@ dependencies {
 
     // firebase dynamic links
     implementation(libs.firebase.dynamic.links)
+
+    // system UI Controller
+    implementation(libs.accompanist.systemuicontroller)
 }

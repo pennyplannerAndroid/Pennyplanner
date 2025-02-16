@@ -17,6 +17,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -26,12 +27,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.HomeNavigationItem
@@ -188,6 +193,9 @@ class MainActivity : ComponentActivity() {
         addExpense: () -> Unit,
         openGroupSession: (String) -> Unit
     ) {
+        val systemUiController = rememberSystemUiController()
+        val lifecycleOwner = LocalLifecycleOwner.current
+
         val pagerState = rememberPagerState(pageCount = { 4 })
         val scope = rememberCoroutineScope()
         val routes = listOf(
@@ -206,6 +214,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    systemUiController.statusBarDarkContentEnabled = true
+                    systemUiController.setNavigationBarColor(Color.White)
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
+
         Scaffold(
             bottomBar = {
                 BottomNavigation(

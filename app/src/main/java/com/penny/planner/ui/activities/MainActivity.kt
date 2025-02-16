@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import com.penny.planner.ui.screens.mainpage.BudgetScreen
 import com.penny.planner.ui.screens.mainpage.GroupScreen
 import com.penny.planner.ui.screens.mainpage.HomeScreen
 import com.penny.planner.ui.screens.mainpage.ProfileScreen
+import com.penny.planner.ui.screens.mainpage.SplashScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.ExpenseViewModel
 import com.penny.planner.viewmodels.GroupViewModel
@@ -50,6 +52,7 @@ import com.penny.planner.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -62,35 +65,21 @@ class MainActivity : ComponentActivity() {
     }
 
     private var deeplink = ""
+    private var navigationDestination = Utils.SPLASH_PAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel = ViewModelProvider(this)[MainActivityViewModel::class]
-        if (!viewModel.getIsUserLoggedIn()) {
-            val intent = Intent(this, OnboardingActivity::class.java)
-            intent.putExtra(Utils.NAVIGATION_DESTINATION, viewModel.getOnboardingNavigation())
-            startActivity(intent)
-            finish()
-            return
-        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         deeplink = if (intent.data?.lastPathSegment == Utils.JOIN) {
-            intent.data?.getQueryParameter("groupId") ?: ""
+            intent.data?.getQueryParameter(Utils.GROUP_ID) ?: ""
         } else ""
-
+        navigationDestination = intent.getStringExtra(Utils.NAVIGATION_DESTINATION) ?: Utils.SPLASH_PAGE
         lifecycleScope.launch(Dispatchers.Main) {
-            if (viewModel.getIsBudgetSet()) {
-                setContent {
-                    PennyPlannerTheme {
-                        MainPageNavigation()
-                    }
+            setContent {
+                PennyPlannerTheme {
+                    MainPageNavigation()
                 }
-            } else {
-                val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
-                intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.SET_MONTHLY_BUDGET)
-                startActivity(intent)
-                finish()
             }
         }
     }
@@ -98,8 +87,9 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         deeplink = if (intent.data?.lastPathSegment == Utils.JOIN) {
-            intent.data?.getQueryParameter("groupId") ?: ""
+            intent.data?.getQueryParameter(Utils.GROUP_ID) ?: ""
         } else ""
+        navigationDestination = Utils.MAIN_PAGE
         lifecycleScope.launch(Dispatchers.Main) {
             setContent {
                 PennyPlannerTheme {
@@ -113,7 +103,33 @@ class MainActivity : ComponentActivity() {
     fun MainPageNavigation(needNavigation: Boolean = false) {
         val viewModel = hiltViewModel<ExpenseViewModel>()
         val controller = rememberNavController()
-        NavHost(navController = controller, startDestination = Utils.MAIN_PAGE) {
+        val scope = rememberCoroutineScope()
+        NavHost(navController = controller, startDestination = navigationDestination) {
+            composable(route = Utils.SPLASH_PAGE) {
+                SplashScreen {
+                    val mainViewModel = ViewModelProvider(this@MainActivity)[MainActivityViewModel::class]
+                    scope.launch (Dispatchers.IO) {
+                        if (!mainViewModel.getIsUserLoggedIn()) {
+                            val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
+                            intent.putExtra(
+                                Utils.NAVIGATION_DESTINATION,
+                                mainViewModel.getOnboardingNavigation()
+                            )
+                            startActivity(intent)
+                            finish()
+                        } else if (!mainViewModel.getIsBudgetSet()) {
+                            val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
+                            intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.SET_MONTHLY_BUDGET)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                controller.navigate(Utils.MAIN_PAGE)
+                            }
+                        }
+                    }
+                }
+            }
             composable(route = Utils.MAIN_PAGE) {
                 Home(
                     createGroupClicked = { controller.navigate(Utils.CREATE_GROUP) },
@@ -150,7 +166,7 @@ class MainActivity : ComponentActivity() {
                         defaultValue = ""
                     }
                 )
-            ) {
+            ) { it ->
                 GroupSessionScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "") {
                     controller.navigate(
                         route = "${Utils.PENDING_APPROVAL_PAGE}/$it"
@@ -204,7 +220,7 @@ class MainActivity : ComponentActivity() {
             bottomBar = {
                 BottomNavigation(
                     modifier = Modifier.navigationBarsPadding(),
-                    backgroundColor = androidx.compose.ui.graphics.Color.White,
+                    backgroundColor = Color.White,
                     elevation = 16.dp
                 ) {
                     routes.forEach { item ->

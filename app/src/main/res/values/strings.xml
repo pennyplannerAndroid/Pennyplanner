@@ -49,6 +49,7 @@
     <string name="permission_granted">"Permission Granted!"</string>
     <string name="permission_denied">"Permission Denied!"</string>
     <string name="name">"Name"</string>
+    <string name="groups">"Groups</string>
     <string name="group_name">"Group name"</string>
     <string name="lets_go">"Let's go"</string>
     <string name="new_group">"New Group"</string>

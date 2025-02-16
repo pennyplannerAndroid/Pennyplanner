@@ -145,7 +145,7 @@ fun GroupScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Groups",
+                        text = stringResource(id = R.string.groups),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )

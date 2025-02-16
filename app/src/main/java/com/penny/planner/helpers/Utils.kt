@@ -34,6 +34,7 @@ class Utils {
         const val PROFILE = "Profile"
 
         // Main Page Navigation
+        const val SPLASH_PAGE = "splash_page"
         const val MAIN_PAGE = "main_page"
         const val ADD_EXPENSE = "add_expense"
         const val CREATE_GROUP = "create_group"
@@ -68,7 +69,7 @@ class Utils {
         const val EMOJI_JSON = "emojiJson"
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"
-        const val GROUP_ID = "group_id"
+        const val GROUP_ID = "groupId"
         const val TIME = "time"
 
         //search

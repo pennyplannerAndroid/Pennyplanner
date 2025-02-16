@@ -95,7 +95,9 @@ class OnboardingActivity : ComponentActivity() {
                             LoginResult.ADD_NAME -> controller.navigate(Utils.UPDATE_PROFILE)
                             LoginResult.ADD_BUDGET -> controller.navigate(Utils.SET_MONTHLY_BUDGET)
                             LoginResult.VERIFY_SUCCESS -> {
-                                startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                                val intent = Intent(this@OnboardingActivity, MainActivity::class.java)
+                                intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.MAIN_PAGE)
+                                startActivity(intent)
                                 finish()
                             }
                         }
@@ -164,7 +166,9 @@ class OnboardingActivity : ComponentActivity() {
                 AllSetScreen()
                 LaunchedEffect(key1 = Unit){
                     delay(3000)
-                    startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+                    val intent = Intent(this@OnboardingActivity, MainActivity::class.java)
+                    intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.MAIN_PAGE)
+                    startActivity(intent)
                     finish()
                 }
             }

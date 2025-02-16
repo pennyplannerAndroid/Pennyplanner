@@ -84,7 +84,7 @@ import java.util.Objects
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun AddNewGroupScreen(
-    groupCreated: () -> Unit
+    groupCreated: (String?) -> Unit
 ) {
     val viewModel = hiltViewModel<GroupViewModel>()
     val focusManager = LocalFocusManager.current
@@ -127,7 +127,7 @@ fun AddNewGroupScreen(
     if (groupCreationStatus != null) {
         showLoader = false
         if (groupCreationStatus.isSuccess)
-            groupCreated.invoke()
+            groupCreated.invoke(groupCreationStatus.getOrNull())
         else
             Toast.makeText(
                 context,

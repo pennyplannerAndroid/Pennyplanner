@@ -21,8 +21,8 @@ class GroupViewModel @Inject constructor(
     private val profilePictureRepository: ProfilePictureRepository
 ): ViewModel() {
 
-    private val _newGroupResult = MutableLiveData<Result<Boolean>>()
-    val newGroupResult: LiveData<Result<Boolean>> = _newGroupResult
+    private val _newGroupResult = MutableLiveData<Result<String>>()
+    val newGroupResult: LiveData<Result<String>> = _newGroupResult
 
     private val _searchGroupResult = MutableLiveData<Result<GroupEntity>?>()
     val searchGroupResult: LiveData<Result<GroupEntity>?> = _searchGroupResult
@@ -31,10 +31,6 @@ class GroupViewModel @Inject constructor(
     val joinExistingGroup: LiveData<Result<Boolean>?> = _joinExistingGroup
 
     var deepLinkGroupId = ""
-        get() = field
-        set(value) {
-            field = value
-        }
 
     suspend fun getAllGroups() = groupRepository.getAllGroupLists()
 

@@ -111,6 +111,7 @@ class MainActivity : ComponentActivity() {
             composable(route = Utils.SPLASH_PAGE) {
                 SplashScreen {
                     scope.launch (Dispatchers.IO) {
+                        navigationDestination = Utils.MAIN_PAGE
                         val destination = viewModel.needOnboardingNavigation()
                         if (destination != null) {
                             val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
@@ -137,8 +138,12 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable(route = Utils.CREATE_GROUP) {
-                AddNewGroupScreen {
+                AddNewGroupScreen { groupId ->
                     controller.popBackStack()
+                    if (groupId != null)
+                        controller.navigate(
+                            route = "${Utils.GROUP_SESSION}/${groupId}"
+                        )
                 }
             }
             composable(route = Utils.ADD_EXPENSE) {

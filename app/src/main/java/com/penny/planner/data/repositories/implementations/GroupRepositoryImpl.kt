@@ -65,7 +65,7 @@ class GroupRepositoryImpl @Inject constructor(
         monthlyBudget: Double,
         safeToSpendLimit: Int,
         byteArray: ByteArray?
-    ): Result<Boolean> {
+    ): Result<String> {
         if (auth.currentUser != null) {
             val groupId = groupCollectionRef.document().id
             val groupEntity = GroupEntity(
@@ -115,7 +115,7 @@ class GroupRepositoryImpl @Inject constructor(
                 )
             )
             firebaseBackgroundSyncRepository.addGroupForFirebaseListener(groupId)
-            return Result.success(true)
+            return Result.success(groupId)
         } else {
             auth.signOut()
             return Result.failure(Exception(Utils.SESSION_EXPIRED_ERROR))

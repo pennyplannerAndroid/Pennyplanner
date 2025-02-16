@@ -9,21 +9,15 @@ class UserRepositoryImpl @Inject constructor(): UserRepository {
 
     private val auth = FirebaseAuth.getInstance()
 
-    override fun isLoggedIn() = auth.currentUser != null
-            && auth.currentUser!!.isEmailVerified
-            && auth.currentUser!!.displayName != null
-            && auth.currentUser!!.displayName!!.isNotEmpty()
-
-    override fun navigateToOnBoardingScreen(): String {
-        return if (auth.currentUser == null)
+    override fun navigationToOnboardingNeeded(): String? {
+        if (auth.currentUser == null)
             Utils.TUTORIAL
-        else if (!FirebaseAuth.getInstance().currentUser?.isEmailVerified!!)
+        else if (!auth.currentUser?.isEmailVerified!!)
             Utils.EMAIL_VERIFICATION
-        else if (FirebaseAuth.getInstance().currentUser?.displayName == null || FirebaseAuth.getInstance().currentUser?.displayName!!.isEmpty()) {
+        else if (auth.currentUser?.displayName == null || FirebaseAuth.getInstance().currentUser?.displayName!!.isEmpty()) {
             Utils.UPDATE_PROFILE
-        } else {
-            return Utils.TUTORIAL
         }
+        return null
     }
 
     override fun getUserName(): String {

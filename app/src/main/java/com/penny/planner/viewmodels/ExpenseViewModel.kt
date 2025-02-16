@@ -18,6 +18,14 @@ class ExpenseViewModel @Inject constructor(
     private val budgetRepository: MonthlyBudgetRepository
 ): ViewModel() {
 
+    suspend fun needOnboardingNavigation(): String? {
+        return userRepository.navigationToOnboardingNeeded()
+            ?: if (budgetRepository.getMonthlyBudget() == null)
+                Utils.SET_MONTHLY_BUDGET
+            else
+                null
+    }
+
     fun getName() = userRepository.getUserName()
     fun getPicturePath() = userRepository.getImagePath()
 

@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -48,7 +47,6 @@ import com.penny.planner.ui.screens.mainpage.SplashScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.ExpenseViewModel
 import com.penny.planner.viewmodels.GroupViewModel
-import com.penny.planner.viewmodels.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,19 +105,11 @@ class MainActivity : ComponentActivity() {
         NavHost(navController = controller, startDestination = navigationDestination) {
             composable(route = Utils.SPLASH_PAGE) {
                 SplashScreen {
-                    val mainViewModel = ViewModelProvider(this@MainActivity)[MainActivityViewModel::class]
                     scope.launch (Dispatchers.IO) {
-                        if (!mainViewModel.getIsUserLoggedIn()) {
+                        val destination = viewModel.needOnboardingNavigation()
+                        if (destination != null) {
                             val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
-                            intent.putExtra(
-                                Utils.NAVIGATION_DESTINATION,
-                                mainViewModel.getOnboardingNavigation()
-                            )
-                            startActivity(intent)
-                            finish()
-                        } else if (!mainViewModel.getIsBudgetSet()) {
-                            val intent = Intent(this@MainActivity, OnboardingActivity::class.java)
-                            intent.putExtra(Utils.NAVIGATION_DESTINATION, Utils.SET_MONTHLY_BUDGET)
+                            intent.putExtra(Utils.NAVIGATION_DESTINATION, destination)
                             startActivity(intent)
                             finish()
                         } else {

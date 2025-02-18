@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -109,14 +108,15 @@ fun ExpenseListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(top = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .background(
-                    color = colorResource(id = R.color.or_with_color),
+                    color = colorResource(id = R.color.loginButton),
                     shape = RoundedCornerShape(12.dp)
                 )
         ) {
@@ -129,8 +129,7 @@ fun ExpenseListItem(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .height(48.dp)
-                .padding(4.dp),
+                .padding(start = 12.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -150,14 +149,12 @@ fun ExpenseListItem(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
                 .padding(4.dp),
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${Utils.RUPEE}${item.price}",
+                text = "${Utils.RUPEE}${item.price.toInt()}",
                 maxLines = 1,
                 fontSize = 16.sp,
                 color = Color.Red,

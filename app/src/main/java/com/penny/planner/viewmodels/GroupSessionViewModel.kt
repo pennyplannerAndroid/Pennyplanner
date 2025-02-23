@@ -8,6 +8,7 @@ import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
+import com.penny.planner.helpers.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +39,9 @@ class GroupSessionViewModel @Inject constructor(
             expenseRepository.addExpense(expense)
         }
     }
+
+    suspend fun getMonthlyExpenses() =
+        expenseRepository.getMonthlyExpenseEntity(groupId, Utils.getCurrentMonthYear())
 
     fun addMessage(message: String) {
         viewModelScope.launch(Dispatchers.IO) {

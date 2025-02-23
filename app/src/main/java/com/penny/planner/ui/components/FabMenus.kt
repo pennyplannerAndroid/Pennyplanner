@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ fun BigFabMenuOption(
         modifier = modifier,
         shape = CircleShape,
         onClick = onClick,
+        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 24.dp),
         containerColor = colorResource(id = R.color.loginText)
     ) {
         Image(

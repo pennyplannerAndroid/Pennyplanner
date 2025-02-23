@@ -1,6 +1,5 @@
 package com.penny.planner.ui.screens.mainpage
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,8 +55,6 @@ import com.penny.planner.ui.components.CircularBudgetItem
 import com.penny.planner.ui.components.ExpenseListItem
 import com.penny.planner.viewmodels.ExpenseViewModel
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class,
     ExperimentalFoundationApi::class
@@ -143,7 +140,7 @@ fun HomeScreen(
                         Column{
                             Text(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = "Expense in ${getCalculatedMonths()}",
+                                text = "Expense in ${Utils.getCalculatedMonths()}",
                                 color = Color.Black,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -261,12 +258,6 @@ fun HomeScreen(
             }
         }
     }
-}
-
-@Composable
-@SuppressLint("SimpleDateFormat")
-fun getCalculatedMonths(): String {
-    return SimpleDateFormat("MMMM").format(Calendar.getInstance().time)
 }
 
 @Preview

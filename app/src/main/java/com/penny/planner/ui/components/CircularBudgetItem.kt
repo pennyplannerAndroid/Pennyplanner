@@ -32,7 +32,7 @@ fun CircularBudgetItem(
     navigationClicked: () -> Unit
 ) {
     val progress =  Utils.getProgress(monthlyBudgetInfoModel, expenseSoFar)
-    val size = LocalConfiguration.current.screenWidthDp/2
+    val size = LocalConfiguration.current.screenWidthDp / 2
     Box(
         modifier = modifier
             .clip(CircleShape)

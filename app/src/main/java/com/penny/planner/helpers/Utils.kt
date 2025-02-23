@@ -7,12 +7,15 @@ import android.graphics.Picture
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.firebase.Timestamp
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.time.format.TextStyle
 
 class Utils {
     companion object Const {
@@ -164,6 +167,11 @@ class Utils {
             return dateFormatter.format(Calendar.getInstance().time)
         }
 
+        @SuppressLint("SimpleDateFormat")
+        fun getCalculatedMonths(): String {
+            return SimpleDateFormat("MMMM").format(Calendar.getInstance().time)
+        }
+
         fun getProgress(budget: Double, expense: Double) : Double  {
             if (expense == 0.0) return 0.0
             return expense / budget
@@ -176,6 +184,11 @@ class Utils {
 
         fun moreThanADay(lastUpdate: Long): Boolean {
             return System.currentTimeMillis() - lastUpdate > java.util.concurrent.TimeUnit.DAYS.toMillis(1)
+        }
+
+        fun getCurrentMonthShort(): String {
+            val currentMonth = LocalDate.now().month
+            return currentMonth.getDisplayName(TextStyle.SHORT, Locale.getDefault())
         }
 
         fun isNetworkAvailable(context: Context?): Boolean {

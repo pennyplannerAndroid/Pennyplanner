@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -40,6 +41,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -67,6 +69,7 @@ import com.penny.planner.ui.components.VerticalSwitch
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun GroupSessionChatComponent(
     adminApprovals: Boolean,
@@ -82,7 +85,7 @@ fun GroupSessionChatComponent(
     val systemUiController = rememberSystemUiController()
     val statusBarColor = colorResource(id = R.color.loginText)
     val state: LazyListState = rememberLazyListState()
-    var isSwitchOn by remember { mutableStateOf(false) }
+    var isSwitchOff by remember { mutableStateOf(true) }
 
     var isExpanded by remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = isExpanded, label = "SlideAnimation")
@@ -102,14 +105,13 @@ fun GroupSessionChatComponent(
         systemUiController.statusBarDarkContentEnabled = true
         systemUiController.setSystemBarsColor(color = statusBarColor)
         systemUiController.setNavigationBarColor(color = Color.White)
-        scope.launch {
-            state.scrollToItem((transitionList.size - 1).coerceAtLeast(0))
-        }
     }
     val isKeyboardOpen by keyboardAsState()
-    LaunchedEffect(key1 = isKeyboardOpen) {
-        scope.launch {
-            state.animateScrollToItem((transitionList.size - 1).coerceAtLeast(0))
+    LaunchedEffect(key1 = transitionList, key2 = isKeyboardOpen) {
+        if (transitionList.isNotEmpty()) {
+            scope.launch {
+                state.scrollToItem((transitionList.size - 1).coerceAtLeast(0))
+            }
         }
     }
 
@@ -161,9 +163,9 @@ fun GroupSessionChatComponent(
                     )
                     VerticalSwitch(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                        isOn = isSwitchOn
+                        isOn = isSwitchOff
                     ) {
-                        isSwitchOn = it
+                        isSwitchOff = it
                     }
 
                     Column(
@@ -209,7 +211,7 @@ fun GroupSessionChatComponent(
                         .padding(start = if (isExpanded) 4.dp else 0.dp),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
-                    colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.white))
+                    colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginButton))
                 ) {
                     LazyColumn(
                         state = state
@@ -220,9 +222,42 @@ fun GroupSessionChatComponent(
                                     .fillMaxWidth()
                                     .padding(4.dp)
                             ) {
+                                if (!item.isSentTransaction) {
+                                    Row(
+                                        modifier = Modifier.padding(bottom = 4.dp)
+                                    ) {
+                                        GlideImage(
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .align(Alignment.CenterVertically)
+                                                .border(
+                                                    color = colorResource(id = R.color.textField_border),
+                                                    width = 2.dp,
+                                                    shape = CircleShape
+                                                )
+                                                .clip(CircleShape),
+                                            model = item.localImagePath,
+                                            contentDescription = "",
+                                            contentScale = ContentScale.Crop
+                                        ) {
+                                            it.load(item.localImagePath)
+                                                .placeholder(R.drawable.default_user_display)
+                                                .error(R.drawable.default_user_display)
+                                        }
+                                        Text(
+                                            modifier = Modifier
+                                                .padding(start = 8.dp)
+                                                .align(Alignment.CenterVertically),
+                                            text = item.senderName,
+                                            maxLines = 1,
+                                            fontSize = 13.sp,
+                                            color = colorResource(id = R.color.loginText),
+                                            textAlign = TextAlign.Start
+                                        )
+                                    }
+                                }
                                 Card(
                                     modifier = Modifier
-                                        .padding(start = 12.dp)
                                         .align(
                                             if (item.isSentTransaction) Alignment.End else Alignment.Start
                                         ),
@@ -231,13 +266,17 @@ fun GroupSessionChatComponent(
                                         .copy(
                                             containerColor = if (item.isSentTransaction) CardDefaults.cardColors().containerColor else Color.White
                                         ),
-                                    elevation = CardDefaults.elevatedCardElevation()
+                                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp)
                                 ) {
                                     if (item.entityType == 0) {
                                         Text(
                                             modifier = Modifier
                                                 .align(if (item.isSentTransaction) Alignment.End else Alignment.Start)
-                                                .padding(12.dp),
+                                                .padding(8.dp)
+                                                .widthIn(
+                                                    min = 30.dp,
+                                                    max = (LocalConfiguration.current.screenWidthDp * 0.6).dp
+                                                ),
                                             text = item.content
                                         )
                                     } else {
@@ -248,12 +287,12 @@ fun GroupSessionChatComponent(
                             Text(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 6.dp),
+                                    .padding(start = 4.dp, end = 4.dp, bottom = 6.dp),
                                 text = Utils.convertMillisToTime(item.time.toDate()),
                                 maxLines = 1,
-                                fontSize = 13.sp,
+                                fontSize = 10.sp,
                                 color = colorResource(id = R.color.or_with_color),
-                                textAlign = TextAlign.End
+                                textAlign = if (item.isSentTransaction) TextAlign.End else TextAlign.Start
                             )
 
                         }

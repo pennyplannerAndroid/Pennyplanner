@@ -32,20 +32,36 @@ fun ExpenseListItem(
     item: GroupDisplayModel
 ) {
     Column {
-        Text(
-            modifier = Modifier
-                .padding(8.dp)
-                .align(Alignment.CenterHorizontally),
-            text = "${Utils.RUPEE}${item.price.toInt()}",
-            maxLines = 1,
-            fontSize = 24.sp,
-            color = colorResource(R.color.loginText),
-            fontWeight = FontWeight.Bold
-        )
         Row(
             modifier = Modifier
-                .width((LocalConfiguration.current.screenWidthDp * 0.7).dp)
-                .padding(12.dp),
+                    .width((LocalConfiguration.current.screenWidthDp * 0.6).dp)
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically),
+                text = "${Utils.RUPEE}${item.price.toInt()}",
+                maxLines = 1,
+                fontSize = 24.sp,
+                color = colorResource(R.color.loginText),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .align(Alignment.CenterVertically),
+                text = "paid by ${item.paymentType}",
+                maxLines = 1,
+                fontSize = 13.sp,
+                color = colorResource(id = R.color.or_with_color),
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Row(
+            modifier = Modifier
+                .width((LocalConfiguration.current.screenWidthDp * 0.6).dp)
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -85,15 +101,6 @@ fun ExpenseListItem(
                     color = colorResource(id = R.color.or_with_color)
                 )
             }
-            Text(
-                modifier = Modifier
-                    .padding(4.dp),
-                text = item.paymentType,
-                maxLines = 1,
-                fontSize = 13.sp,
-                color = colorResource(id = R.color.or_with_color),
-                fontWeight = FontWeight.SemiBold
-            )
         }
     }
 }

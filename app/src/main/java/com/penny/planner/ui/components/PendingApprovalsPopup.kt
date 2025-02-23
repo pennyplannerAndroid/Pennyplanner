@@ -3,13 +3,11 @@ package com.penny.planner.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +31,7 @@ fun PendingApprovalsPopup(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 12.dp)
+            .padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
             .background(
                 color = colorResource(id = R.color.loginText),
                 shape = RoundedCornerShape(12.dp)
@@ -41,19 +39,17 @@ fun PendingApprovalsPopup(
             .clickable(onClick = onClick)
     ) {
         Row(
-            modifier = modifier.padding(12.dp)
+            modifier = modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 modifier = modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = 12.dp)
-                    .size(24.dp),
-                painter = painterResource(id = R.drawable.error_image),
+                    .padding(end = 12.dp),
+                painter = painterResource(id = R.drawable.warning_icon),
                 contentDescription = ""
             )
-            Column(
-                verticalArrangement = Arrangement.Center
-            ) {
+            Column {
                 Text(
                     text = stringResource(id = R.string.pending_approvals),
                     fontWeight = FontWeight.SemiBold,

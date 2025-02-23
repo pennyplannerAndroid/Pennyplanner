@@ -26,8 +26,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -66,15 +63,18 @@ import com.penny.planner.models.GroupDisplayModel
 import com.penny.planner.ui.components.ExpenseListItem
 import com.penny.planner.ui.components.GroupChatTextField
 import com.penny.planner.ui.components.GroupSessionTopBar
+import com.penny.planner.ui.components.VerticalSwitch
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun GroupSession(
+fun GroupSessionChatComponent(
+    adminApprovals: Boolean,
     group: GroupEntity,
     transitionList: List<GroupDisplayModel>,
     monthlyExpenseEntity: MonthlyExpenseEntity,
     addExpenseClick: () -> Unit,
+    memberClick: () -> Unit,
     sendClick: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -82,6 +82,7 @@ fun GroupSession(
     val systemUiController = rememberSystemUiController()
     val statusBarColor = colorResource(id = R.color.loginText)
     val state: LazyListState = rememberLazyListState()
+    var isSwitchOn by remember { mutableStateOf(false) }
 
     var isExpanded by remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = isExpanded, label = "SlideAnimation")
@@ -115,10 +116,14 @@ fun GroupSession(
     Scaffold(
         topBar = {
             GroupSessionTopBar(
+                adminApprovals = adminApprovals,
                 group = group,
                 monthlyExpenseEntity = monthlyExpenseEntity,
                 onClick = {
                     focusManager.clearFocus()
+                },
+                memberClick = {
+                    memberClick.invoke()
                 }
             ) {
                 isExpanded = !isExpanded
@@ -154,7 +159,13 @@ fun GroupSession(
                             .align(Alignment.CenterHorizontally),
                         imageUrl = group.localImagePath.ifEmpty { group.profileImage }
                     )
-                    VerticalSwitch()
+                    VerticalSwitch(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        isOn = isSwitchOn
+                    ) {
+                        isSwitchOn = it
+                    }
+
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
@@ -167,8 +178,8 @@ fun GroupSession(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                                 .padding(bottom = 24.dp)
-                                .size(32.dp),
-                            painter = painterResource(id = R.drawable.notification_icon),
+                                .size(36.dp),
+                            painter = painterResource(id = R.drawable.group_notification),
                             contentDescription = "",
                             tint = Color.White
                         )
@@ -184,9 +195,9 @@ fun GroupSession(
                         Icon(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 24.dp)
-                                .size(32.dp),
-                            painter = painterResource(id = R.drawable.add_group_member),
+                                .padding(bottom = 8.dp)
+                                .size(36.dp),
+                            painter = painterResource(id = R.drawable.add_to_group_icon),
                             contentDescription = "",
                             tint = Color.White
                         )
@@ -279,7 +290,7 @@ fun PreviewGroupSession() {
         senderName = "A",
         senderEmail = "as.eemsrivastava452@gmail.com",
         senderImage = "https://firebasestorage.googleapis.com/v0/b/pennyplanner-d234f.appspot.com/o/UserImage%2F9T2m2SCdjKZVQyVWLVBdrf2dmxG3?alt=media&token=4d2c99d4-47f4-4ace-9896-6ccf596327af",
-        localImagePath = "/data/user/0/com.penny.planner/files/9T2m2SCdjKZVQyVWLVBdrf2dmxG3.jpeg"
+        localImagePath = ""
     ))
 
     groupList.add(GroupDisplayModel(
@@ -296,7 +307,7 @@ fun PreviewGroupSession() {
         senderName = "A",
         senderEmail = "as.eemsrivastava452@gmail.com",
         senderImage = "https://firebasestorage.googleapis.com/v0/b/pennyplanner-d234f.appspot.com/o/UserImage%2F9T2m2SCdjKZVQyVWLVBdrf2dmxG3?alt=media&token=4d2c99d4-47f4-4ace-9896-6ccf596327af",
-        localImagePath = "/data/user/0/com.penny.planner/files/9T2m2SCdjKZVQyVWLVBdrf2dmxG3.jpeg"
+        localImagePath = ""
     ))
 
     groupList.add(GroupDisplayModel(
@@ -313,7 +324,7 @@ fun PreviewGroupSession() {
         senderName = "A",
         senderEmail = "as.eemsrivastava452@gmail.com",
         senderImage = "https://firebasestorage.googleapis.com/v0/b/pennyplanner-d234f.appspot.com/o/UserImage%2F9T2m2SCdjKZVQyVWLVBdrf2dmxG3?alt=media&token=4d2c99d4-47f4-4ace-9896-6ccf596327af",
-        localImagePath = "/data/user/0/com.penny.planner/files/9T2m2SCdjKZVQyVWLVBdrf2dmxG3.jpeg"
+        localImagePath = ""
     ))
 
     groupList.add(GroupDisplayModel(
@@ -330,7 +341,7 @@ fun PreviewGroupSession() {
         senderName = "A",
         senderEmail = "as.eemsrivastava452@gmail.com",
         senderImage = "https://firebasestorage.googleapis.com/v0/b/pennyplanner-d234f.appspot.com/o/UserImage%2F9T2m2SCdjKZVQyVWLVBdrf2dmxG3?alt=media&token=4d2c99d4-47f4-4ace-9896-6ccf596327af",
-        localImagePath = "/data/user/0/com.penny.planner/files/9T2m2SCdjKZVQyVWLVBdrf2dmxG3.jpeg"
+        localImagePath = ""
     ))
 
     groupList.add(GroupDisplayModel(
@@ -347,7 +358,7 @@ fun PreviewGroupSession() {
         senderName = "A",
         senderEmail = "as.eemsrivastava452@gmail.com",
         senderImage = "https://firebasestorage.googleapis.com/v0/b/pennyplanner-d234f.appspot.com/o/UserImage%2F9T2m2SCdjKZVQyVWLVBdrf2dmxG3?alt=media&token=4d2c99d4-47f4-4ace-9896-6ccf596327af",
-        localImagePath = "/data/user/0/com.penny.planner/files/9T2m2SCdjKZVQyVWLVBdrf2dmxG3.jpeg"
+        localImagePath = ""
     ))
 
     groupList.add(GroupDisplayModel(
@@ -364,33 +375,16 @@ fun PreviewGroupSession() {
         senderName = "A",
         senderEmail = "as.eemsrivastava452@gmail.com",
         senderImage = "https://firebasestorage.googleapis.com/v0/b/pennyplanner-d234f.appspot.com/o/UserImage%2F9T2m2SCdjKZVQyVWLVBdrf2dmxG3?alt=media&token=4d2c99d4-47f4-4ace-9896-6ccf596327af",
-        localImagePath = "/data/user/0/com.penny.planner/files/9T2m2SCdjKZVQyVWLVBdrf2dmxG3.jpeg"
+        localImagePath = ""
     ))
-    GroupSession(
+    GroupSessionChatComponent(
+        adminApprovals = true,
         group = GroupEntity(name = "Ghar ka Kharcha", monthlyBudget = 82000.0),
         transitionList = groupList,
         monthlyExpenseEntity = MonthlyExpenseEntity(
             expense = 25000.0
-        ), {}
+        ), {}, {}
     ) {}
-}
-
-@Composable
-fun VerticalSwitch() {
-    var isChecked by remember { mutableStateOf(false) }
-
-    Switch(
-        checked = isChecked,
-        onCheckedChange = { isChecked = it },
-        modifier = Modifier
-            .rotate(90f), // Rotates switch to vertical
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = Color.Black,
-            uncheckedThumbColor = Color.Black,
-            checkedTrackColor = Color.White,
-            uncheckedTrackColor = Color.White
-        )
-    )
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -403,8 +397,8 @@ fun ShowGroupPicture(
         modifier = modifier
             .size(48.dp)
             .border(
-                color = colorResource(id = R.color.textField_border),
-                width = 1.dp,
+                color = colorResource(id = R.color.white),
+                width = 2.dp,
                 shape = CircleShape
             )
             .clip(CircleShape),

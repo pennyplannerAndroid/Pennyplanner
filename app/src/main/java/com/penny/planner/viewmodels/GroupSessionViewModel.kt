@@ -5,9 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.penny.planner.data.db.expense.ExpenseEntity
+import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
+import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
+import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.helpers.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +21,9 @@ import javax.inject.Inject
 @HiltViewModel
 class GroupSessionViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
+    private val useProfilePictureRepository: ProfilePictureRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private var groupId = ""
@@ -53,6 +58,16 @@ class GroupSessionViewModel @Inject constructor(
             expenseRepository.addExpense(expense)
         }
     }
+
+    fun getAllMembers(group: GroupEntity): List<UsersEntity> {
+        val members = mutableListOf<UsersEntity>()
+        for (email in group.members) {
+            members.add(useProfilePictureRepository.findLocalImagePath(email))
+        }
+        return members
+    }
+
+    fun getSelfId() = userRepository.getSelfId()
 
     fun updateMembers(group: GroupEntity) {
         viewModelScope.launch(Dispatchers.IO) {

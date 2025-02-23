@@ -1,5 +1,6 @@
 package com.penny.planner.ui.components
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -39,23 +40,31 @@ import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.helpers.Utils
+import com.penny.planner.helpers.keyboardAsState
 import com.penny.planner.helpers.noRippleClickable
 
 @Composable
 fun GroupSessionTopBar(
+    adminApprovals: Boolean,
     group: GroupEntity,
     monthlyExpenseEntity: MonthlyExpenseEntity,
+    memberClick: () -> Unit,
     onClick: () -> Unit,
     expandClicked: () -> Unit
 ) {
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     var isExpanded by remember { mutableStateOf(true) }
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing), label = ""
     )
-    LaunchedEffect(key1 = true) {
-        isExpanded = !isExpanded
-        expandClicked.invoke()
+    val isKeyboardOpen by keyboardAsState()
+
+    LaunchedEffect(key1 = true, key2 = isKeyboardOpen) {
+        if (!isKeyboardOpen || !isExpanded) {
+            isExpanded = !isExpanded
+            expandClicked.invoke()
+        }
     }
     Card(
         modifier = Modifier
@@ -81,7 +90,9 @@ fun GroupSessionTopBar(
                     painter = painterResource(id = R.drawable.arrow_back),
                     contentDescription = "",
                     modifier = Modifier
-                        .clickable(onClick = {}),
+                        .clickable {
+                            backDispatcher?.onBackPressed()
+                        },
                     tint = Color.White
                 )
                 Text(
@@ -97,18 +108,37 @@ fun GroupSessionTopBar(
                     fontSize = 18.sp,
                     color = Color.White
                 )
-                Text(
-                    modifier = Modifier
+                Row(
+                    Modifier
                         .align(Alignment.CenterVertically)
-                        .padding(start = 4.dp),
-                    text = "${group.members.size} members",
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.LightGray
-                )
+                        .padding(start = 4.dp)
+                        .clickable {
+                            memberClick.invoke()
+                        }
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 4.dp),
+                        text = if (group.members.size == 1) "1 member" else "${group.members.size} members",
+                        textAlign = TextAlign.Start,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (adminApprovals) Color.Red else Color.LightGray
+                    )
+                    if (adminApprovals) {
+                        Icon(
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(start = 4.dp),
+                            painter = painterResource(id = R.drawable.warning_icon),
+                            contentDescription = "",
+                            tint = Color.Red
+                        )
+                    }
+                }
             }
             Row (
                 modifier = Modifier
@@ -180,8 +210,10 @@ fun GroupSessionTopBar(
 @Composable
 fun PreviewGroupSessionTopBar() {
     GroupSessionTopBar(
+        adminApprovals = true,
         group = GroupEntity(name = "Home Monthly Expenses", monthlyBudget = 80000.0),
+        memberClick = {},
         monthlyExpenseEntity = MonthlyExpenseEntity(expense = 40000.0),
-        {}
+        onClick = {}
     ) {}
 }

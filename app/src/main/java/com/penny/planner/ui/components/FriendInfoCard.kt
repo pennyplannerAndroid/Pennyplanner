@@ -2,6 +2,7 @@ package com.penny.planner.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -105,6 +106,87 @@ fun FriendInfoCard(
                 painter = painterResource(id = R.drawable.success_icon),
                 contentDescription = "",
                 tint = colorResource(id = R.color.success_green)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun FriendInfoForMemberList (
+    modifier: Modifier,
+    model: UsersEntity,
+    self: String,
+    admin: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        GlideImage(
+            modifier = Modifier
+                .size(48.dp)
+                .align(Alignment.CenterVertically)
+                .border(
+                    color = colorResource(id = R.color.textField_border),
+                    width = 2.dp,
+                    shape = CircleShape
+                )
+                .clip(CircleShape),
+            model = model.profileImageURL,
+            contentDescription = "",
+            contentScale = ContentScale.Crop
+        ) {
+            it.load(model.profileImageURL)
+                .placeholder(R.drawable.default_user_display)
+                .error(R.drawable.default_user_display)
+        }
+        Column(
+            modifier = modifier
+                .align(Alignment.CenterVertically)
+                .padding(start = 12.dp)
+                .weight(1f)
+        ) {
+            if (model.id != self) {
+                Text(
+                    text = model.name,
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+
+                )
+                Text(
+                    text = model.email,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
+            } else {
+                Text(
+                    text = "You",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        if (model.email == admin) {
+            Text(
+                modifier = Modifier.
+                align(Alignment.CenterVertically),
+                text = "(Admin)",
+                color = Color.Gray,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

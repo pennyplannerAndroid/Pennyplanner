@@ -7,7 +7,6 @@ import android.graphics.Picture
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.google.firebase.Timestamp
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
@@ -214,5 +213,41 @@ class Utils {
             }
             return false
         }
+
+        fun formatFirebaseTimestampToProperTime(timestamp: Timestamp): String {
+            val date = timestamp.toDate()
+            val now = Calendar.getInstance()
+            val calDate = Calendar.getInstance().apply { time = date }
+
+            val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+            val monthDayFormat = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
+            val fullDateFormat = SimpleDateFormat("MMM d, yyyy, h:mm a", Locale.getDefault())
+
+            return when {
+                // Check if it's today
+                now.get(Calendar.YEAR) == calDate.get(Calendar.YEAR) &&
+                        now.get(Calendar.DAY_OF_YEAR) == calDate.get(Calendar.DAY_OF_YEAR) -> {
+                    "Today, ${timeFormat.format(date)}"
+                }
+
+                // Check if it's yesterday
+                now.get(Calendar.YEAR) == calDate.get(Calendar.YEAR) &&
+                        now.get(Calendar.DAY_OF_YEAR) - 1 == calDate.get(Calendar.DAY_OF_YEAR) -> {
+                    "Yesterday, ${timeFormat.format(date)}"
+                }
+
+                // Same year and same month
+                now.get(Calendar.YEAR) == calDate.get(Calendar.YEAR) &&
+                        now.get(Calendar.MONTH) == calDate.get(Calendar.MONTH) -> {
+                    monthDayFormat.format(date)
+                }
+
+                // Different year
+                else -> {
+                    fullDateFormat.format(date)
+                }
+            }
+        }
+
     }
 }

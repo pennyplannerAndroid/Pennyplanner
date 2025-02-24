@@ -71,8 +71,7 @@ fun GroupSessionTopBar(
             .fillMaxWidth()
             .noRippleClickable {
                 onClick.invoke()
-            }
-            .statusBarsPadding(),
+            },
         shape = RoundedCornerShape(bottomEnd = 12.dp, bottomStart = 12.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
         colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginText))
@@ -80,6 +79,7 @@ fun GroupSessionTopBar(
         Column(
             Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
                 .padding(8.dp),
         ) {
             Row(

@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -102,9 +103,8 @@ fun GroupSessionChatComponent(
     ) { expanded -> if (expanded) 1f else 0f }
 
     LaunchedEffect(key1 = true) {
-        systemUiController.statusBarDarkContentEnabled = true
-        systemUiController.setSystemBarsColor(color = statusBarColor)
-        systemUiController.setNavigationBarColor(color = Color.White)
+        systemUiController.setSystemBarsColor(color = statusBarColor, darkIcons = false)
+        systemUiController.setNavigationBarColor(color = Color.White, darkIcons = false)
     }
     val isKeyboardOpen by keyboardAsState()
     LaunchedEffect(key1 = transitionList, key2 = isKeyboardOpen) {
@@ -213,9 +213,7 @@ fun GroupSessionChatComponent(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
                     colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginButton))
                 ) {
-                    LazyColumn(
-                        state = state
-                    ) {
+                    LazyColumn(state = state) {
                         items(transitionList) { item ->
                             Column(
                                 modifier = Modifier
@@ -223,9 +221,7 @@ fun GroupSessionChatComponent(
                                     .padding(4.dp)
                             ) {
                                 if (!item.isSentTransaction) {
-                                    Row(
-                                        modifier = Modifier.padding(bottom = 4.dp)
-                                    ) {
+                                    Row(modifier = Modifier.padding(bottom = 4.dp)) {
                                         GlideImage(
                                             modifier = Modifier
                                                 .size(32.dp)
@@ -246,11 +242,12 @@ fun GroupSessionChatComponent(
                                         }
                                         Text(
                                             modifier = Modifier
-                                                .padding(start = 8.dp)
+                                                .padding(start = 4.dp)
                                                 .align(Alignment.CenterVertically),
                                             text = item.senderName,
                                             maxLines = 1,
                                             fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold,
                                             color = colorResource(id = R.color.loginText),
                                             textAlign = TextAlign.Start
                                         )
@@ -272,29 +269,29 @@ fun GroupSessionChatComponent(
                                         Text(
                                             modifier = Modifier
                                                 .align(if (item.isSentTransaction) Alignment.End else Alignment.Start)
-                                                .padding(8.dp)
+                                                .padding(start = 6.dp, end = 6.dp, top = 6.dp)
                                                 .widthIn(
-                                                    min = 30.dp,
                                                     max = (LocalConfiguration.current.screenWidthDp * 0.6).dp
                                                 ),
-                                            text = item.content
+                                            text = item.content,
+                                            color = Color.Black
                                         )
                                     } else {
                                         ExpenseListItem(item = item)
                                     }
+                                    Text(
+                                        modifier = Modifier
+                                            .align(Alignment.End)
+                                            .padding(start = 12.dp, end = 8.dp, bottom = 4.dp),
+                                        text = Utils.formatFirebaseTimestampToProperTime(item.time),
+                                        maxLines = 1,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = colorResource(id = R.color.or_with_color),
+                                        textAlign = TextAlign.End
+                                    )
                                 }
                             }
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 4.dp, end = 4.dp, bottom = 6.dp),
-                                text = Utils.convertMillisToTime(item.time.toDate()),
-                                maxLines = 1,
-                                fontSize = 10.sp,
-                                color = colorResource(id = R.color.or_with_color),
-                                textAlign = if (item.isSentTransaction) TextAlign.End else TextAlign.Start
-                            )
-
                         }
                     }
                 }

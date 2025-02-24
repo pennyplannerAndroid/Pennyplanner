@@ -61,7 +61,7 @@ fun ExpenseListItem(
         Row(
             modifier = Modifier
                 .width((LocalConfiguration.current.screenWidthDp * 0.6).dp)
-                .padding(8.dp),
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

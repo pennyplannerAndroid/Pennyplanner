@@ -180,6 +180,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                     if (existingGroup.profileImage != entity.profileImage) {
                                         downloadGroupImage(entity)
                                     }
+                                    entity.localImagePath = existingGroup.localImagePath
                                     entity.hasPendingMembers = existingGroup.hasPendingMembers
                                     entity.lastUpdate = existingGroup.lastUpdate
                                     groupDao.updateEntity(entity = entity)
@@ -406,7 +407,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                             if (newExpenses.isNotEmpty()) { // if list is not empty, at the end we will remove the listener and start it with the updated last time stamp
                                 expenseRepository.insertBulkExpenseFromServer(newExpenses)
                                 group.lastUpdate = newExpenses.last().time
-                                groupDao.updateEntity(group)
+                                groupDao.updateLastUpdate(groupId = group.groupId, lastUpdate = group.lastUpdate)
                                 listenerRegistration?.remove()
                                 fetchExpenseAndUpdate(group)
                             }

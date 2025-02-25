@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.google.firebase.Timestamp
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupListDisplayModel
 
@@ -44,4 +45,7 @@ interface GroupDao {
 
     @Query("UPDATE ${Utils.GROUP_TABLE} SET localImagePath = :path WHERE groupId = :groupId")
     suspend fun updatePicturePath(groupId: String, path: String)
+
+    @Query("UPDATE ${Utils.GROUP_TABLE} SET lastUpdate = :lastUpdate WHERE groupId = :groupId")
+    suspend fun updateLastUpdate(groupId: String, lastUpdate: Timestamp)
 }

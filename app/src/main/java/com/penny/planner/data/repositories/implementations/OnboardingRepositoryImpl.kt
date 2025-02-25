@@ -51,17 +51,15 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
             val snapshot = directoryReference.child(Utils.formatEmailForFirebase(email))
                 .child(Utils.BUDGET_INFO).get().await()
             if (snapshot.exists()) {
-                val entity = snapshot.getValue(MonthlyBudgetInfoModel::class.java)
-                if (entity != null) {
-                    applicationScope.launch {
-                        budgetRepository.updateLocalWithMonthlyBudget(entity)
-                        getAllFirebaseDataAndUpdateLocal(isLogin = true)
-                    }
-                    return Result.success(LoginResult.VERIFY_SUCCESS)
-                } else {
-                    getAllFirebaseDataAndUpdateLocal(isLogin = true, isFirstTime = false)
-                    return Result.success(LoginResult.ADD_BUDGET)
+                val entity = MonthlyBudgetInfoModel(
+                    safeToSpendLimit = (snapshot.child("safeToSpendLimit").value as Long).toInt(),
+                    monthlyBudget = snapshot.child("monthlyBudget").value.toString().toDouble()
+                )
+                applicationScope.launch {
+                    budgetRepository.updateLocalWithMonthlyBudget(entity)
+                    getAllFirebaseDataAndUpdateLocal(isLogin = true)
                 }
+                return Result.success(LoginResult.VERIFY_SUCCESS)
             } else {
                 getAllFirebaseDataAndUpdateLocal(isLogin = true, isFirstTime = false)
                 return Result.success(LoginResult.ADD_BUDGET)

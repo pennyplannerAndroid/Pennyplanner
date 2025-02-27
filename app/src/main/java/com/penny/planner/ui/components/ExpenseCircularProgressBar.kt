@@ -18,18 +18,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.penny.planner.R
 
 @Composable
 fun ExpenseCircularProgressBar(
     expensePercent: Float, // Value between 0f and 1f
     modifier: Modifier = Modifier,
     strokeWidth: Dp = 10.dp,
-    backgroundColor: Color = Color.White
+    backgroundColor: Color = colorResource(id = R.color.textField_border)
 ) {
     val size = LocalConfiguration.current.screenWidthDp / 4
     val animatedProgress by animateFloatAsState(
@@ -40,7 +42,6 @@ fun ExpenseCircularProgressBar(
         ), label = "ExpenseProgress"
     )
     val color = getColorForCircularExpenseBar(progress = (expensePercent * 100).toInt())
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -75,7 +76,7 @@ fun ExpenseCircularProgressBar(
             text = "${(animatedProgress * 100).toInt()}%",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = color,
+                color = Color.Black,
                 fontSize = 18.sp
             )
         )
@@ -84,6 +85,6 @@ fun ExpenseCircularProgressBar(
 
 @Preview
 @Composable
-fun PreviewExpenseCIrcle() {
+fun PreviewExpenseCircle() {
     ExpenseCircularProgressBar(expensePercent = 0.75f)
 }

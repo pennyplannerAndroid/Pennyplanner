@@ -106,9 +106,10 @@
     <string name="join_group_intimation_information">"You will be notified once the admin approves your request."</string>
     <string name="pending_approvals">"Pending Approvals"</string>
     <string name="pending_members">"Pending Members"</string>
-    <string name="pending_details">"Review and manage join request for your Group.\nYou can also reject all requests and close the group so that no other person can request to join."</string>
+    <string name="pending_details">"Review and manage join request for your Group.\nYou can also reject all requests and close the group to prevent new join requests."</string>
     <string name="tap_here_to_manage">"Tap here to manage approvals"</string>
     <string name="reject_all_close">"Reject All &amp; Close Group"</string>
     <string name="expense_in_month">"Expenses(%s)"</string>
+    <string name="expense_mode">"Expenses only"</string>
 
 </resources>

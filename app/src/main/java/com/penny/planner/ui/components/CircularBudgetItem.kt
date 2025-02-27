@@ -43,7 +43,7 @@ fun CircularBudgetItem(
                 .size(size.dp),
             progress = { progress.toFloat() },
             strokeWidth = 12.dp,
-            trackColor = colorResource(id = R.color.light_gray),
+            trackColor = colorResource(id = R.color.textField_border),
             color = getColorForCircularExpenseBar((progress * 100).toInt())
         )
         Column(

@@ -1,9 +1,6 @@
 package com.penny.planner.ui.components
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,16 +13,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -40,8 +36,8 @@ import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.helpers.Utils
-import com.penny.planner.helpers.keyboardAsState
 import com.penny.planner.helpers.noRippleClickable
+import com.penny.planner.ui.screens.ShowGroupPicture
 
 @Composable
 fun GroupSessionTopBar(
@@ -50,22 +46,16 @@ fun GroupSessionTopBar(
     monthlyExpenseEntity: MonthlyExpenseEntity,
     memberClick: () -> Unit,
     onClick: () -> Unit,
-    expandClicked: () -> Unit
+    expenseModeEnabled: (Boolean) -> Unit
 ) {
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    var isExpanded by remember { mutableStateOf(true) }
-    val rotation by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing), label = ""
-    )
-    val isKeyboardOpen by keyboardAsState()
-
-    LaunchedEffect(key1 = true, key2 = isKeyboardOpen) {
-        if (!isKeyboardOpen || !isExpanded) {
-            isExpanded = !isExpanded
-            expandClicked.invoke()
-        }
+    var searchMode by remember {
+        mutableStateOf(false)
     }
+    var expenseMode by remember {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,31 +64,38 @@ fun GroupSessionTopBar(
             },
         shape = RoundedCornerShape(bottomEnd = 12.dp, bottomStart = 12.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
-        colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginText))
+        colors = CardDefaults.cardColors()
+            .copy(containerColor = Color.White)
     ) {
         Column(
             Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(8.dp),
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Icon(
                     painter = painterResource(id = R.drawable.arrow_back),
                     contentDescription = "",
                     modifier = Modifier
                         .clickable {
                             backDispatcher?.onBackPressed()
-                        },
-                    tint = Color.White
+                        }
+                        .align(Alignment.CenterVertically),
+                    tint = Color.Black
+                )
+                ShowGroupPicture(
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .align(Alignment.CenterVertically),
+                    imageUrl = group.localImagePath.ifEmpty { group.profileImage }
                 )
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .padding(start = 4.dp)
+                        .padding(start = 8.dp)
                         .weight(1f),
                     text = group.name,
                     fontWeight = FontWeight.Bold,
@@ -106,15 +103,94 @@ fun GroupSessionTopBar(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = Color.Black
                 )
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    tint = Color.Black,
+                    painter = painterResource(id = R.drawable.search_without_background),
+                    contentDescription = stringResource(id = R.string.search)
+                )
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(start = 8.dp)
+                        .size(24.dp),
+                    painter = painterResource(id = R.drawable.group_notification),
+                    contentDescription = "",
+                    tint = Color.Black
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 12.dp)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally),
+                        text = String.format(
+                            stringResource(id = R.string.expense_in_month),
+                            Utils.getCurrentMonthShort()
+                        ),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Gray
+                    )
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally),
+                        text = "${Utils.RUPEE}${monthlyExpenseEntity.expense.toInt()}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = Color.Black
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier,
+                        text = stringResource(id = R.string.budget),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Gray
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = "${Utils.RUPEE}${group.monthlyBudget.toInt()}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = Color.Black
+                    )
+                }
+                ExpenseCircularProgressBar(
+                    Utils.getProgress(
+                        group.monthlyBudget,
+                        monthlyExpenseEntity.expense
+                    ).toFloat()
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Row(
                     Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(start = 4.dp)
                         .clickable {
                             memberClick.invoke()
                         }
+                        .align(Alignment.CenterVertically)
                 ) {
                     Text(
                         modifier = Modifier
@@ -126,7 +202,8 @@ fun GroupSessionTopBar(
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (adminApprovals) Color.Red else Color.LightGray
+                        color = if (adminApprovals) colorResource(id = R.color.loginText)
+                        else Color.Gray
                     )
                     if (adminApprovals) {
                         Icon(
@@ -139,67 +216,29 @@ fun GroupSessionTopBar(
                         )
                     }
                 }
-            }
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Icon(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(Alignment.Bottom)
-                        .rotate(rotation)
-                        .clickable {
-                            isExpanded = !isExpanded
-                            expandClicked.invoke()
-                        },
-                    painter = painterResource(id = R.drawable.open_menu_icon),
-                    contentDescription = "",
-                    tint = Color.White
-                )
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier,
-                        text = stringResource(id = R.string.budget),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.LightGray
-                    )
-                    Text(
-                        modifier = Modifier,
-                        text = "${Utils.RUPEE}${group.monthlyBudget.toInt()}",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                }
-                Column(
+                Row(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                 ) {
                     Text(
-                        modifier = Modifier,
-                        text = String.format(stringResource(id = R.string.expense_in_month), Utils.getCurrentMonthShort()),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically),
+                        text = stringResource(id = R.string.expense_mode),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.LightGray
+                        color = Color.Gray
                     )
-                    Text(
+                    Switch(
                         modifier = Modifier
-                            .align(Alignment.CenterHorizontally),
-                        text = "${Utils.RUPEE}${monthlyExpenseEntity.expense.toInt()}",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = Color.White
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 4.dp),
+                        checked = expenseMode,
+                        onCheckedChange = {
+                            expenseMode = it
+                            expenseModeEnabled.invoke(expenseMode)
+                        }
                     )
                 }
-                ExpenseCircularProgressBar(Utils.getProgress(group.monthlyBudget, monthlyExpenseEntity.expense).toFloat())
-
             }
         }
 

@@ -1,21 +1,15 @@
 package com.penny.planner.ui.screens
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -25,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,18 +30,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -58,17 +48,13 @@ import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
 import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
 import com.penny.planner.helpers.Utils
-import com.penny.planner.helpers.dpToPx
 import com.penny.planner.helpers.keyboardAsState
 import com.penny.planner.helpers.noRippleClickable
-import com.penny.planner.helpers.pxToDp
 import com.penny.planner.models.GroupDisplayModel
 import com.penny.planner.ui.components.ExpenseListItem
 import com.penny.planner.ui.components.GroupChatTextField
 import com.penny.planner.ui.components.GroupSessionTopBar
-import com.penny.planner.ui.components.VerticalSwitch
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -84,30 +70,15 @@ fun GroupSessionChatComponent(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val systemUiController = rememberSystemUiController()
-    val statusBarColor = colorResource(id = R.color.loginText)
     val state: LazyListState = rememberLazyListState()
-    var isSwitchOff by remember { mutableStateOf(true) }
-
-    var isExpanded by remember { mutableStateOf(false) }
-    val transition = updateTransition(targetState = isExpanded, label = "SlideAnimation")
-    val offsetXForOptions by transition.animateFloat(
-        transitionSpec = { tween(durationMillis = 600, easing = FastOutSlowInEasing) },
-        label = "OffsetX"
-    ) { expanded ->
-        if (expanded) 0f else -(56.dp.dpToPx())  // Slide in from left
-    }
-
-    val alphaForOptions by transition.animateFloat(
-        transitionSpec = { tween(durationMillis = 600) },
-        label = "Alpha"
-    ) { expanded -> if (expanded) 1f else 0f }
-
+    var expenseSwitchEnabled by remember { mutableStateOf(false) }
+    
     LaunchedEffect(key1 = true) {
-        systemUiController.setSystemBarsColor(color = statusBarColor, darkIcons = false)
+        systemUiController.setSystemBarsColor(color = Color.White, darkIcons = true)
         systemUiController.setNavigationBarColor(color = Color.White, darkIcons = false)
     }
     val isKeyboardOpen by keyboardAsState()
-    LaunchedEffect(key1 = transitionList, key2 = isKeyboardOpen) {
+    LaunchedEffect(key1 = transitionList, key2 = isKeyboardOpen, key3 = expenseSwitchEnabled) {
         if (transitionList.isNotEmpty()) {
             scope.launch {
                 state.scrollToItem((transitionList.size - 1).coerceAtLeast(0))
@@ -128,7 +99,7 @@ fun GroupSessionChatComponent(
                     memberClick.invoke()
                 }
             ) {
-                isExpanded = !isExpanded
+                expenseSwitchEnabled = it
             }
         },
         content = { contentPadding ->
@@ -142,117 +113,18 @@ fun GroupSessionChatComponent(
             ) {
                 Card(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .animateContentSize()
-                        .offset { IntOffset(offsetXForOptions.roundToInt(), 0) }
-                        .width(
-                            56.dp + offsetXForOptions
-                                .roundToInt()
-                                .pxToDp()
-                        )
-                        .alpha(alphaForOptions),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
-                    colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginText))
-                ) {
-                    ShowGroupPicture(
-                        modifier = Modifier
-                            .padding(top = 12.dp, bottom = 24.dp)
-                            .align(Alignment.CenterHorizontally),
-                        imageUrl = group.localImagePath.ifEmpty { group.profileImage }
-                    )
-                    VerticalSwitch(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        isOn = isSwitchOff
-                    ) {
-                        isSwitchOff = it
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(bottom = 12.dp)
-                            .width(56.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 24.dp)
-                                .size(36.dp),
-                            painter = painterResource(id = R.drawable.group_notification),
-                            contentDescription = "",
-                            tint = Color.White
-                        )
-                        Icon(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 24.dp)
-                                .size(32.dp),
-                            painter = painterResource(id = R.drawable.app_setting_icon),
-                            contentDescription = "",
-                            tint = Color.White
-                        )
-                        Icon(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 8.dp)
-                                .size(36.dp),
-                            painter = painterResource(id = R.drawable.add_to_group_icon),
-                            contentDescription = "",
-                            tint = Color.White
-                        )
-                    }
-                }
-                Card(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = if (isExpanded) 4.dp else 0.dp),
+                        .fillMaxSize(),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
                     colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginButton))
                 ) {
                     LazyColumn(state = state) {
-                        items(transitionList) { item ->
+                        items(if (expenseSwitchEnabled) transitionList.filter { it.entityType == 1 } else transitionList) { item ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(4.dp)
                             ) {
-                                if (!item.isSentTransaction) {
-                                    Row(modifier = Modifier.padding(bottom = 4.dp)) {
-                                        GlideImage(
-                                            modifier = Modifier
-                                                .size(32.dp)
-                                                .align(Alignment.CenterVertically)
-                                                .border(
-                                                    color = colorResource(id = R.color.textField_border),
-                                                    width = 2.dp,
-                                                    shape = CircleShape
-                                                )
-                                                .clip(CircleShape),
-                                            model = item.localImagePath,
-                                            contentDescription = "",
-                                            contentScale = ContentScale.Crop
-                                        ) {
-                                            it.load(item.localImagePath)
-                                                .placeholder(R.drawable.default_user_display)
-                                                .error(R.drawable.default_user_display)
-                                        }
-                                        Text(
-                                            modifier = Modifier
-                                                .padding(start = 4.dp)
-                                                .align(Alignment.CenterVertically),
-                                            text = item.senderName,
-                                            maxLines = 1,
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = colorResource(id = R.color.loginText),
-                                            textAlign = TextAlign.Start
-                                        )
-                                    }
-                                }
                                 Card(
                                     modifier = Modifier
                                         .align(
@@ -265,31 +137,81 @@ fun GroupSessionChatComponent(
                                         ),
                                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp)
                                 ) {
-                                    if (item.entityType == 0) {
-                                        Text(
-                                            modifier = Modifier
-                                                .align(if (item.isSentTransaction) Alignment.End else Alignment.Start)
-                                                .padding(start = 6.dp, end = 6.dp, top = 6.dp)
-                                                .widthIn(
-                                                    max = (LocalConfiguration.current.screenWidthDp * 0.6).dp
-                                                ),
-                                            text = item.content,
-                                            color = Color.Black
-                                        )
-                                    } else {
-                                        ExpenseListItem(item = item)
+                                    Box {
+                                        Column {
+                                            if (!item.isSentTransaction) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .align(Alignment.CenterHorizontally)
+                                                        .background(color = colorResource(id = R.color.group_list_item_top))
+                                                        .padding(start = 6.dp, top = 6.dp)
+                                                ) {
+                                                    GlideImage(
+                                                        modifier = Modifier
+                                                            .size(32.dp)
+                                                            .align(Alignment.CenterVertically)
+                                                            .border(
+                                                                color = colorResource(id = R.color.textField_border),
+                                                                width = 2.dp,
+                                                                shape = CircleShape
+                                                            )
+                                                            .clip(CircleShape),
+                                                        model = item.localImagePath,
+                                                        contentDescription = "",
+                                                        contentScale = ContentScale.Crop
+                                                    ) {
+                                                        it.load(item.localImagePath)
+                                                            .placeholder(R.drawable.default_user_display)
+                                                            .error(R.drawable.default_user_display)
+                                                    }
+                                                    Text(
+                                                        modifier = Modifier
+                                                            .padding(start = 4.dp)
+                                                            .align(Alignment.CenterVertically),
+                                                        text = item.senderName,
+                                                        maxLines = 1,
+                                                        fontSize = 13.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = colorResource(id = R.color.loginText),
+                                                        textAlign = TextAlign.Start
+                                                    )
+                                                }
+                                            }
+                                            if (item.entityType == 0) {
+                                                Text(
+                                                    modifier = Modifier
+                                                        .align(if (item.isSentTransaction) Alignment.End else Alignment.Start)
+                                                        .padding(
+                                                            start = 6.dp,
+                                                            end = 6.dp,
+                                                            top = 6.dp
+                                                        )
+                                                        .widthIn(
+                                                            max = (LocalConfiguration.current.screenWidthDp * 0.6).dp
+                                                        ),
+                                                    text = item.content,
+                                                    color = Color.Black
+                                                )
+                                            } else {
+                                                ExpenseListItem(item = item)
+                                            }
+                                            Text(
+                                                modifier = Modifier
+                                                    .align(Alignment.End)
+                                                    .padding(
+                                                        start = 12.dp,
+                                                        end = 8.dp,
+                                                        bottom = 4.dp
+                                                    ),
+                                                text = Utils.formatFirebaseTimestampToProperTime(item.time),
+                                                maxLines = 1,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = colorResource(id = R.color.or_with_color),
+                                                textAlign = TextAlign.End
+                                            )
+                                        }
                                     }
-                                    Text(
-                                        modifier = Modifier
-                                            .align(Alignment.End)
-                                            .padding(start = 12.dp, end = 8.dp, bottom = 4.dp),
-                                        text = Utils.formatFirebaseTimestampToProperTime(item.time),
-                                        maxLines = 1,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = colorResource(id = R.color.or_with_color),
-                                        textAlign = TextAlign.End
-                                    )
                                 }
                             }
                         }
@@ -429,9 +351,10 @@ fun ShowGroupPicture(
     modifier: Modifier,
     imageUrl: String
 ) {
+    Log.d("ImageUrlInsideGroup :: ", imageUrl)
     GlideImage(
         modifier = modifier
-            .size(48.dp)
+            .size(42.dp)
             .border(
                 color = colorResource(id = R.color.white),
                 width = 2.dp,

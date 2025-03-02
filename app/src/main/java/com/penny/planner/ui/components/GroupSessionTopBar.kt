@@ -46,6 +46,7 @@ fun GroupSessionTopBar(
     monthlyExpenseEntity: MonthlyExpenseEntity,
     memberClick: () -> Unit,
     onClick: () -> Unit,
+    circularBarClicked: () -> Unit,
     expenseModeEnabled: (Boolean) -> Unit
 ) {
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -178,7 +179,9 @@ fun GroupSessionTopBar(
                         group.monthlyBudget,
                         monthlyExpenseEntity.expense
                     ).toFloat()
-                )
+                ) {
+                    circularBarClicked.invoke()
+                }
             }
             Row (
                 modifier = Modifier
@@ -253,6 +256,7 @@ fun PreviewGroupSessionTopBar() {
         group = GroupEntity(name = "Home Monthly Expenses", monthlyBudget = 80000.0),
         memberClick = {},
         monthlyExpenseEntity = MonthlyExpenseEntity(expense = 40000.0),
-        onClick = {}
+        onClick = {},
+        circularBarClicked = {}
     ) {}
 }

@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,7 +32,9 @@ fun ExpenseCircularProgressBar(
     expensePercent: Float, // Value between 0f and 1f
     modifier: Modifier = Modifier,
     strokeWidth: Dp = 10.dp,
-    backgroundColor: Color = colorResource(id = R.color.textField_border)
+    percentageColor: Color = Color.Black,
+    backgroundColor: Color = colorResource(id = R.color.textField_border),
+    onClick: () -> Unit
 ) {
     val size = LocalConfiguration.current.screenWidthDp / 4
     val animatedProgress by animateFloatAsState(
@@ -46,6 +49,7 @@ fun ExpenseCircularProgressBar(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(size.dp)
+            .clickable(onClick = onClick)
             .padding(8.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -76,7 +80,7 @@ fun ExpenseCircularProgressBar(
             text = "${(animatedProgress * 100).toInt()}%",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = percentageColor,
                 fontSize = 18.sp
             )
         )
@@ -86,5 +90,5 @@ fun ExpenseCircularProgressBar(
 @Preview
 @Composable
 fun PreviewExpenseCircle() {
-    ExpenseCircularProgressBar(expensePercent = 0.75f)
+    ExpenseCircularProgressBar(expensePercent = 0.75f) {}
 }

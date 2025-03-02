@@ -1,13 +1,16 @@
 package com.penny.planner.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -52,22 +55,46 @@ fun ColoredTopBar(
     modifier: Modifier,
     title: String,
     color: Color,
+    titleClickable: Boolean = false,
+    onTitleClicked: () -> Unit = {},
     onBackPressed: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarColors(
             containerColor = color,
-            actionIconContentColor = Color.Black,
+            actionIconContentColor = Color.White,
             navigationIconContentColor = Color.Black,
             titleContentColor = Color.White,
             scrolledContainerColor = Color.Transparent
         ),
         title = {
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
+            if (titleClickable) {
+                Row(
+                    modifier = Modifier
+                        .clickable(onClick = onTitleClicked)
+                ) {
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Icon(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 4.dp)
+                            .size(24.dp),
+                        painter = painterResource(id = R.drawable.down_arrow_icon),
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
+            } else {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
         },
         navigationIcon = {
             Icon(

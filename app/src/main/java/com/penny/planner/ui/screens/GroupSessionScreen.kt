@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GroupSessionScreen(
     groupId: String,
+    circularBarClicked: (String) -> Unit,
     onPendingApprovalClick: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -99,6 +100,9 @@ fun GroupSessionScreen(
             },
             memberClick = {
                 showMemberBottomSheet = true
+            },
+            circularBarClicked = {
+                circularBarClicked.invoke(groupId)
             }
         ) {
             viewModel.addMessage(it)
@@ -124,5 +128,5 @@ fun GroupSessionScreen(
 @Preview
 @Composable
 fun PreviewGroupSessionScreen() {
-    GroupSessionScreen("") {}
+    GroupSessionScreen("", {}) {}
 }

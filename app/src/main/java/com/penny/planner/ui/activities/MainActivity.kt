@@ -43,6 +43,7 @@ import com.penny.planner.models.HomeNavigationItem
 import com.penny.planner.ui.screens.AddExpenseScreen
 import com.penny.planner.ui.screens.AddNewGroupScreen
 import com.penny.planner.ui.screens.AdminApprovalScreen
+import com.penny.planner.ui.screens.CategoryWiseBudgetScreen
 import com.penny.planner.ui.screens.GroupSessionScreen
 import com.penny.planner.ui.screens.mainpage.BudgetScreen
 import com.penny.planner.ui.screens.mainpage.GroupScreen
@@ -130,6 +131,11 @@ class MainActivity : ComponentActivity() {
                 Home(
                     createGroupClicked = { controller.navigate(Utils.CREATE_GROUP) },
                     addExpense = { controller.navigate(Utils.ADD_EXPENSE) },
+                    circularBarClicked = { entityId ->
+                        controller.navigate(
+                            route = "${Utils.BUDGET_WITH_CATEGORY_PAGE}/$entityId"
+                        )
+                    },
                     openGroupSession = {
                         controller.navigate(
                             route = "${Utils.GROUP_SESSION}/${it}"
@@ -167,7 +173,14 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             ) { it ->
-                GroupSessionScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "") {
+                GroupSessionScreen(
+                    groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "",
+                    circularBarClicked = { entityId ->
+                        controller.navigate(
+                            route = "${Utils.BUDGET_WITH_CATEGORY_PAGE}/$entityId"
+                        )
+                    }
+                ) {
                     controller.navigate(
                         route = "${Utils.PENDING_APPROVAL_PAGE}/$it"
                     )
@@ -184,6 +197,19 @@ class MainActivity : ComponentActivity() {
             ) {
                 AdminApprovalScreen(groupId = it.arguments?.getString(Utils.GROUP_ID) ?: "")
             }
+            composable(
+                route = "${Utils.BUDGET_WITH_CATEGORY_PAGE}/{${Utils.ENTITY_ID}}",
+                arguments = listOf(
+                    navArgument(Utils.ENTITY_ID) {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) {
+                CategoryWiseBudgetScreen(
+                    entityId = it.arguments?.getString(Utils.ENTITY_ID) ?: ""
+                )
+            }
         }
         if (needNavigation) {
             if (controller.currentDestination?.route != Utils.MAIN_PAGE) {
@@ -196,6 +222,7 @@ class MainActivity : ComponentActivity() {
     fun Home(
         createGroupClicked: () -> Unit,
         addExpense: () -> Unit,
+        circularBarClicked: (String) -> Unit,
         openGroupSession: (String) -> Unit
     ) {
         val systemUiController = rememberSystemUiController()
@@ -275,7 +302,12 @@ class MainActivity : ComponentActivity() {
                 state = pagerState
             ) { page ->
                 when (page) {
-                    POSITION_HOME -> HomeScreen(modifier = Modifier.padding(innerPadding)) {
+                    POSITION_HOME -> HomeScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        navigateToBudgetDetails = {
+                            circularBarClicked.invoke(it)
+                        }
+                    ) {
                         addExpense.invoke()
                     }
                     POSITION_GROUP -> GroupScreen(

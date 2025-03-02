@@ -187,7 +187,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                 } else {
                                     downloadGroupImage(entity)
                                     groupDao.addGroup(entity)
-                                    fetchDataAndUpdate(entity.groupId)
+                                    fetchDataAndUpdate(entity)
                                 }
                                 updateFriendsDb(entity.members)
                                 if (monthlyExpenseRepository.getMonthlyExpenseEntity(
@@ -275,7 +275,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                 generateLocalMap()
                 val list = groupDao.getAllExistingGroupsFromDb()
                 for (group in list) {
-                    fetchDataAndUpdate(group.groupId)
+                    fetchDataAndUpdate(group)
                 }
             }
         }
@@ -319,19 +319,22 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
     private suspend fun generateLocalMap() {
         val budgets = budgetRepository.getAllBudgets()
         for (budget in budgets) {
-            if (budgetMap.containsKey(budget.entityId)) {
-                budgetMap[budget.entityId]!!.add(budget.category)
-            } else {
-                budgetMap[budget.entityId] = mutableSetOf(budget.category)
-                subcategories[budget.category] =
-                    categoryAndEmojiRepository.getAllSavedSubCategories(budget.category)
-                        .map { it.name }.toMutableSet()
-            }
+            addBudgetToMap(budget.entityId, budget.category)
         }
     }
 
-    private suspend fun fetchDataAndUpdate(groupId: String) {
-        val group = groupDao.getGroupByGroupId(groupId)
+    override suspend fun addBudgetToMap(entityId: String, category: String) {
+        if (budgetMap.containsKey(entityId)) {
+            budgetMap[entityId]!!.add(category)
+        } else {
+            budgetMap[entityId] = mutableSetOf(category)
+            subcategories[category] =
+                categoryAndEmojiRepository.getAllSavedSubCategories(category)
+                    .map { it.name }.toMutableSet()
+        }
+    }
+
+    private suspend fun fetchDataAndUpdate(group: GroupEntity) {
         fetchBudgetAndUpdate(group)
         fetchExpenseAndUpdate(group)
     }
@@ -367,7 +370,7 @@ class FirebaseBackgroundSyncRepositoryImpl @Inject constructor(
                                             )
                                         )
                                     } else {
-                                        budgetRepository.updateBudget(entity = budgetEntity)
+                                        budgetRepository.updateBudgetAfterServerUpdate(entity = budgetEntity)
                                     }
                                 }
                             } catch (e: Exception) {

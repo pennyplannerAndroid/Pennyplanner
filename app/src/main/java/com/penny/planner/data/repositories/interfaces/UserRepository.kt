@@ -4,6 +4,6 @@ interface UserRepository {
     fun navigationToOnboardingNeeded(): String?
     fun getUserName() : String
     fun getEmail() : String
-    fun getImagePath() : String
+    suspend fun getImagePath() : String
     fun getSelfId() : String
 }

@@ -7,6 +7,7 @@ import com.penny.planner.data.db.subcategory.SubCategoryEntity
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
+import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.models.NameIconPairWithKeyModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ import javax.inject.Inject
 class CategoryViewModel @Inject constructor(
     private val categoryAndEmojiRepository: CategoryAndEmojiRepository,
     private val budgetRepository: BudgetRepository,
-    private val backgroundSyncRepository: FirebaseBackgroundSyncRepository
+    private val backgroundSyncRepository: FirebaseBackgroundSyncRepository,
+    private val userRepository: UserRepository
 ): ViewModel() {
 
     private var selectedCategory: CategoryEntity? = null
@@ -84,6 +86,8 @@ class CategoryViewModel @Inject constructor(
 
     private fun addBudget(entity: CategoryEntity, groupId: String) {
         viewModelScope.launch {
+            val entityId = groupId.ifEmpty { userRepository.getSelfId() }
+            backgroundSyncRepository.addBudgetToMap(entityId = entityId, category = entity.name)
             budgetRepository.createBudgetLocally(
                 category = entity.name,
                 icon = entity.icon,

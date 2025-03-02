@@ -8,4 +8,5 @@ interface FirebaseBackgroundSyncRepository {
     fun init()
     fun addGroupForFirebaseListener(groupId: String)
     suspend fun newSubCategoryAdded(entity: SubCategoryEntity)
+    suspend fun addBudgetToMap(entityId: String, category: String)
 }

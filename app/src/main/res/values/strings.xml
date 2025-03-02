@@ -111,5 +111,8 @@
     <string name="reject_all_close">"Reject All &amp; Close Group"</string>
     <string name="expense_in_month">"Expenses(%s)"</string>
     <string name="expense_mode">"Expenses only"</string>
+    <string name="remaining_amount">"Remaining ₹%s"</string>
+    <string name="exceed_limit_warning_text">"You’ve exceeded the limit!"</string>
+    <string name="transaction_count">"%s Transactions"</string>
 
 </resources>

@@ -26,4 +26,8 @@ interface BudgetDao {
 
     @Query("Select * From budget_table Where category == :category AND entityId = :entityId")
     suspend fun getBudget(entityId: String, category: String): BudgetEntity
+
+    @Query("Select * From budget_table Where entityId = :entityId")
+    suspend fun getBudgetForAnEntity(entityId: String): List<BudgetEntity>
+
 }

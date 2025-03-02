@@ -1,11 +1,14 @@
 package com.penny.planner.data.repositories.implementations
 
 import com.google.firebase.auth.FirebaseAuth
+import com.penny.planner.data.repositories.interfaces.FriendsDirectoryRepository
 import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.helpers.Utils
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(): UserRepository {
+class UserRepositoryImpl @Inject constructor(
+    private val friendsRepository: FriendsDirectoryRepository
+): UserRepository {
 
     private val auth = FirebaseAuth.getInstance()
 
@@ -28,8 +31,10 @@ class UserRepositoryImpl @Inject constructor(): UserRepository {
         return auth.currentUser?.email ?: Utils.DEFAULT_EMAIL_STRING
     }
 
-    override fun getImagePath(): String {
-        return FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
+    override suspend fun getImagePath(): String {
+        return friendsRepository.findFriend(getEmail()).localImagePath.ifEmpty {
+            FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
+        }
     }
 
     override fun getSelfId() = FirebaseAuth.getInstance().currentUser!!.uid

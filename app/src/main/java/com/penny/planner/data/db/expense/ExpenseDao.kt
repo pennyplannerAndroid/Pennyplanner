@@ -12,8 +12,8 @@ import com.penny.planner.models.GroupDisplayModel
 @Dao
 interface ExpenseDao {
 
-    @Query("Select * From expense_table Where entityType = 1 Order by time DESC")
-    fun getAllExpenses() : LiveData<List<ExpenseEntity>>
+    @Query("Select * From expense_table Where entityType = 1 AND groupId = :groupId AND time BETWEEN :start AND :end")
+    fun getAllExpensesExceptMessages(groupId: String, start: Long, end: Long) : List<ExpenseEntity>
 
     @Query("Select * From expense_table Where entityType = 1 AND expensorId = :personalId Order by time DESC LIMIT ${Utils.HOME_PAGE_EXPENSE_DISPLAY_COUNT}")
     fun getExpensesForDisplayAtHomePage(personalId: String) : LiveData<List<ExpenseEntity>>

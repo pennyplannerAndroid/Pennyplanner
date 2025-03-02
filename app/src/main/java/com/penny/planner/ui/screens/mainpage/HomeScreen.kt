@@ -62,7 +62,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     modifier: Modifier,
-    addExpenseClick: () -> Unit) {
+    navigateToBudgetDetails: (String) -> Unit,
+    addExpenseClick: () -> Unit
+) {
     val viewModel = hiltViewModel<ExpenseViewModel>()
     val scope = rememberCoroutineScope()
     var expenseList by remember {
@@ -74,9 +76,13 @@ fun HomeScreen(
     var monthlyExpenseEntity by remember {
         mutableStateOf(MonthlyExpenseEntity())
     }
+    var imagePath by remember {
+        mutableStateOf("")
+    }
     val lifeCycle = LocalLifecycleOwner.current
     LaunchedEffect(keys = emptyArray()) {
         scope.launch {
+            imagePath = viewModel.getPicturePath()
             val budget = viewModel.getMonthlyBudget()
             if (budget != null) {
                 monthlyBudget = budget
@@ -120,11 +126,11 @@ fun HomeScreen(
                                 shape = CircleShape
                             )
                             .clip(CircleShape),
-                        model = R.drawable.default_user_display,
+                        model = imagePath,
                         contentDescription = "",
                         contentScale = ContentScale.Crop
                     ) {
-                        it.load(viewModel.getPicturePath())
+                        it.load(imagePath)
                             .placeholder(R.drawable.default_user_display)
                             .error(R.drawable.default_user_display)
                     }
@@ -151,7 +157,7 @@ fun HomeScreen(
                                 monthlyBudgetInfoModel = monthlyBudget.monthlyBudget,
                                 expenseSoFar = monthlyExpenseEntity.expense
                             ) {
-
+                                navigateToBudgetDetails.invoke(viewModel.getSelfId())
                             }
                             Row(
                                 modifier = Modifier

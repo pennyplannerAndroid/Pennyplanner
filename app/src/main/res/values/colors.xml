@@ -22,4 +22,8 @@
     <color name="orange">#FF9800</color>
     <color name="group_list_item_top">#FFF6E5</color>
     <color name="success_green">#00A86B</color>
+    <color name="limit_cross_color">#FCAC12</color>
+    <color name="progress_background_color">#F1F1FA</color>
+    <color name="above_limit_text_color">#FD3C4A</color>
+
 </resources>

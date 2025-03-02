@@ -65,6 +65,7 @@ fun GroupSessionChatComponent(
     monthlyExpenseEntity: MonthlyExpenseEntity,
     addExpenseClick: () -> Unit,
     memberClick: () -> Unit,
+    circularBarClicked: () -> Unit,
     sendClick: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -97,7 +98,8 @@ fun GroupSessionChatComponent(
                 },
                 memberClick = {
                     memberClick.invoke()
-                }
+                },
+                circularBarClicked = circularBarClicked
             ) {
                 expenseSwitchEnabled = it
             }
@@ -341,7 +343,7 @@ fun PreviewGroupSession() {
         transitionList = groupList,
         monthlyExpenseEntity = MonthlyExpenseEntity(
             expense = 25000.0
-        ), {}, {}
+        ), {}, {}, {}
     ) {}
 }
 

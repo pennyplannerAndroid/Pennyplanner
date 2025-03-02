@@ -27,7 +27,8 @@ class ExpenseViewModel @Inject constructor(
     }
 
     fun getName() = userRepository.getUserName()
-    fun getPicturePath() = userRepository.getImagePath()
+    suspend fun getPicturePath() = userRepository.getImagePath()
+    fun getSelfId() = userRepository.getSelfId()
 
     fun addExpense(entity: ExpenseEntity) {
         viewModelScope.launch {
@@ -39,8 +40,6 @@ class ExpenseViewModel @Inject constructor(
         expenseRepository.getMonthlyExpenseEntity(entityId, time)
 
     suspend fun getMonthlyBudget() = budgetRepository.getMonthlyBudget()
-
-    suspend fun getAllExpense() = expenseRepository.getAllExpenses()
 
     suspend fun getHomePageExpense() = expenseRepository.getExpensesForDisplayAtHomePage()
 }

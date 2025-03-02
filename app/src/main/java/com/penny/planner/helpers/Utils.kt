@@ -42,6 +42,7 @@ class Utils {
         const val CREATE_GROUP = "create_group"
         const val GROUP_SESSION = "group_session"
         const val PENDING_APPROVAL_PAGE = "pending_approval_page"
+        const val BUDGET_WITH_CATEGORY_PAGE = "budget_with_category_page"
 
         // Key
         const val EMAIL = "email"
@@ -72,6 +73,7 @@ class Utils {
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"
         const val GROUP_ID = "groupId"
+        const val ENTITY_ID = "entityId"
         const val TIME = "time"
 
         //search
@@ -161,9 +163,16 @@ class Utils {
             return Timestamp(savedDate)
         }
 
-        fun getCurrentMonthYear(): String {
+        fun getCurrentMonthYear(
+            year: Int = Calendar.getInstance().get(Calendar.YEAR),
+            month: Int = Calendar.getInstance().get(Calendar.MONTH)
+        ): String {
+            val date = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
+            }.time
             val dateFormatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-            return dateFormatter.format(Calendar.getInstance().time)
+            return dateFormatter.format(date)
         }
 
         @SuppressLint("SimpleDateFormat")
@@ -188,6 +197,27 @@ class Utils {
         fun getCurrentMonthShort(): String {
             val currentMonth = LocalDate.now().month
             return currentMonth.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+        }
+
+        fun getStartAndEndOfMonth(
+            year: Int = Calendar.getInstance().get(Calendar.YEAR),
+            month: Int = Calendar.getInstance().get(Calendar.MONTH) + 1
+        ): Pair<Long, Long> {
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
+                set(Calendar.DAY_OF_MONTH, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val startOfMonth = calendar.timeInMillis
+
+            calendar.add(Calendar.MONTH, 1)
+            val endOfMonth = calendar.timeInMillis - 1
+
+            return Pair(startOfMonth, endOfMonth)
         }
 
         fun isNetworkAvailable(context: Context?): Boolean {

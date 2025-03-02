@@ -47,7 +47,7 @@ class BudgetRepositoryImpl @Inject constructor(
             .addOnSuccessListener {
                 entity.uploadedOnServer = true
                 applicationScope.launch(Dispatchers.IO) {
-                    budgetDao.updateEntity(entity)
+                    updateBudgetAfterServerUpdate(entity)
                 }
             }
     }
@@ -61,7 +61,7 @@ class BudgetRepositoryImpl @Inject constructor(
             .addOnSuccessListener {
                 entity.uploadedOnServer = true
                 applicationScope.launch(Dispatchers.IO) {
-                    budgetDao.updateEntity(entity)
+                    updateBudgetAfterServerUpdate(entity)
                 }
             }
     }
@@ -79,9 +79,12 @@ class BudgetRepositoryImpl @Inject constructor(
         budgetDao.addBudgetList(list)
     }
 
-    override suspend fun updateBudget(entity: BudgetEntity) {
+    override suspend fun updateBudgetAfterServerUpdate(entity: BudgetEntity) {
         budgetDao.updateEntity(entity)
     }
 
     override suspend fun getAllBudgets(): List<BudgetEntity> = budgetDao.getAllBudgets()
+
+    override suspend fun getAllBudgetsForEntity(entityId: String): List<BudgetEntity> = budgetDao.getBudgetForAnEntity(entityId)
+
 }

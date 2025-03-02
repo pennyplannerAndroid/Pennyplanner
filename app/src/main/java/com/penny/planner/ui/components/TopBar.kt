@@ -73,19 +73,19 @@ fun ColoredTopBar(
                     modifier = Modifier
                         .clickable(onClick = onTitleClicked)
                 ) {
-                    Text(
-                        text = title,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
                     Icon(
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
-                            .padding(start = 4.dp)
-                            .size(24.dp),
+                            .padding(end = 4.dp)
+                            .size(12.dp),
                         painter = painterResource(id = R.drawable.down_arrow_icon),
                         contentDescription = "",
                         tint = Color.White
+                    )
+                    Text(
+                        text = title,
+                        textAlign = TextAlign.Center,
+                        fontSize = 16.sp
                     )
                 }
             } else {

@@ -32,7 +32,7 @@ class ExpenseRepositoryImpl @Inject constructor(
     private val userCollectionRef = db.collection(Utils.USER_EXPENSES)
     private val groupCollectionRef = db.collection(Utils.GROUP_EXPENSES)
 
-    override suspend fun getAllExpensesExceptMessage(groupId: String, start: Long, end: Long): List<ExpenseEntity> =
+    override suspend fun getAllExpensesExceptMessage(groupId: String, start: Long, end: Long): List<GroupDisplayModel> =
         expenseDao.getAllExpensesExceptMessages(groupId, start, end)
 
     override suspend fun getExpensesForDisplayAtHomePage(): LiveData<List<ExpenseEntity>> =

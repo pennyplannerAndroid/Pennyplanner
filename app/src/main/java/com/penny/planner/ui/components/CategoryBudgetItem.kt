@@ -3,6 +3,7 @@ package com.penny.planner.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +36,8 @@ import com.penny.planner.models.CategoryExpenseModel
 
 @Composable
 fun CategoryBudgetItem(
-    categoryExpenseModel: CategoryExpenseModel
+    categoryExpenseModel: CategoryExpenseModel,
+    onClick: () -> Unit
 ) {
     val isAboveLimit = categoryExpenseModel.expenses >= categoryExpenseModel.spendLimit
     val progress = (categoryExpenseModel.expenses/categoryExpenseModel.spendLimit).toFloat()
@@ -46,7 +48,8 @@ fun CategoryBudgetItem(
             .background(
                 color = colorResource(id = R.color.white),
                 shape = RoundedCornerShape(12.dp)
-            ),
+            )
+            .clickable(onClick = onClick),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 24.dp),
         colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.white))
     ){

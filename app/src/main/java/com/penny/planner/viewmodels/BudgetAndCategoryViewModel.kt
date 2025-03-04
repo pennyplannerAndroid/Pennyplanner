@@ -1,7 +1,6 @@
 package com.penny.planner.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.ExpenseRepository
 import com.penny.planner.data.repositories.interfaces.GroupRepository
@@ -10,6 +9,7 @@ import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.data.repositories.interfaces.UserRepository
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.CategoryExpenseModel
+import com.penny.planner.models.GroupDisplayModel
 import com.penny.planner.models.MonthlyBudgetInfoModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Calendar
@@ -31,7 +31,7 @@ class BudgetAndCategoryViewModel @Inject constructor(
     private var isPersonal = true
     private var monthlyBudget: MonthlyBudgetInfoModel = MonthlyBudgetInfoModel()
     private var monthlyExpense: Int = 0
-    private lateinit var groupedExpenses: Map<String, List<ExpenseEntity>>
+    private lateinit var groupedExpenses: Map<String, List<GroupDisplayModel>>
     private var categoryDetails: MutableList<CategoryExpenseModel> = mutableListOf()
     private var profileUrl: String = ""
     private var name: String = "Personal Expenses"
@@ -90,6 +90,8 @@ class BudgetAndCategoryViewModel @Inject constructor(
     }
 
     fun getAllCategoryDetails() = categoryDetails.toList()
+
+    fun getALlExpenses(category: String) = groupedExpenses[category]
 
     fun getGroupBudgetDetails() = CategoryExpenseModel(
         id = 1,

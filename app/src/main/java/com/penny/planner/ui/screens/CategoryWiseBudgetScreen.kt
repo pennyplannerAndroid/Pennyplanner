@@ -49,6 +49,12 @@ fun CategoryWiseBudgetScreen(entityId: String) {
     var showLoader by remember {
         mutableStateOf(true)
     }
+    var showCategoryDetailPage by remember {
+        mutableStateOf(false)
+    }
+    var selectedCategory by remember {
+        mutableStateOf("")
+    }
     val context = LocalContext.current
     val view = LocalView.current
     var categoryDetailList by remember {
@@ -76,51 +82,63 @@ fun CategoryWiseBudgetScreen(entityId: String) {
     }
 
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    Scaffold(
-        topBar = {
-            ColoredTopBar(
-                modifier = Modifier,
-                title = month,
-                color = colorResource(id = R.color.loginText),
-                titleClickable = true,
-                onTitleClicked = {
+    if (showCategoryDetailPage) {
+        CategoryExpenseDetailsScreen(
+            category = selectedCategory,
+            expenses = viewModel.getALlExpenses(selectedCategory)
+        ) {
+            showCategoryDetailPage = false
+        }
+    } else {
+        Scaffold(
+            topBar = {
+                ColoredTopBar(
+                    modifier = Modifier,
+                    title = month,
+                    color = colorResource(id = R.color.loginText),
+                    titleClickable = true,
+                    onTitleClicked = {
 
-                },
-                onBackPressed = {
-                    backDispatcher?.onBackPressed()
-                }
-            )
-        },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .background(color = colorResource(id = R.color.loginText))
-            ) {
-                GroupBudgetHeader(groupBudgetDetails = groupBudgetDetails)
+                    },
+                    onBackPressed = {
+                        backDispatcher?.onBackPressed()
+                    }
+                )
+            },
+            content = { paddingValues ->
                 Column(
                     modifier = Modifier
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-                        )
-                        .fillMaxSize()
-                        .navigationBarsPadding()
+                        .padding(paddingValues)
+                        .background(color = colorResource(id = R.color.loginText))
                 ) {
-                    LazyColumn(
+                    GroupBudgetHeader(groupBudgetDetails = groupBudgetDetails)
+                    Column(
                         modifier = Modifier
-                            .padding(top = 8.dp),
-                        contentPadding = PaddingValues(top = 12.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                            )
+                            .fillMaxSize()
+                            .navigationBarsPadding()
                     ) {
-                        items(categoryDetailList) {
-                            CategoryBudgetItem(categoryExpenseModel = it)
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(top = 8.dp),
+                            contentPadding = PaddingValues(top = 12.dp)
+                        ) {
+                            items(categoryDetailList) {
+                                CategoryBudgetItem(categoryExpenseModel = it) {
+                                    selectedCategory = it.category
+                                    showCategoryDetailPage = true
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-    )
-    FullScreenProgressIndicator(show = showLoader)
+        )
+        FullScreenProgressIndicator(show = showLoader)
+    }
 }
 
 @Preview

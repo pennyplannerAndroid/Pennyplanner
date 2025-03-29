@@ -3,6 +3,7 @@ package com.penny.planner.di
 import com.penny.planner.data.repositories.implementations.BudgetRepositoryImpl
 import com.penny.planner.data.repositories.implementations.DataStoreEmojiRepositoryImpl
 import com.penny.planner.data.repositories.implementations.CategoryAndEmojiRepositoryImpl
+import com.penny.planner.data.repositories.implementations.DatabaseRepositoryImpl
 import com.penny.planner.data.repositories.implementations.MonthlyBudgetRepositoryImpl
 import com.penny.planner.data.repositories.interfaces.GroupRepository
 import com.penny.planner.data.repositories.implementations.GroupRepositoryImpl
@@ -21,6 +22,7 @@ import com.penny.planner.data.repositories.interfaces.BudgetRepository
 import com.penny.planner.data.repositories.interfaces.CategoryAndEmojiRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyBudgetRepository
 import com.penny.planner.data.repositories.interfaces.DataStoreEmojiRepository
+import com.penny.planner.data.repositories.interfaces.DatabaseRepository
 import com.penny.planner.data.repositories.interfaces.FirebaseBackgroundSyncRepository
 import com.penny.planner.data.repositories.interfaces.MonthlyExpenseRepository
 import com.penny.planner.data.repositories.interfaces.ProfilePictureRepository
@@ -81,4 +83,8 @@ abstract class AbstractModule {
     @Singleton
     @Binds
     abstract fun bindProfilePictureRepository(repository: ProfilePictureRepositoryImpl): ProfilePictureRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindDatabaseRepository(repository: DatabaseRepositoryImpl): DatabaseRepository
 }

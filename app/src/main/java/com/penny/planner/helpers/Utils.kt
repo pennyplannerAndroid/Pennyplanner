@@ -43,6 +43,7 @@ class Utils {
         const val GROUP_SESSION = "group_session"
         const val PENDING_APPROVAL_PAGE = "pending_approval_page"
         const val BUDGET_WITH_CATEGORY_PAGE = "budget_with_category_page"
+        const val EDIT_PROFILE_PAGE = "edit_profile_page"
 
         // Key
         const val EMAIL = "email"
@@ -108,6 +109,7 @@ class Utils {
         const val APPROVALS = "Approvals"
         const val MEMBERS = "members"
         const val STATUS = "status"
+        const val NAME = "name"
 
         //db name
         const val PENNY_DATABASE = "penny_database"

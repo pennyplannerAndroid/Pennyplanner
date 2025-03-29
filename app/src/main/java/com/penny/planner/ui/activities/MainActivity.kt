@@ -44,6 +44,7 @@ import com.penny.planner.ui.screens.AddExpenseScreen
 import com.penny.planner.ui.screens.AddNewGroupScreen
 import com.penny.planner.ui.screens.AdminApprovalScreen
 import com.penny.planner.ui.screens.CategoryWiseBudgetScreen
+import com.penny.planner.ui.screens.EditProfileScreen
 import com.penny.planner.ui.screens.GroupSessionScreen
 import com.penny.planner.ui.screens.mainpage.BudgetScreen
 import com.penny.planner.ui.screens.mainpage.GroupScreen
@@ -53,6 +54,7 @@ import com.penny.planner.ui.screens.mainpage.SplashScreen
 import com.penny.planner.ui.theme.PennyPlannerTheme
 import com.penny.planner.viewmodels.ExpenseViewModel
 import com.penny.planner.viewmodels.GroupViewModel
+import com.penny.planner.viewmodels.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -106,6 +108,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainPageNavigation(needNavigation: Boolean = false) {
         val viewModel = hiltViewModel<ExpenseViewModel>()
+        val profileViewModel = hiltViewModel<ProfileViewModel>()
         val controller = rememberNavController()
         val scope = rememberCoroutineScope()
         NavHost(navController = controller, startDestination = navigationDestination) {
@@ -140,6 +143,10 @@ class MainActivity : ComponentActivity() {
                         controller.navigate(
                             route = "${Utils.GROUP_SESSION}/${it}"
                         )
+                    },
+                    profileViewModel = profileViewModel,
+                    onProfileEditClicked = {
+                        controller.navigate(route = Utils.EDIT_PROFILE_PAGE)
                     }
                 )
             }
@@ -210,6 +217,11 @@ class MainActivity : ComponentActivity() {
                     entityId = it.arguments?.getString(Utils.ENTITY_ID) ?: ""
                 )
             }
+            composable(route = Utils.EDIT_PROFILE_PAGE) {
+                EditProfileScreen(viewModel = profileViewModel) {
+                    controller.popBackStack()
+                }
+            }
         }
         if (needNavigation) {
             if (controller.currentDestination?.route != Utils.MAIN_PAGE) {
@@ -223,7 +235,9 @@ class MainActivity : ComponentActivity() {
         createGroupClicked: () -> Unit,
         addExpense: () -> Unit,
         circularBarClicked: (String) -> Unit,
-        openGroupSession: (String) -> Unit
+        openGroupSession: (String) -> Unit,
+        profileViewModel: ProfileViewModel,
+        onProfileEditClicked: () -> Unit
     ) {
         val systemUiController = rememberSystemUiController()
         val lifecycleOwner = LocalLifecycleOwner.current
@@ -262,9 +276,9 @@ class MainActivity : ComponentActivity() {
         }
 
         Scaffold(
+            modifier = Modifier.navigationBarsPadding(),
             bottomBar = {
                 BottomNavigation(
-                    modifier = Modifier.navigationBarsPadding(),
                     backgroundColor = Color.White,
                     elevation = 16.dp
                 ) {
@@ -282,7 +296,7 @@ class MainActivity : ComponentActivity() {
                             },
                             label = {
                                 Text(
-                                    modifier = Modifier.padding(bottom = 16.dp),
+                                    modifier = Modifier.padding(bottom = 4.dp),
                                     text = item.name
                                 )
                             },
@@ -329,7 +343,11 @@ class MainActivity : ComponentActivity() {
                        openGroupSession.invoke(it)
                     }
                     POSITION_BUDGET -> BudgetScreen()
-                    POSITION_PROFILE -> ProfileScreen()
+                    POSITION_PROFILE -> ProfileScreen(
+                        viewModel = profileViewModel
+                    ) {
+                        onProfileEditClicked.invoke()
+                    }
                 }
             }
         }

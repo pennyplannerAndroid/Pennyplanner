@@ -1,6 +1,5 @@
 package com.penny.planner.data.db.friends
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -31,4 +30,7 @@ interface UsersDao {
 
     @Query("SELECT * FROM ${Utils.FRIEND_TABLE} where email = :email")
     suspend fun findFriend(email: String): UsersEntity
+
+    @Query("UPDATE ${Utils.FRIEND_TABLE} SET name = :name WHERE id = :id")
+    suspend fun updateName(name: String, id: String)
 }

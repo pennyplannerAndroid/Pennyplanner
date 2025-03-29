@@ -11,4 +11,5 @@ interface FriendsDirectoryRepository {
     suspend fun doesFriendExists(email: String): Boolean
     suspend fun getAllFriends(): List<UsersEntity>
     suspend fun findFriend(email: String): UsersEntity
+    suspend fun updateName(name: String, id: String)
 }

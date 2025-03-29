@@ -25,5 +25,6 @@
     <color name="limit_cross_color">#FCAC12</color>
     <color name="progress_background_color">#F1F1FA</color>
     <color name="above_limit_text_color">#FD3C4A</color>
+    <color name="logout_background">#FFE2E4</color>
 
 </resources>

@@ -69,4 +69,8 @@ class FriendsDirectoryRepositoryImpl @Inject constructor(
     override suspend fun findFriend(email: String): UsersEntity {
         return usersDao.findFriend(email)
     }
+
+    override suspend fun updateName(name: String, id: String) {
+        return usersDao.updateName(name, id)
+    }
 }

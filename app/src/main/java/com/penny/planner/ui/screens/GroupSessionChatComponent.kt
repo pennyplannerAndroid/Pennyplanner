@@ -73,7 +73,12 @@ fun GroupSessionChatComponent(
     val systemUiController = rememberSystemUiController()
     val state: LazyListState = rememberLazyListState()
     var expenseSwitchEnabled by remember { mutableStateOf(false) }
-    
+    var searchEnabled by remember {
+        mutableStateOf(false)
+    }
+    var searchText by remember {
+        mutableStateOf("")
+    }
     LaunchedEffect(key1 = true) {
         systemUiController.setSystemBarsColor(color = Color.White, darkIcons = true)
         systemUiController.setNavigationBarColor(color = Color.White, darkIcons = false)
@@ -99,7 +104,16 @@ fun GroupSessionChatComponent(
                 memberClick = {
                     memberClick.invoke()
                 },
-                circularBarClicked = circularBarClicked
+                circularBarClicked = circularBarClicked,
+                searchEnabled = {
+                    searchEnabled = it
+                    if (!it){
+                        searchText = ""
+                    }
+                },
+                searchTextChanged = {
+                    searchText = it
+                }
             ) {
                 expenseSwitchEnabled = it
             }
@@ -121,7 +135,15 @@ fun GroupSessionChatComponent(
                     colors = CardDefaults.cardColors().copy(containerColor = colorResource(id = R.color.loginButton))
                 ) {
                     LazyColumn(state = state) {
-                        items(if (expenseSwitchEnabled) transitionList.filter { it.entityType == 1 } else transitionList) { item ->
+                        val list = if (searchEnabled && searchText.isNotEmpty()) transitionList.filter {
+                            it.category.lowercase().contains(searchText)
+                                    || it.content.lowercase().contains(searchText)
+                                    || it.price.toString().contains(searchText)
+                                    || it.paymentType.lowercase().contains(searchText)
+                                    || it.senderName.lowercase().contains(searchText)
+                                    || it.subCategory.lowercase().contains(searchText)
+                        } else transitionList
+                        items(if (expenseSwitchEnabled) list.filter { it.entityType == 1 } else list) { item ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -222,10 +244,12 @@ fun GroupSessionChatComponent(
             }
         },
         bottomBar = {
-            GroupChatTextField(
-                addExpenseClick = addExpenseClick
-            ) {
-                sendClick.invoke(it)
+            if (!searchEnabled && !expenseSwitchEnabled) {
+                GroupChatTextField(
+                    addExpenseClick = addExpenseClick
+                ) {
+                    sendClick.invoke(it)
+                }
             }
         }
     )

@@ -178,7 +178,7 @@ fun HomeScreen(
                                     )
                                     Text(
                                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                                        text = "${Utils.RUPEE}${monthlyBudget.monthlyBudget.toInt()}",
+                                        text = "${Utils.SELECTED_CURRENCY}${monthlyBudget.monthlyBudget.toInt()}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
                                     )
@@ -213,7 +213,7 @@ fun HomeScreen(
                                     }
                                     Text(
                                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                                        text = "${Utils.RUPEE}${
+                                        text = "${Utils.SELECTED_CURRENCY}${
                                             Utils.getSafeToSpendValue(
                                                 monthlyBudget.monthlyBudget,
                                                 monthlyBudget.safeToSpendLimit,

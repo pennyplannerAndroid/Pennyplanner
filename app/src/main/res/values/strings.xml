@@ -56,7 +56,6 @@
     <string name="notification">"Notification"</string>
     <string name="add_expense">"Expense"</string>
     <string name="how_much">"How much?"</string>
-    <string name="rupee_icon">"₹"</string>
     <string name="description">"Description"</string>
     <string name="category">"Category"</string>
     <string name="sub_category">"Sub Category"</string>

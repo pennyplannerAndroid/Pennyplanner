@@ -294,7 +294,7 @@ fun GroupSessionTopBar(
                             Text(
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally),
-                                text = "${Utils.RUPEE}${monthlyExpenseEntity.expense.toInt()}",
+                                text = "${Utils.SELECTED_CURRENCY}${monthlyExpenseEntity.expense.toInt()}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = Color.Black
@@ -314,7 +314,7 @@ fun GroupSessionTopBar(
                             )
                             Text(
                                 modifier = Modifier,
-                                text = "${Utils.RUPEE}${group.monthlyBudget.toInt()}",
+                                text = "${Utils.SELECTED_CURRENCY}${group.monthlyBudget.toInt()}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = Color.Black
@@ -343,7 +343,7 @@ fun GroupSessionTopBar(
                     ){
                         Text(
                             modifier = Modifier,
-                            text = "${Utils.RUPEE}${monthlyExpenseEntity.expense.toInt()}",
+                            text = "${Utils.SELECTED_CURRENCY}${monthlyExpenseEntity.expense.toInt()}",
                             color = colorResource(id = R.color.above_limit_text_color),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -351,7 +351,7 @@ fun GroupSessionTopBar(
                         )
                         Text(
                             modifier = Modifier,
-                            text = " of ${Utils.RUPEE}${group.monthlyBudget.toInt()}",
+                            text = " of ${Utils.SELECTED_CURRENCY}${group.monthlyBudget.toInt()}",
                             color = Color.Black,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,

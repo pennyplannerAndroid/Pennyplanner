@@ -69,7 +69,7 @@ class Utils {
         const val PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[$SPECIAL_CHARACTERS])(?=\\S+$).{8,20}$"
 
         const val PROVIDER = "com.penny.planner.provider"
-        const val RUPEE = "₹"
+        const val SELECTED_CURRENCY = "₹"
         const val EMOJI_JSON = "emojiJson"
         const val DEFAULT_ICON = "🏷️"
         const val DEFAULT = "Default"

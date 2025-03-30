@@ -137,7 +137,7 @@ fun AddExpenseScreen(
                     .padding(start = 24.dp, top = 8.dp, bottom = 24.dp, end = 24.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.rupee_icon),
+                    text = Utils.SELECTED_CURRENCY,
                     fontSize = 64.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White

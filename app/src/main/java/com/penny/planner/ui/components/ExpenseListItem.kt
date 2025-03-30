@@ -41,7 +41,7 @@ fun ExpenseListItem(
             Text(
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
-                text = "${Utils.RUPEE}${item.price.toInt()}",
+                text = "${Utils.SELECTED_CURRENCY}${item.price.toInt()}",
                 maxLines = 1,
                 fontSize = 24.sp,
                 color = colorResource(R.color.loginText),
@@ -158,7 +158,7 @@ fun ExpenseListItem(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${Utils.RUPEE}${item.price.toInt()}",
+                text = "${Utils.SELECTED_CURRENCY}${item.price.toInt()}",
                 maxLines = 1,
                 fontSize = 16.sp,
                 color = Color.Red,

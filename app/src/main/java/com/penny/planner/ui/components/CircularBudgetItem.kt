@@ -55,7 +55,7 @@ fun CircularBudgetItem(
                 contentDescription = ""
             )
             Text(
-                text = "${Utils.RUPEE}${expenseSoFar.toInt()}",
+                text = "${Utils.SELECTED_CURRENCY}${expenseSoFar.toInt()}",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )

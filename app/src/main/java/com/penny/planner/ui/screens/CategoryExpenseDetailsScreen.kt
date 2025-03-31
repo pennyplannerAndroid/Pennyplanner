@@ -21,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.GroupDisplayModel
@@ -53,6 +55,18 @@ fun CategoryExpenseDetailsScreen(
             onDismiss.invoke()
         }
     )
+    val statusBarColor = colorResource(id = R.color.loginText)
+    val navBarColor = colorResource(id = R.color.loginButton)
+    val systemUiController = rememberSystemUiController()
+    LaunchedEffect(true) {
+        systemUiController.setStatusBarColor(
+            color = statusBarColor,
+            darkIcons = false
+        )
+        systemUiController.setNavigationBarColor(
+            color = navBarColor
+        )
+    }
     Scaffold(
         topBar = {
             ColoredTopBar(modifier = Modifier, title = category, color = colorResource(id = R.color.loginText)) {
@@ -65,10 +79,9 @@ fun CategoryExpenseDetailsScreen(
                     .background(color = colorResource(id = R.color.loginText))
             ) {
                 if (expenses != null)
-                    ExpensePieChart(expenses, Modifier.fillMaxWidth())
+                    ExpensePieChart(expenses, Modifier.fillMaxWidth().padding(contentPadding))
                 Card(
                     modifier = Modifier
-                        .padding(contentPadding)
                         .background(
                             color = Color.White,
                             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
@@ -80,7 +93,9 @@ fun CategoryExpenseDetailsScreen(
                     colors = CardDefaults.cardColors()
                         .copy(containerColor = colorResource(id = R.color.loginButton))
                 ) {
-                    LazyColumn {
+                    LazyColumn(
+                        modifier = Modifier.padding(4.dp)
+                    ) {
                         if (!expenses.isNullOrEmpty()) {
                             items(expenses) { item ->
                                 Column(

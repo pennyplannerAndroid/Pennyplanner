@@ -76,6 +76,7 @@ class Utils {
         const val GROUP_ID = "groupId"
         const val ENTITY_ID = "entityId"
         const val TIME = "time"
+        const val OTHERS = "Others"
 
         //search
         const val FETCHING_GROUP = "Fetching group..."

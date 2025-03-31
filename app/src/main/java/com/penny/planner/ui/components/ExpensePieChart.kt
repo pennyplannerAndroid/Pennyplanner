@@ -19,8 +19,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.dpToPx
 import com.penny.planner.models.GroupDisplayModel
 import kotlin.math.cos
@@ -28,8 +30,24 @@ import kotlin.math.sin
 
 @Composable
 fun ExpensePieChart(expenses: List<GroupDisplayModel>, modifier: Modifier = Modifier) {
-    val map = expenses.groupBy { it.subCategory }
+    val tempMap = expenses.groupBy { it.subCategory }
     val totalAmount = expenses.sumOf { it.price }.toFloat()
+    val map1 : MutableMap<String, Double> = mutableMapOf()
+    var count = 0 // max 10
+    var amount = 0.0
+    for (item in tempMap) {
+        count++
+        val totalPrice = item.value.sumOf {value -> value.price }
+        amount += totalPrice
+        map1[item.key] = totalPrice
+        if (count == 9 && tempMap.size != 10) {
+            break
+        }
+    }
+    if (tempMap.size > 10) {
+        map1[Utils.OTHERS] = totalAmount - amount
+    }
+    val map = map1.toList().sortedBy { (_, value) -> value }.toMap()
     val screenWidth = LocalConfiguration.current.screenWidthDp/2
     val screenWidthPx = screenWidth.dp.dpToPx()
     val colors = listOf(
@@ -50,14 +68,18 @@ fun ExpensePieChart(expenses: List<GroupDisplayModel>, modifier: Modifier = Modi
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Canvas(
-            modifier = Modifier.size(screenWidth.dp)
+            modifier = Modifier
+                .size(screenWidth.dp)
+                .align(Alignment.CenterVertically)
         ) {
             val radius = screenWidthPx / 2
             val center = Offset(radius, radius)
             var startAngle = -90f // Start at the top
             var iterator = 0
+            var start = 1
+            var percentage = 0
             map.forEach { item ->
-                val sweepAngle = (item.value.sumOf { it.price }.toFloat() / totalAmount) * 360f
+                val sweepAngle = (item.value.toFloat() / totalAmount) * 360f
                 drawArc(
                     color = colors[iterator],
                     startAngle = startAngle,
@@ -72,16 +94,21 @@ fun ExpensePieChart(expenses: List<GroupDisplayModel>, modifier: Modifier = Modi
                     textSize = 28f
                     textAlign = Paint.Align.CENTER
                 }
-
+                var value = (sweepAngle.toDouble()/360 * 100).toInt()
+                if (start == map.size) {
+                    value = 100 - percentage
+                }
+                percentage += value
                 // Draw Text Label
                 drawContext.canvas.nativeCanvas.drawText(
-                    "${(sweepAngle/360 * 100).toInt()}%",
+                    "$value%",
                     labelX,
                     labelY,
                     textPaint
                 )
                 iterator++
                 startAngle += sweepAngle
+                start++
             }
         }
         Column(
@@ -104,13 +131,20 @@ fun ExpensePieChart(expenses: List<GroupDisplayModel>, modifier: Modifier = Modi
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        text = " ${expenses.key}: ₹${expenses.value.sumOf { it.price }.toInt()}",
+                        text = " ${expenses.key}: ₹${expenses.value.toInt()}",
                         color = Color.White,
                         fontSize = 12.sp
                     )
                 }
                 iterator++
             }
+            Text(
+                modifier = Modifier.align(Alignment.End),
+                text = "Total: ₹${totalAmount.toInt()}",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

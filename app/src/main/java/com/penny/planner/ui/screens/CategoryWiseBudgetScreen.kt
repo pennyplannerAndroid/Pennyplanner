@@ -1,6 +1,5 @@
 package com.penny.planner.ui.screens
 
-import android.app.Activity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,13 +20,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.models.CategoryExpenseModel
@@ -55,8 +51,6 @@ fun CategoryWiseBudgetScreen(entityId: String) {
     var selectedCategory by remember {
         mutableStateOf("")
     }
-    val context = LocalContext.current
-    val view = LocalView.current
     var categoryDetailList by remember {
         mutableStateOf<List<CategoryExpenseModel>>(mutableListOf())
     }
@@ -69,9 +63,17 @@ fun CategoryWiseBudgetScreen(entityId: String) {
         categoryDetailList = viewModel.getAllCategoryDetails()
     }
 
-    SideEffect {
-        val window = (context as Activity).window
-        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+    val statusBarColor = colorResource(id = R.color.loginText)
+    val navBarColor = colorResource(id = R.color.white)
+    val systemUiController = rememberSystemUiController()
+    LaunchedEffect(true) {
+        systemUiController.setStatusBarColor(
+            color = statusBarColor,
+            darkIcons = false
+        )
+        systemUiController.setNavigationBarColor(
+            color = navBarColor
+        )
     }
 
     LaunchedEffect(key1 = true) {

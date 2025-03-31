@@ -214,7 +214,7 @@ fun GroupBudgetHeader(
                         .fillMaxWidth(progress.coerceAtMost(1f))
                         .height(8.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(colorResource(id = if (isAboveLimit) R.color.limit_cross_color else R.color.expense_text_color))
+                        .background(colorResource(id = R.color.above_limit_text_color))
                 )
             }
             Text(

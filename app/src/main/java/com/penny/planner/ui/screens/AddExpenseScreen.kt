@@ -85,7 +85,7 @@ fun AddExpenseScreen(
         mutableStateOf<SubCategoryEntity?>(null)
     }
     var payment by remember {
-        mutableStateOf("")
+        mutableStateOf("UPI")
     }
 
     var showDialog by remember {

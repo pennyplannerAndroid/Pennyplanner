@@ -254,7 +254,6 @@ fun AddExpenseScreen(
                     groupId = groupId,
                     enabled = true,
                     onDismiss = {
-                        showDialog = NONE
                         val updatedCategory = categoryViewModel.getSelectedCategory()
                         if (selectedCategory == null || updatedCategory == null ||
                             selectedCategory!!.name != updatedCategory.name) {
@@ -262,6 +261,10 @@ fun AddExpenseScreen(
                             selectedSubCategory = null
                         }
                         selectedCategory = updatedCategory
+                        showDialog = if (selectedCategory != null)
+                            SUBCATEGORY
+                        else
+                            NONE
                     }
                 )
 

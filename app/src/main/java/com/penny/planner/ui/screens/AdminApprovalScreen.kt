@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.R
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.data.db.groups.GroupEntity
@@ -131,12 +132,10 @@ fun AdminApprovalScreen(
                     .align(Alignment.CenterHorizontally),
                 model = group.profileImage,
                 contentDescription = "",
-                contentScale = ContentScale.Crop
-            ) {
-                it.load(group.profileImage)
-                    .placeholder(R.drawable.default_user_display)
-                    .error(R.drawable.default_user_display)
-            }
+                contentScale = ContentScale.Crop,
+                loading = placeholder(R.drawable.default_user_display),
+                failure = placeholder(R.drawable.default_user_display)
+            )
             Text(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)

@@ -58,6 +58,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.R
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.helpers.Utils
@@ -248,12 +249,10 @@ fun EditProfileScreen (
                         },
                     model = imageUri,
                     contentDescription = "",
-                    contentScale = ContentScale.Crop
-                ) {
-                    it.load(imageUri)
-                        .placeholder(R.drawable.default_user_display)
-                        .error(R.drawable.default_user_display)
-                }
+                    contentScale = ContentScale.Crop,
+                    loading = placeholder(R.drawable.default_user_display),
+                    failure = placeholder(R.drawable.default_user_display)
+                )
                 Box(modifier = Modifier
                     .padding(start = 68.dp, top = 36.dp)
                     .size(18.dp)

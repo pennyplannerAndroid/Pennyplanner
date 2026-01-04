@@ -3,17 +3,18 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.penny.planner"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.penny.planner"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -33,28 +34,20 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/gradle/incremental.annotation.processors"
         }
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 dependencies {
@@ -76,7 +69,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.google.firebase.auth)
     implementation(libs.androidx.runtime.livedata)
-    implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation(libs.hilt.android.v2572)
     implementation(libs.volley)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -84,19 +77,13 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.hilt.common)
     implementation(libs.firebase.dynamic.links.ktx)
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation(libs.core.ktx)
+    ksp(libs.hilt.compiler.v2572)
     implementation(libs.play.services.auth)
 
     implementation(libs.accompanist.permissions.v0290alpha)
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+    implementation(libs.compose)
     implementation(libs.coil.compose)
-    // For instrumentation tests
-    androidTestImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
-    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.51.1")
-
-    // For local unit tests
-    testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
-    kaptTest("com.google.dagger:hilt-compiler:2.51.1")
 
     implementation(libs.firebase.database)
     implementation (libs.firebase.firestore.ktx)
@@ -110,7 +97,7 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
 
     // To use Kotlin Symbol Processing (KSP)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation(libs.androidx.room.ktx)

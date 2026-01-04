@@ -24,9 +24,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.penny.planner.R
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.penny.planner.R
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.data.db.friends.UsersEntity
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -52,14 +53,13 @@ fun FriendInfoCard(
                     shape = CircleShape
                 )
                 .clip(CircleShape),
+
+            failure = placeholder(R.drawable.default_user_display),
+            loading = placeholder(R.drawable.default_user_display),
             model = model.profileImageURL,
             contentDescription = "",
             contentScale = ContentScale.Crop
-        ) {
-            it.load(model.profileImageURL)
-                .placeholder(R.drawable.default_user_display)
-                .error(R.drawable.default_user_display)
-        }
+        )
         Column(
             modifier = modifier
                 .align(Alignment.CenterVertically)
@@ -137,12 +137,10 @@ fun FriendInfoForMemberList (
                 .clip(CircleShape),
             model = model.profileImageURL,
             contentDescription = "",
-            contentScale = ContentScale.Crop
-        ) {
-            it.load(model.profileImageURL)
-                .placeholder(R.drawable.default_user_display)
-                .error(R.drawable.default_user_display)
-        }
+            contentScale = ContentScale.Crop,
+            failure = placeholder(R.drawable.default_user_display),
+            loading = placeholder(R.drawable.default_user_display)
+        )
         Column(
             modifier = modifier
                 .align(Alignment.CenterVertically)

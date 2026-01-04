@@ -68,6 +68,7 @@ import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
 import com.penny.planner.helpers.Utils.Const.createBitmapFromPicture
@@ -228,12 +229,10 @@ fun AddNewGroupScreen(
                         },
                     model = imageUri,
                     contentDescription = "",
-                    contentScale = ContentScale.Crop
-                ) {
-                    it.load(imageUri)
-                        .placeholder(R.drawable.group_default_icon)
-                        .error(R.drawable.group_default_icon)
-                }
+                    contentScale = ContentScale.Crop,
+                    loading = placeholder(R.drawable.default_user_display),
+                    failure = placeholder(R.drawable.default_user_display)
+                )
                 Box(modifier = Modifier
                     .padding(start = 68.dp, top = 36.dp)
                     .size(18.dp)

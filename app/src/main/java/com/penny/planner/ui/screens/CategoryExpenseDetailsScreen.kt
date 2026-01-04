@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.penny.planner.R
 import com.penny.planner.helpers.Utils
@@ -138,12 +139,10 @@ fun CategoryExpenseDetailsScreen(
                                                                 .clip(CircleShape),
                                                             model = item.localImagePath,
                                                             contentDescription = "",
-                                                            contentScale = ContentScale.Crop
-                                                        ) {
-                                                            it.load(item.localImagePath)
-                                                                .placeholder(R.drawable.default_user_display)
-                                                                .error(R.drawable.default_user_display)
-                                                        }
+                                                            contentScale = ContentScale.Crop,
+                                                            loading = placeholder(R.drawable.default_user_display),
+                                                            failure = placeholder(R.drawable.default_user_display)
+                                                        )
                                                         Text(
                                                             modifier = Modifier
                                                                 .padding(start = 4.dp)

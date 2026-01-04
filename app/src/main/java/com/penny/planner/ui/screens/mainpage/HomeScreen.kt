@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.R
 import com.penny.planner.data.db.expense.ExpenseEntity
 import com.penny.planner.data.db.monthlyexpenses.MonthlyExpenseEntity
@@ -128,12 +129,10 @@ fun HomeScreen(
                             .clip(CircleShape),
                         model = imagePath,
                         contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    ) {
-                        it.load(imagePath)
-                            .placeholder(R.drawable.default_user_display)
-                            .error(R.drawable.default_user_display)
-                    }
+                        contentScale = ContentScale.Crop,
+                        loading = placeholder(R.drawable.default_user_display),
+                        failure = placeholder(R.drawable.default_user_display)
+                    )
                 },
             )
         }

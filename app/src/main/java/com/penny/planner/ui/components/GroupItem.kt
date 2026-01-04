@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.R
 import com.penny.planner.data.db.friends.UsersEntity
 import com.penny.planner.helpers.Utils
@@ -83,12 +84,10 @@ fun GroupItem(
                         .align(Alignment.CenterHorizontally),
                     model = entity.profileImage,
                     contentDescription = "",
-                    contentScale = ContentScale.Crop
-                ) {
-                    it.load(entity.profileImage)
-                        .placeholder(R.drawable.default_user_display)
-                        .error(R.drawable.default_user_display)
-                }
+                    contentScale = ContentScale.Crop,
+                    loading = placeholder(R.drawable.default_user_display),
+                    failure = placeholder(R.drawable.default_user_display)
+                )
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),
@@ -170,12 +169,10 @@ fun ShowGlideImage(modifier: Modifier, size: Dp, image: String) {
             .clip(CircleShape),
         model = image,
         contentDescription = "",
-        contentScale = ContentScale.Crop
-    ) {
-        it.load(image)
-            .placeholder(R.drawable.default_user_display)
-            .error(R.drawable.default_user_display)
-    }
+        contentScale = ContentScale.Crop,
+        loading = placeholder(R.drawable.default_user_display),
+        failure = placeholder(R.drawable.default_user_display)
+    )
 }
 
 @Preview

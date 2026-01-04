@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.penny.planner.R
 import com.penny.planner.ui.components.BottomDrawerForLogout
 import com.penny.planner.viewmodels.ProfileViewModel
@@ -228,10 +229,8 @@ fun ShowProfilePicture(
             .clip(CircleShape),
         model = imageUrl,
         contentDescription = "",
-        contentScale = ContentScale.Crop
-    ) {
-        it.load(imageUrl)
-            .placeholder(R.drawable.default_user_display)
-            .error(R.drawable.default_user_display)
-    }
+        contentScale = ContentScale.Crop,
+        loading = placeholder(R.drawable.default_user_display),
+        failure = placeholder(R.drawable.default_user_display)
+    )
 }

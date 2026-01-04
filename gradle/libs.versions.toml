@@ -2,8 +2,10 @@
 accompanistPermissions = "1.0.0"
 accompanistPermissionsVersion = "0.29.0-alpha"
 accompanistSystemuicontroller = "0.30.1"
-agp = "8.5.0"
+agp = "8.13.2"
 coilCompose = "2.7.0"
+comGoogleDaggerHiltAndroid = "2.57.2"
+compose = "1.0.0-beta08"
 converterGson = "2.9.0"
 daggerCompiler = "2.51.1"
 datastorePreferences = "1.1.1"
@@ -12,14 +14,16 @@ firebaseBomVersion = "33.1.2"
 firebaseFirestoreKtx = "25.1.0"
 googleHiltAndroid = "2.44"
 googleHiltAndroidVersion = "2.35.1"
+googleHiltCompiler = "2.57.2"
 gson = "2.10.1"
 hiltAndroid = "2.49"
 hiltAndroidCompiler = "2.44"
+hiltAndroidCompilerVersion = "2.51.1"
 hiltAndroidVersion = "2.51.1"
 hiltCompiler = "2.51.1"
 hiltCompilerVersion = "2.35.1"
 hiltNavigationCompose = "1.2.0"
-kotlin = "1.9.0"
+kotlin = "2.0.21"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -47,6 +51,7 @@ fragmentKtx = "1.5.6"
 workRuntimeKtx = "2.10.0"
 hiltCommon = "1.2.0"
 firebaseDynamicLinksKtx = "22.1.0"
+coreKtxVersion = "1.17.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -63,6 +68,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRunt
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+compose = { module = "com.github.bumptech.glide:compose", version.ref = "compose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -72,14 +78,18 @@ firebase-dynamic-links = { module = "com.google.firebase:firebase-dynamic-links"
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
+google-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "daggerCompiler" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
+hilt-android-compiler-v2511 = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompilerVersion" }
 hilt-android-v2351 = { module = "com.google.dagger:hilt-android", version.ref = "googleHiltAndroidVersion" }
 hilt-android-v244 = { module = "com.google.dagger:hilt-android", version.ref = "googleHiltAndroid" }
 hilt-android-v2511 = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
+hilt-android-v2572 = { module = "com.google.dagger:hilt-android", version.ref = "comGoogleDaggerHiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 hilt-compiler-v2351 = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompilerVersion" }
+hilt-compiler-v2572 = { module = "com.google.dagger:hilt-compiler", version.ref = "googleHiltCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -108,9 +118,11 @@ androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifec
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
 androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
 firebase-dynamic-links-ktx = { group = "com.google.firebase", name = "firebase-dynamic-links-ktx", version.ref = "firebaseDynamicLinksKtx" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

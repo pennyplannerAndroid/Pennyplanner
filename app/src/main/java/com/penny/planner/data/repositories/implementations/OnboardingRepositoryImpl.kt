@@ -166,13 +166,16 @@ class OnboardingRepositoryImpl @Inject constructor() : OnboardingRepository {
         }
     }
 
-    override suspend fun sendPasswordResetEmail(email: String) : Result<Boolean> {
-        return suspendCoroutine {  continuation ->
-            auth.sendPasswordResetEmail(email).addOnSuccessListener {
-                continuation.resume(Result.success(true))
-            }.addOnFailureListener {
-                continuation.resume(Result.failure(it))
-            }
+    override suspend fun sendPasswordResetEmail(email: String): Result<Boolean> {
+        return suspendCoroutine { continuation ->
+            auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        continuation.resume(Result.success(true))
+                    } else {
+                        continuation.resume(Result.failure(Throwable("Failed")))
+                    }
+                }
         }
     }
 

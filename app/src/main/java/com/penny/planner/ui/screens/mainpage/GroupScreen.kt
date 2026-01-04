@@ -43,7 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.penny.planner.R
 import com.penny.planner.data.db.groups.GroupEntity
@@ -189,7 +189,7 @@ fun GroupScreen(
                                 isJoinedCategory = joinedCategory
                             ) {
                                 scope.launch {
-                                    val inviteMessage = String.format(context.getString(R.string.dynamic_link_share_message), viewModel.getJoinGroupLink(it.groupId), it.groupId)
+                                    val inviteMessage = String.format(context.resources.getString(R.string.dynamic_link_share_message), viewModel.getJoinGroupLink(it.groupId), it.groupId)
                                     sendInviteLink.invoke(inviteMessage)
                                 }
                             }
